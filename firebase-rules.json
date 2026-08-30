@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).child('role').val() === 'admin')"
+      }
+    },
+    "admins": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+    "codes": {
+      ".read": true,
+      ".indexOn": ["status", "category", "language", "updatedAt"],
+      "$codeId": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'",
+        "views": {
+          ".write": true
+        }
+      }
+    }
+  }
+}

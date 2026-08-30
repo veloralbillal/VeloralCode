@@ -1,0 +1,6 @@
+{
+  "name": "CodeToolkit",
+  "description": "Production-ready code sharing and developer toolkit platform with Firebase Realtime Database and Authentication.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
