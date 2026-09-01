@@ -10,17 +10,16 @@ import {
   Monitor,
   Tablet,
   Smartphone,
-  Check,
-  Sparkles,
-  Sun,
-  Moon,
+  Heart,
+  GitFork,
+  Terminal,
+  Download,
 } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { ExportToolButton } from './ExportToolButton';
+import { CodeItem } from '../../types';
 
 interface ToolTopBarProps {
-  title: string;
-  category: string;
-  language: string;
+  item: CodeItem;
   deviceMode: 'desktop' | 'tablet' | 'mobile';
   isPremium: boolean;
   setDeviceMode: (mode: 'desktop' | 'tablet' | 'mobile') => void;
@@ -31,13 +30,15 @@ interface ToolTopBarProps {
   onOpenInfo: () => void;
   onOpenCode: () => void;
   onShare: () => void;
-  copiedShare: boolean;
+  onOpenTip: () => void;
+  onOpenRemix: () => void;
+  onToggleConsole: () => void;
+  consoleOpen: boolean;
+  logCount: number;
 }
 
 export const ToolTopBar: React.FC<ToolTopBarProps> = ({
-  title,
-  category,
-  language,
+  item,
   deviceMode,
   isPremium,
   setDeviceMode,
@@ -48,10 +49,12 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
   onOpenInfo,
   onOpenCode,
   onShare,
-  copiedShare,
+  onOpenTip,
+  onOpenRemix,
+  onToggleConsole,
+  consoleOpen,
+  logCount,
 }) => {
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <header className="h-14 bg-slate-900 border-b border-slate-800 px-3 sm:px-4 flex items-center justify-between text-slate-200 z-40 select-none">
       {/* Left: Back button & Title */}
@@ -67,11 +70,11 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
 
         <div className="flex items-center gap-2 min-w-0 truncate">
           <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <h1 className="text-xs sm:text-sm font-bold text-white truncate" title={title}>
-            {title}
+          <h1 className="text-xs sm:text-sm font-bold text-white truncate" title={item.title}>
+            {item.title}
           </h1>
           <span className="hidden md:inline-block text-[11px] px-2 py-0.5 rounded-md bg-indigo-950/80 text-indigo-300 font-medium border border-indigo-800/60 shrink-0">
-            {category}
+            {item.category}
           </span>
         </div>
       </div>
@@ -80,7 +83,7 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
       <div className="hidden lg:flex items-center bg-slate-800/90 p-0.5 rounded-xl border border-slate-700/80 text-slate-400">
         <button
           onClick={() => setDeviceMode('desktop')}
-          title="Desktop Resolution"
+          title="Desktop Resolution (100%)"
           className={`p-1.5 rounded-lg transition text-xs flex items-center gap-1 ${
             deviceMode === 'desktop' ? 'bg-indigo-600 text-white font-bold' : 'hover:text-white'
           }`}
@@ -90,7 +93,7 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
         </button>
         <button
           onClick={() => setDeviceMode('tablet')}
-          title="Tablet View"
+          title="Tablet View (768px)"
           className={`p-1.5 rounded-lg transition text-xs flex items-center gap-1 ${
             deviceMode === 'tablet' ? 'bg-indigo-600 text-white font-bold' : 'hover:text-white'
           }`}
@@ -100,7 +103,7 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
         </button>
         <button
           onClick={() => setDeviceMode('mobile')}
-          title="Mobile View"
+          title="Mobile View (375px)"
           className={`p-1.5 rounded-lg transition text-xs flex items-center gap-1 ${
             deviceMode === 'mobile' ? 'bg-indigo-600 text-white font-bold' : 'hover:text-white'
           }`}
@@ -112,6 +115,45 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {/* Tip / Support Creator */}
+        <button
+          onClick={onOpenTip}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition"
+          title="Tip & Support Creator"
+        >
+          <Heart className="w-3.5 h-3.5 fill-rose-500/30" />
+          <span className="hidden xl:inline">Tip Creator</span>
+        </button>
+
+        {/* Fork / Remix */}
+        <button
+          onClick={onOpenRemix}
+          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition"
+          title="Fork & Remix this Tool"
+        >
+          <GitFork className="w-3.5 h-3.5" />
+          <span className="hidden xl:inline">Remix</span>
+        </button>
+
+        {/* Export HTML */}
+        <div className="hidden sm:block">
+          <ExportToolButton code={item} />
+        </div>
+
+        {/* Console toggle */}
+        <button
+          onClick={onToggleConsole}
+          className={`p-2 rounded-xl border transition flex items-center gap-1 ${
+            consoleOpen
+              ? 'bg-emerald-600 text-white border-emerald-500'
+              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+          }`}
+          title="Toggle Debug Console"
+        >
+          <Terminal className="w-3.5 h-3.5" />
+          {logCount > 0 && <span className="text-[10px] font-bold">{logCount}</span>}
+        </button>
+
         {/* Reload tool */}
         <button
           onClick={onReload}
@@ -145,17 +187,13 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
           <Info className="w-3.5 h-3.5 text-sky-400" />
         </button>
 
-        {/* Share Button */}
+        {/* Share & Embed Button */}
         <button
           onClick={onShare}
           className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
-          title="Share Tool Link"
+          title="Share & Embed Widget"
         >
-          {copiedShare ? (
-            <Check className="w-3.5 h-3.5 text-emerald-400" />
-          ) : (
-            <Share2 className="w-3.5 h-3.5" />
-          )}
+          <Share2 className="w-3.5 h-3.5" />
         </button>
 
         {/* Fullscreen Browser Toggle */}
@@ -170,3 +208,4 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
     </header>
   );
 };
+

@@ -1,25 +1,27 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { User, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import {
   checkAdminStatus,
   fetchUserProfile,
-  loginUserWithEmail,
+  resolveFullUserSession,
   registerNewUser,
   logoutCurrentUser,
   sendUserPasswordReset,
 } from '../services/authService';
-import { UserProfile } from '../types';
+import { UserProfile, UserRole } from '../types';
 
 interface AuthContextType {
   currentUser: User | null;
   userProfile: UserProfile | null;
   isAdmin: boolean;
+  isSeller: boolean;
+  isCreator: boolean;
   isPremium: boolean;
   isPlanExpired: boolean;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<{ success: boolean; isAdmin: boolean; error?: string }>;
-  register: (email: string, pass: string, name: string) => Promise<{ success: boolean; isAdmin: boolean; error?: string }>;
+  login: (email: string, pass: string) => Promise<{ success: boolean; isAdmin: boolean; isSeller?: boolean; isCreator?: boolean; userRole?: UserRole; error?: string }>;
+  register: (email: string, pass: string, name: string) => Promise<{ success: boolean; isAdmin: boolean; isSeller?: boolean; isCreator?: boolean; userRole?: UserRole; error?: string }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   refreshAdminStatus: () => Promise<boolean>;
@@ -34,6 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const isSeller = !isAdmin && userProfile?.role === 'seller';
+  const isCreator = !isAdmin && userProfile?.role === 'creator';
+
   const isPlanExpired = Boolean(
     !isAdmin &&
     userProfile?.plan === 'premium' &&
@@ -42,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     Date.now() > userProfile.planExpiresAt
   );
 
-  const isPremium = isAdmin || (userProfile?.plan === 'premium' && !isPlanExpired);
+  const isPremium = isAdmin || isSeller || isCreator || (userProfile?.plan === 'premium' && !isPlanExpired);
 
   const checkAndSetAdminStatus = async (user: User | null): Promise<boolean> => {
     if (!user) {
@@ -50,30 +55,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserProfile(null);
       return false;
     }
-    const admin = await checkAdminStatus(user.uid);
-    setIsAdmin(admin);
-    const profile = await fetchUserProfile(user.uid);
-    setUserProfile(profile);
-    return admin;
+    const session = await resolveFullUserSession(user);
+    setIsAdmin(session.isAdmin);
+    setUserProfile(session.profile);
+    return session.isAdmin;
   };
 
   const refreshUserProfile = async (): Promise<UserProfile | null> => {
     if (!currentUser) return null;
-    const profile = await fetchUserProfile(currentUser.uid);
-    setUserProfile(profile);
-    return profile;
+    const session = await resolveFullUserSession(currentUser);
+    setIsAdmin(session.isAdmin);
+    setUserProfile(session.profile);
+    return session.profile;
   };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
-        await checkAndSetAdminStatus(user);
+        setLoading(true);
+        try {
+          const session = await resolveFullUserSession(user);
+          setCurrentUser(user);
+          setIsAdmin(session.isAdmin);
+          setUserProfile(session.profile);
+        } catch (err) {
+          console.warn('Auth state session resolution error:', err);
+          setCurrentUser(user);
+          setIsAdmin(false);
+        } finally {
+          setLoading(false);
+        }
       } else {
+        setCurrentUser(null);
         setIsAdmin(false);
         setUserProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -81,34 +98,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, pass: string) => {
     try {
-      const res = await loginUserWithEmail(email, pass);
-      setIsAdmin(res.isAdmin);
-      if (res.user) {
-        const profile = await fetchUserProfile(res.user.uid);
-        setUserProfile(profile);
-      }
-      return { success: true, isAdmin: res.isAdmin };
+      setLoading(true);
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), pass);
+      const user = credential.user;
+      const session = await resolveFullUserSession(user);
+      
+      setCurrentUser(user);
+      setIsAdmin(session.isAdmin);
+      setUserProfile(session.profile);
+      setLoading(false);
+
+      return { 
+        success: true, 
+        isAdmin: session.isAdmin, 
+        isSeller: session.isSeller, 
+        isCreator: session.isCreator,
+        userRole: session.role,
+      };
     } catch (err: any) {
-      return { success: false, isAdmin: false, error: err.message || 'Login failed' };
+      setLoading(false);
+      return { success: false, isAdmin: false, isSeller: false, isCreator: false, error: err.message || 'Login failed' };
     }
   };
 
   const register = async (email: string, pass: string, name: string) => {
     try {
-      const res = await registerNewUser(email, pass, name);
-      setIsAdmin(res.isAdmin);
-      if (res.user) {
-        const profile = await fetchUserProfile(res.user.uid);
-        setUserProfile(profile);
-      }
-      return { success: true, isAdmin: res.isAdmin };
+      setLoading(true);
+      const res = await registerNewUser(email.trim(), pass, name);
+      const session = await resolveFullUserSession(res.user);
+
+      setCurrentUser(res.user);
+      setIsAdmin(session.isAdmin);
+      setUserProfile(session.profile);
+      setLoading(false);
+
+      return { 
+        success: true, 
+        isAdmin: session.isAdmin, 
+        isSeller: session.isSeller, 
+        isCreator: session.isCreator,
+        userRole: session.role,
+      };
     } catch (err: any) {
-      return { success: false, isAdmin: false, error: err.message || 'Registration failed' };
+      setLoading(false);
+      return { success: false, isAdmin: false, isSeller: false, isCreator: false, error: err.message || 'Registration failed' };
     }
   };
 
   const logout = async () => {
     await logoutCurrentUser();
+    setCurrentUser(null);
     setIsAdmin(false);
     setUserProfile(null);
   };
@@ -135,6 +174,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser,
         userProfile,
         isAdmin,
+        isSeller,
+        isCreator,
         isPremium,
         isPlanExpired,
         loading,

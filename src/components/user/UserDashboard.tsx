@@ -16,6 +16,7 @@ import { subscribeToPublishedCodes } from '../../services/codeService';
 import { CodeCard } from './CodeCard';
 import { CardSkeleton } from '../common/LoadingSkeleton';
 import { useAuth } from '../../context/AuthContext';
+import { useSiteConfig } from '../../context/SiteConfigContext';
 
 interface UserDashboardProps {
   onOpenCode: (id: string) => void;
@@ -40,6 +41,7 @@ const LANGUAGES: ('All' | SupportedLanguage)[] = [
 
 export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavigate }) => {
   const { isAdmin } = useAuth();
+  const { siteConfig } = useSiteConfig();
   const [codes, setCodes] = useState<CodeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,15 +125,16 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Firebase Realtime Database Powered</span>
+            <span>{siteConfig.heroBadge || 'Firebase Realtime Database Powered'}</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-            Live Web Tools, Code Snippets & Output Hub
+            {siteConfig.heroTitle || 'Live Web Tools, Code Snippets & Output Hub'}
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
-            Explore live interactive web apps, tools, widgets, and scripts uploaded directly by administrators. View live outputs, test tools in real-time, and run components instantly.
+            {siteConfig.heroDescription ||
+              'Explore live interactive web apps, tools, widgets, and scripts uploaded directly by administrators. View live outputs, test tools in real-time, and run components instantly.'}
           </p>
 
           {/* Quick Action Buttons */}

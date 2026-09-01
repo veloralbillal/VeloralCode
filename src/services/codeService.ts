@@ -199,3 +199,15 @@ export function subscribeToDashboardStats(
     off(usersRef, 'value', unsubscribeUsers);
   };
 }
+
+export async function fetchAllCodes(): Promise<CodeItem[]> {
+  const codesRef = ref(database, 'codes');
+  const snapshot = await get(codesRef);
+  if (!snapshot.exists()) return [];
+  const val = snapshot.val();
+  return Object.keys(val).map((k) => ({
+    id: k,
+    ...val[k],
+  }));
+}
+

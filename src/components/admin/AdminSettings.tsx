@@ -10,6 +10,8 @@ import {
   BookOpen,
   CheckCircle2,
 } from 'lucide-react';
+import { SiteBrandingSettings } from './SiteBrandingSettings';
+import { AdminContactSettings } from './AdminContactSettings';
 import { firebaseConfig } from '../../services/firebase';
 import { createNewCode } from '../../services/codeService';
 import { copyTextToClipboard } from '../../utils/helpers';
@@ -239,6 +241,12 @@ export const AdminSettings: React.FC = () => {
 
   return (
     <div className="max-w-4xl space-y-6">
+      {/* Telegram & WhatsApp Support Contact Settings */}
+      <AdminContactSettings />
+
+      {/* Site Branding & Text Controls */}
+      <SiteBrandingSettings />
+
       {/* Firebase Database Config Overview */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xs">
         <div className="flex items-center justify-between">

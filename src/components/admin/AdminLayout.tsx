@@ -14,6 +14,13 @@ import {
   Sun,
   Moon,
   Key,
+  Coins,
+  Sparkles,
+  CheckCircle2,
+  ArrowDownToLine,
+  Code2,
+  Megaphone,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -43,7 +50,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { label: 'Dashboard', icon: LayoutDashboard, route: '#/admin' },
     { label: 'Add Code', icon: PlusCircle, route: '#/admin/add' },
     { label: 'Manage Codes', icon: FolderCode, route: '#/admin/manage' },
+    { label: 'Creator Tools Review', icon: Code2, route: '#/admin/creator-tools' },
+    { label: 'KYC & Verifications', icon: UserCheck, route: '#/admin/verifications' },
+    { label: 'Withdrawal Requests', icon: ArrowDownToLine, route: '#/admin/withdrawals' },
+    { label: 'Creators & Wallets', icon: Sparkles, route: '#/admin/creators' },
+    { label: 'Announcements', icon: Megaphone, route: '#/admin/announcements' },
     { label: 'License Keys', icon: Key, route: '#/admin/licenses' },
+    { label: 'Sellers & Points', icon: Coins, route: '#/admin/sellers' },
     { label: 'Users', icon: Users, route: '#/admin/users' },
     { label: 'Settings', icon: Settings, route: '#/admin/settings' },
   ];
@@ -71,31 +84,31 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-transform duration-200 ${
+        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-200 shadow-xl md:shadow-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="p-5 space-y-6">
-          {/* Admin Header & Brand */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navTo('#/')}>
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-                <Shield className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="font-bold text-sm text-slate-900 dark:text-white">Admin Panel</span>
-                <p className="text-[10px] text-slate-400 font-mono">CodeToolkit RTDB</p>
-              </div>
+        {/* Admin Header & Brand (Fixed at top of sidebar) */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navTo('#/')}>
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+              <Shield className="w-5 h-5" />
             </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div>
+              <span className="font-bold text-sm text-slate-900 dark:text-white">Admin Panel</span>
+              <p className="text-[10px] text-slate-400 font-mono">CodeToolkit RTDB</p>
+            </div>
           </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Navigation Links */}
+        {/* Scrollable Navigation Links */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-1 overscroll-contain">
           <nav className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -110,28 +123,28 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+        {/* Sidebar Footer (Fixed at bottom of sidebar) */}
+        <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 space-y-2.5 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
           <button
             onClick={() => navTo('#/')}
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <span className="flex items-center gap-2">
-              <ExternalLink className="w-3.5 h-3.5 text-indigo-500" />
+              <ExternalLink className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               View User App
             </span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           </button>
 
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
             <div className="truncate pr-2">
               <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">
                 {currentUser?.email || 'admin@codetoolkit.demo'}
@@ -145,7 +158,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
               title="Sign out"
               className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 shrink-0" />
             </button>
           </div>
         </div>

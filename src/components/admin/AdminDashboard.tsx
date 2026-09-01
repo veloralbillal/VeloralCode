@@ -11,6 +11,10 @@ import {
   TrendingUp,
   FileCode,
   ShieldAlert,
+  Coins,
+  Key,
+  Code2,
+  ArrowDownToLine,
 } from 'lucide-react';
 import { DashboardStats, CodeItem } from '../../types';
 import { subscribeToDashboardStats, subscribeToAllCodes } from '../../services/codeService';
@@ -145,14 +149,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/30"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Create New Code Entry</span>
+              <span>Create New Code</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/creator-tools')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30"
+            >
+              <Code2 className="w-4 h-4" />
+              <span>Review Creator Tools</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/withdrawals')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-500/30"
+            >
+              <ArrowDownToLine className="w-4 h-4" />
+              <span>Money Withdrawals</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/sellers')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all border border-slate-700"
+            >
+              <Coins className="w-4 h-4" />
+              <span>Sellers & Points</span>
             </button>
             <button
               onClick={() => onNavigate('#/admin/manage')}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all border border-slate-700"
             >
               <FolderCode className="w-4 h-4" />
-              <span>Manage All ({stats.totalCodes})</span>
+              <span>Manage Codes ({stats.totalCodes})</span>
             </button>
           </div>
         </div>

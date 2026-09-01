@@ -1,5 +1,6 @@
 import React from 'react';
 import { Send, MessageSquareCode, ShieldCheck, Sparkles, ExternalLink } from 'lucide-react';
+import { useSiteConfig } from '../../context/SiteConfigContext';
 
 interface ContactAdminModalProps {
   isOpen: boolean;
@@ -14,19 +15,36 @@ export const ContactAdminModal: React.FC<ContactAdminModalProps> = ({
   userEmail = '',
   userNumericUid = '',
 }) => {
+  const { siteConfig } = useSiteConfig();
+
   if (!isOpen) return null;
 
-  // Configurable contact details
-  const telegramUsername = 'BillalHossen';
-  const whatsappNumber = '8801700000000'; // Admin WhatsApp number
+  // Dynamic admin contact configurations from Firebase
+  const rawTelegram = siteConfig?.telegramUsername || 'BillalHossen';
+  const cleanTelegram = rawTelegram.trim().replace(/^@/, '').replace(/^https?:\/\/t\.me\//, '');
 
-  const uidText = userNumericUid ? ` (My UID: ${userNumericUid})` : '';
-  const emailText = userEmail ? ` - Email: ${userEmail}` : '';
-  const messageBody = `Hello Admin, I want to purchase / renew a Premium Pro License Key for my account${uidText}${emailText}. Please share the payment methods and details.`;
+  const rawWhatsapp = siteConfig?.whatsappNumber || '8801700000000';
+  const cleanWhatsapp = rawWhatsapp.trim().replace(/[^0-9]/g, '');
+
+  const uidDisplay = userNumericUid || 'N/A';
+  const emailDisplay = userEmail || '—';
+
+  // Construct message using admin's template if available
+  let messageBody = siteConfig?.contactMessageTemplate ||
+    'Hello Admin, I want to purchase / renew a Premium Pro License Key for my account (My UID: {uid}) - Email: {email}. Please share the payment methods and details.';
+  
+  messageBody = messageBody
+    .replace(/{uid}/g, uidDisplay)
+    .replace(/{email}/g, emailDisplay);
+
   const encodedMsg = encodeURIComponent(messageBody);
 
-  const telegramUrl = `https://t.me/${telegramUsername}?text=${encodedMsg}`;
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMsg}`;
+  const telegramUrl = cleanTelegram
+    ? `https://t.me/${cleanTelegram}?text=${encodedMsg}`
+    : '#';
+  const whatsappUrl = cleanWhatsapp
+    ? `https://wa.me/${cleanWhatsapp}?text=${encodedMsg}`
+    : '#';
 
   return (
     <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
@@ -58,12 +76,12 @@ export const ContactAdminModal: React.FC<ContactAdminModalProps> = ({
           <div className="flex items-center justify-between font-bold">
             <span>Your Account UID:</span>
             <span className="font-mono text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800">
-              {userNumericUid || 'N/A'}
+              {uidDisplay}
             </span>
           </div>
           <div className="flex items-center justify-between text-[11px] text-slate-500">
             <span>Email:</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">{userEmail || '—'}</span>
+            <span className="font-medium text-slate-700 dark:text-slate-300">{emailDisplay}</span>
           </div>
           <p className="text-[10px] text-slate-400 pt-1">
             Your UID will be automatically included in the message for instant activation.
@@ -73,46 +91,50 @@ export const ContactAdminModal: React.FC<ContactAdminModalProps> = ({
         {/* Channels */}
         <div className="space-y-2.5">
           {/* Telegram */}
-          <a
-            href={telegramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/25 text-sky-600 dark:text-sky-400 transition group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-xs">
-                <Send className="w-4 h-4 -rotate-45" />
+          {cleanTelegram && (
+            <a
+              href={telegramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-3.5 rounded-2xl bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/25 text-sky-600 dark:text-sky-400 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-xs">
+                  <Send className="w-4 h-4 -rotate-45" />
+                </div>
+                <div className="text-left">
+                  <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-500 transition">
+                    Contact on Telegram
+                  </span>
+                  <span className="text-[11px] text-slate-500">@{cleanTelegram} (Fastest response)</span>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-sky-500 transition">
-                  Contact on Telegram
-                </span>
-                <span className="text-[11px] text-slate-500">@{telegramUsername} (Fastest response)</span>
-              </div>
-            </div>
-            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-sky-500 transition" />
-          </a>
+              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-sky-500 transition" />
+            </a>
+          )}
 
           {/* WhatsApp */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 transition group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                <MessageSquareCode className="w-4 h-4" />
+          {cleanWhatsapp && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                  <MessageSquareCode className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-500 transition">
+                    Contact on WhatsApp
+                  </span>
+                  <span className="text-[11px] text-slate-500">Direct Chat & Support</span>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="block text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-500 transition">
-                  Contact on WhatsApp
-                </span>
-                <span className="text-[11px] text-slate-500">Direct Chat & Support</span>
-              </div>
-            </div>
-            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition" />
-          </a>
+              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition" />
+            </a>
+          )}
         </div>
 
         {/* Benefits badge */}

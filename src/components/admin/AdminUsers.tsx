@@ -13,6 +13,7 @@ import {
   MoreVertical,
   UserCheck,
   Filter,
+  Coins,
 } from 'lucide-react';
 import { UserProfile, UserPlan, UserRole } from '../../types';
 import {
@@ -81,8 +82,7 @@ export const AdminUsers: React.FC = () => {
     }
   };
 
-  const handleToggleRole = async (user: UserProfile) => {
-    const newRole: UserRole = user.role === 'admin' ? 'user' : 'admin';
+  const handleSetRole = async (user: UserProfile, newRole: UserRole) => {
     setUpdatingId(user.userId);
     try {
       await updateUserRole(user.userId, newRole, user.email);
@@ -238,21 +238,24 @@ export const AdminUsers: React.FC = () => {
                         </button>
                       </td>
 
-                      {/* Role */}
+                      {/* Role Selector */}
                       <td className="py-4 px-4">
-                        <button
-                          onClick={() => handleToggleRole(u)}
+                        <select
+                          value={u.role || 'user'}
                           disabled={isUpdating}
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition ${
+                          onChange={(e) => handleSetRole(u, e.target.value as UserRole)}
+                          className={`text-[11px] font-bold rounded-xl px-2.5 py-1 border transition focus:outline-none ${
                             u.role === 'admin'
-                              ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                              ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                              : u.role === 'seller'
+                              ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                              : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                           }`}
-                          title="Click to toggle Admin / User role"
                         >
-                          {u.role === 'admin' ? <Shield className="w-3 h-3" /> : null}
-                          <span>{u.role === 'admin' ? 'Admin' : 'User'}</span>
-                        </button>
+                          <option value="user">User</option>
+                          <option value="seller">Seller / Reseller</option>
+                          <option value="admin">Admin</option>
+                        </select>
                       </td>
 
                       {/* Status */}

@@ -26,7 +26,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   initialMode = 'login',
   onNavigate,
 }) => {
-  const { login, register, resetPassword, currentUser, isAdmin } = useAuth();
+  const { login, register, resetPassword, currentUser, isAdmin, isSeller, isCreator, userProfile, loading: authLoading } = useAuth();
   const { showToast } = useToast();
 
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>(initialMode);
@@ -44,16 +44,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     setSuccessMsg(null);
   }, [initialMode]);
 
-  // If already logged in, redirect
+  // If already authenticated and profile is fully loaded, route directly to the appropriate dashboard
   useEffect(() => {
-    if (currentUser) {
-      if (isAdmin) {
+    if (!authLoading && currentUser && userProfile) {
+      if (isAdmin || userProfile.role === 'admin') {
         onNavigate('#/admin');
+      } else if (isSeller || userProfile.role === 'seller') {
+        onNavigate('#/seller');
+      } else if (isCreator || userProfile.role === 'creator') {
+        onNavigate('#/creator');
       } else {
         onNavigate('#/');
       }
     }
-  }, [currentUser, isAdmin, onNavigate]);
+  }, [currentUser, authLoading, userProfile, isAdmin, isSeller, isCreator, onNavigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,11 +76,23 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         const result = await login(email.trim(), password);
         if (result.success) {
           showToast(
-            result.isAdmin ? 'Welcome Admin! Logged in securely.' : 'Welcome back! Logged in successfully.',
+            result.isAdmin
+              ? '⚡ Welcome Admin! Direct access granted.'
+              : result.isSeller || result.userRole === 'seller'
+              ? '💼 Welcome Seller! Switched to your Reseller Portal.'
+              : result.isCreator || result.userRole === 'creator'
+              ? '🚀 Welcome Creator! Switched to your Creator Studio.'
+              : '👋 Welcome back! Logged in successfully.',
             'success'
           );
+
+          // Direct immediate navigation to the correct portal without any intermediate delay or screen jump
           if (result.isAdmin) {
             onNavigate('#/admin');
+          } else if (result.isSeller || result.userRole === 'seller') {
+            onNavigate('#/seller');
+          } else if (result.isCreator || result.userRole === 'creator') {
+            onNavigate('#/creator');
           } else {
             onNavigate('#/');
           }
@@ -94,6 +110,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({
           showToast('Account created successfully!', 'success');
           if (result.isAdmin) {
             onNavigate('#/admin');
+          } else if (result.isSeller || result.userRole === 'seller') {
+            onNavigate('#/seller');
+          } else if (result.isCreator || result.userRole === 'creator') {
+            onNavigate('#/creator');
           } else {
             onNavigate('#/');
           }
@@ -117,10 +137,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Card Container */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
+          
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mb-1">
@@ -128,13 +149,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({
               {mode === 'register' && <UserPlus className="w-6 h-6" />}
               {mode === 'forgot' && <KeyRound className="w-6 h-6" />}
             </div>
+
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {mode === 'login' && 'Sign in to CodeToolkit'}
+              {mode === 'login' && 'Sign In to CodeToolkit'}
               {mode === 'register' && 'Create your account'}
               {mode === 'forgot' && 'Reset your password'}
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {mode === 'login' && 'Access code library and admin dashboard'}
+
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              {mode === 'login' && 'Access code library, templates and your portal dashboard'}
               {mode === 'register' && 'Join developers to browse and bookmark code snippets'}
               {mode === 'forgot' && 'Enter your email to receive a recovery link'}
             </p>

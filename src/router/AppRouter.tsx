@@ -15,11 +15,32 @@ import { AdminManageCodes } from '../components/admin/AdminManageCodes';
 import { AdminUsers } from '../components/admin/AdminUsers';
 import { AdminSettings } from '../components/admin/AdminSettings';
 import { AdminLicenses } from '../components/admin/AdminLicenses';
+import { AdminSellers } from '../components/admin/AdminSellers';
+import { AdminCreators } from '../components/admin/AdminCreators';
+import { AdminCreatorTools } from '../components/admin/AdminCreatorTools';
+import { AdminWithdrawals } from '../components/admin/AdminWithdrawals';
+import { SellerLayout } from '../components/seller/SellerLayout';
+import { SellerDashboard } from '../components/seller/SellerDashboard';
+import { SellerGenerateKey } from '../components/seller/SellerGenerateKey';
+import { SellerActiveKeys } from '../components/seller/SellerActiveKeys';
+import { SellerKeysList } from '../components/seller/SellerKeysList';
+import { SellerReports } from '../components/seller/SellerReports';
+import { SellerWallet } from '../components/seller/SellerWallet';
+import { CreatorLayout } from '../components/creator/CreatorLayout';
+import { CreatorDashboard } from '../components/creator/CreatorDashboard';
+import { CreatorUploadTool } from '../components/creator/CreatorUploadTool';
+import { CreatorToolsList } from '../components/creator/CreatorToolsList';
+import { CreatorWallet } from '../components/creator/CreatorWallet';
+import { CreatorPublicProfile } from '../components/creator/CreatorPublicProfile';
+import { CreatorProfileSettings } from '../components/creator/CreatorProfileSettings';
+import { AdminAnnouncements } from '../components/admin/AdminAnnouncements';
+import { AdminCreatorVerifications } from '../components/admin/AdminCreatorVerifications';
+import { GlobalAnnouncementBar } from '../components/common/GlobalAnnouncementBar';
 import { UserProfileView } from '../components/user/UserProfile';
-import { ShieldAlert, LogIn, BookOpen } from 'lucide-react';
+import { ShieldAlert, LogIn, BookOpen, Coins, Sparkles } from 'lucide-react';
 
 export const AppRouter: React.FC = () => {
-  const { currentUser, isAdmin, loading: authLoading } = useAuth();
+  const { currentUser, userProfile, isAdmin, isSeller, isCreator, loading: authLoading } = useAuth();
   const [currentRoute, setCurrentRoute] = useState<string>(window.location.hash || '#/');
   const [guideModalOpen, setGuideModalOpen] = useState(false);
 
@@ -57,9 +78,27 @@ export const AppRouter: React.FC = () => {
       );
     }
 
-    // User Profile Route: #/profile
-    if (hash === '#/profile') {
-      return <UserProfileView onNavigate={navigate} />;
+    // User Profile Route: #/profile and subroutes
+    if (hash.startsWith('#/profile')) {
+      return (
+        <UserProfileView 
+          currentRoute={hash} 
+          onNavigate={navigate} 
+          onNavigateToCode={(id) => navigate(`#/code/${id}`)}
+        />
+      );
+    }
+
+    // Creator Public Profile Route: #/creator-profile/:uid
+    if (hash.startsWith('#/creator-profile/')) {
+      const creatorUid = hash.replace('#/creator-profile/', '').trim();
+      return (
+        <CreatorPublicProfile
+          creatorUid={creatorUid}
+          onNavigate={navigate}
+          onOpenCode={(id) => navigate(`#/code/${id}`)}
+        />
+      );
     }
 
     // Code Details Route: #/code/:id
@@ -76,8 +115,17 @@ export const AppRouter: React.FC = () => {
 
     // Admin Routes
     if (hash.startsWith('#/admin')) {
+      if (authLoading) {
+        return (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
+            <div className="w-10 h-10 rounded-full border-3 border-indigo-600 border-t-transparent animate-spin" />
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Verifying administrative credentials...</p>
+          </div>
+        );
+      }
+
       // Permission check
-      if (!authLoading && (!currentUser || !isAdmin)) {
+      if (!currentUser || !isAdmin) {
         return (
           <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-5">
             <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-md">
@@ -153,6 +201,32 @@ export const AppRouter: React.FC = () => {
         );
       }
 
+      if (hash === '#/admin/creator-tools') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Tool Submissions"
+            subtitle="Review, test, inspect code, approve with reward bonuses, or reject creator tools"
+          >
+            <AdminCreatorTools onNavigate={navigate} />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/withdrawals') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Withdrawal Requests"
+            subtitle="Review, approve, and process creator payout balance requests"
+          >
+            <AdminWithdrawals />
+          </AdminLayout>
+        );
+      }
+
       if (hash === '#/admin/licenses') {
         return (
           <AdminLayout
@@ -162,6 +236,84 @@ export const AppRouter: React.FC = () => {
             subtitle="Generate, monitor, and revoke Premium activation license keys"
           >
             <AdminLicenses />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/sellers') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Sellers & Points Management"
+            subtitle="Create seller accounts, allocate generator points, and set key point costs"
+          >
+            <AdminSellers />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/creator-tools') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Tools & Review Submissions"
+            subtitle="Moderate, preview, approve, and reward custom tools submitted by creators"
+          >
+            <AdminCreatorTools onNavigate={navigate} />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/verifications') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Identity & KYC Verifications"
+            subtitle="Inspect national ID cards, passports, student IDs, and grant Verified Creator badges"
+          >
+            <AdminCreatorVerifications />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/withdrawals') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Money Withdrawal Requests"
+            subtitle="Review pending payout requests, record transaction references, and process payments"
+          >
+            <AdminWithdrawals />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/creators') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creators & Tool Contributors"
+            subtitle="Create and manage verified creator accounts, reward balances, and specialty tags"
+          >
+            <AdminCreators />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/announcements') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Global Site Announcements"
+            subtitle="Broadcast real-time alerts, updates, and promotions to all visitors"
+          >
+            <AdminAnnouncements />
           </AdminLayout>
         );
       }
@@ -205,17 +357,309 @@ export const AppRouter: React.FC = () => {
       );
     }
 
+    // Seller Routes: #/seller, #/seller/generate, #/seller/keys, #/seller/reports, #/seller/wallet
+    if (hash.startsWith('#/seller')) {
+      if (authLoading) {
+        return (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
+            <div className="w-10 h-10 rounded-full border-3 border-amber-600 border-t-transparent animate-spin" />
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Verifying seller distributor credentials...</p>
+          </div>
+        );
+      }
+
+      // Permission check: Must be authenticated and either seller or admin
+      if (!currentUser || (!isSeller && !isAdmin)) {
+        return (
+          <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-5">
+            <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-md">
+              <Coins className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Seller Portal Access Required
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                You must be logged in with an authorized Seller account to access the license key generation suite and reseller reports.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => navigate('#/login')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-md shadow-amber-600/30 transition-all"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Seller Login</span>
+              </button>
+              <button
+                onClick={() => navigate('#/')}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span>Back to Home</span>
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (hash === '#/seller/generate') {
+        return (
+          <SellerLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Generate License Keys"
+            subtitle="Burn point coins from your reseller wallet to generate premium client activation keys"
+          >
+            <SellerGenerateKey onNavigate={navigate} />
+          </SellerLayout>
+        );
+      }
+
+      if (hash === '#/seller/active-keys') {
+        return (
+          <SellerLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Active & Ready License Keys"
+            subtitle="Unused license keys ready for customer dispatch, copy client instructions, and export"
+          >
+            <SellerActiveKeys onNavigate={navigate} />
+          </SellerLayout>
+        );
+      }
+
+      if (hash === '#/seller/keys') {
+        return (
+          <SellerLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="My Generated License Keys"
+            subtitle="View, copy, export, and check client redemption status for your generated keys"
+          >
+            <SellerKeysList onNavigate={navigate} />
+          </SellerLayout>
+        );
+      }
+
+      if (hash === '#/seller/reports') {
+        return (
+          <SellerLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Sales, Income & Performance Reports"
+            subtitle="Detailed analysis of your generated license keys, user activations, and revenue breakdown"
+          >
+            <SellerReports />
+          </SellerLayout>
+        );
+      }
+
+      if (hash === '#/seller/wallet') {
+        return (
+          <SellerLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Seller Points Wallet"
+            subtitle="View point balance, recharge history, and key generation debit logs"
+          >
+            <SellerWallet />
+          </SellerLayout>
+        );
+      }
+
+      // Default Seller Route: #/seller
+      return (
+        <SellerLayout
+          currentRoute="#/seller"
+          onNavigate={navigate}
+          title="Seller Distributor Dashboard"
+          subtitle="Real-time key statistics, point wallet overview, and quick activation tools"
+        >
+          <SellerDashboard onNavigate={navigate} />
+        </SellerLayout>
+      );
+    }
+
+    // Creator Routes: #/creator, #/creator/upload, #/creator/edit/:id, #/creator/tools, #/creator/wallet
+    if (hash.startsWith('#/creator')) {
+      if (authLoading) {
+        return (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
+            <div className="w-10 h-10 rounded-full border-3 border-emerald-600 border-t-transparent animate-spin" />
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Verifying creator studio credentials...</p>
+          </div>
+        );
+      }
+
+      // Permission check: Must be authenticated and either creator or admin
+      if (!currentUser || (!isCreator && !isAdmin && userProfile?.role !== 'creator')) {
+        return (
+          <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-5">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-md">
+              <Sparkles className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Creator Studio Access Required
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                You must be logged in with a verified Creator account to upload web tools, edit codes, track views, and manage earnings. Creator accounts are provisioned via the administrator.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => navigate('#/login')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition-all"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Creator Login</span>
+              </button>
+              <button
+                onClick={() => navigate('#/')}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span>Back to Home</span>
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (hash === '#/creator/profile') {
+        return (
+          <CreatorLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Profile & KYC Verification"
+            subtitle="Configure your public creator name, bio, social links, and submit verification documents"
+          >
+            <CreatorProfileSettings onNavigate={navigate} />
+          </CreatorLayout>
+        );
+      }
+
+      if (hash === '#/creator/upload') {
+        return (
+          <CreatorLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Upload New Tool"
+            subtitle="Submit source code or web components for admin review & public distribution"
+          >
+            <CreatorUploadTool onNavigate={navigate} />
+          </CreatorLayout>
+        );
+      }
+
+      if (hash.startsWith('#/creator/edit/')) {
+        const editId = hash.replace('#/creator/edit/', '').trim();
+        return (
+          <CreatorLayout
+            currentRoute="#/creator/tools"
+            onNavigate={navigate}
+            title="Edit Tool & Source Code"
+            subtitle="Update code markup, categories, or fix review feedback"
+          >
+            <CreatorUploadTool editCodeId={editId} onNavigate={navigate} />
+          </CreatorLayout>
+        );
+      }
+
+      if (hash === '#/creator/tools') {
+        return (
+          <CreatorLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="My Uploaded Tools"
+            subtitle="Review moderation statuses, view counts, and manage live tools"
+          >
+            <CreatorToolsList onNavigate={navigate} />
+          </CreatorLayout>
+        );
+      }
+
+      if (hash === '#/creator/wallet') {
+        return (
+          <CreatorLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Creator Earnings & Wallet"
+            subtitle="Monitor tool milestone rewards, balance ledger, and request cashouts"
+          >
+            <CreatorWallet />
+          </CreatorLayout>
+        );
+      }
+
+      // Default Creator Route: #/creator
+      return (
+        <CreatorLayout
+          currentRoute="#/creator"
+          onNavigate={navigate}
+          title="Creator Studio Dashboard"
+          subtitle="Real-time tool performance metrics, total views, top tools, and earnings summary"
+        >
+          <CreatorDashboard onNavigate={navigate} />
+        </CreatorLayout>
+      );
+    }
+
+    // Explicit Explore / Codes Route (e.g. when seller or user browses code snippets)
+    if (hash === '#/explore' || hash === '#/codes') {
+      return <UserDashboard onOpenCode={(id) => navigate(`#/code/${id}`)} onNavigate={navigate} />;
+    }
+
+    // For Logged-in Seller Accounts, default home route (#/ or "") renders Seller Portal
+    if (!authLoading && currentUser && isSeller && !isAdmin && (hash === '#/' || hash === '' || hash === '#')) {
+      return (
+        <SellerLayout
+          currentRoute="#/seller"
+          onNavigate={navigate}
+          title="Seller Distributor Dashboard"
+          subtitle="Real-time key statistics, point wallet overview, and quick activation tools"
+        >
+          <SellerDashboard onNavigate={navigate} />
+        </SellerLayout>
+      );
+    }
+
+    // For Logged-in Creator Accounts, default home route (#/ or "") renders Creator Studio
+    if (!authLoading && currentUser && (isCreator || userProfile?.role === 'creator') && !isAdmin && (hash === '#/' || hash === '' || hash === '#')) {
+      return (
+        <CreatorLayout
+          currentRoute="#/creator"
+          onNavigate={navigate}
+          title="Creator Studio Dashboard"
+          subtitle="Real-time tool performance metrics, total views, top tools, and earnings summary"
+        >
+          <CreatorDashboard onNavigate={navigate} />
+        </CreatorLayout>
+      );
+    }
+
     // Default User Dashboard: #/ or ""
     return <UserDashboard onOpenCode={(id) => navigate(`#/code/${id}`)} onNavigate={navigate} />;
   };
 
+  const isSellerHome = !authLoading && currentUser && isSeller && !isAdmin && (currentRoute === '#/' || currentRoute === '' || currentRoute === '#');
+  const isCreatorHome = !authLoading && currentUser && (isCreator || userProfile?.role === 'creator') && !isAdmin && (currentRoute === '#/' || currentRoute === '' || currentRoute === '#');
   const isAdminRoute = currentRoute.startsWith('#/admin');
+  const isSellerRoute = currentRoute.startsWith('#/seller') || isSellerHome;
+  const isCreatorRoute = currentRoute.startsWith('#/creator') || isCreatorHome;
   const isToolRunnerRoute = currentRoute.startsWith('#/code/');
+  const isUserProfileRoute = currentRoute.startsWith('#/profile');
+
+  const hideGlobalLayout = isAdminRoute || isSellerRoute || isCreatorRoute || isToolRunnerRoute || isUserProfileRoute;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-150">
-      {/* Header (displayed on public views, omitted on full-screen tool runner) */}
-      {!isAdminRoute && !isToolRunnerRoute && (
+      {/* Global Announcement Banner */}
+      {!hideGlobalLayout && <GlobalAnnouncementBar />}
+
+      {/* Header (displayed on public views, omitted on full-screen tool runner and dashboard layouts) */}
+      {!hideGlobalLayout && (
         <Header
           currentRoute={currentRoute}
           onNavigate={navigate}
@@ -226,8 +670,8 @@ export const AppRouter: React.FC = () => {
       {/* Dynamic Route Content */}
       <div className="flex-1">{renderContent()}</div>
 
-      {/* Footer (displayed on public views, omitted on full-screen tool runner) */}
-      {!isAdminRoute && !isToolRunnerRoute && (
+      {/* Footer (displayed on public views, omitted on full-screen tool runner and dashboard layouts) */}
+      {!hideGlobalLayout && (
         <Footer
           onNavigate={navigate}
           onOpenGuide={() => setGuideModalOpen(true)}
