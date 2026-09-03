@@ -153,31 +153,26 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-1 shrink-0 max-w-[65vw] sm:max-w-none">
         {/* Tip / Support Creator */}
         <button
           onClick={onOpenTip}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition"
+          className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition"
           title="Tip & Support Creator"
         >
           <Heart className="w-3.5 h-3.5 fill-rose-500/30" />
-          <span className="hidden xl:inline">Tip Creator</span>
+          <span className="hidden xl:inline">Tip</span>
         </button>
 
         {/* Fork / Remix */}
         <button
           onClick={onOpenRemix}
-          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition"
+          className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition"
           title="Fork & Remix this Tool"
         >
           <GitFork className="w-3.5 h-3.5" />
           <span className="hidden xl:inline">Remix</span>
         </button>
-
-        {/* Export HTML */}
-        <div className="hidden sm:block">
-          <ExportToolButton code={item} />
-        </div>
 
         {/* Console toggle */}
         <button
@@ -205,7 +200,7 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
         {/* View Code Modal with Premium Indicator */}
         <button
           onClick={onOpenCode}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition ${
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold border transition ${
             isPremium
               ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
               : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
@@ -213,8 +208,8 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
           title={isPremium ? 'Inspect Source Code' : 'Source Code (Premium Feature)'}
         >
           <Code className="w-3.5 h-3.5 text-amber-400" />
-          <span className="hidden sm:inline">Code</span>
-          {!isPremium && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-1 rounded">PRO</span>}
+          <span className="hidden md:inline">Code</span>
+          {!isPremium && <span className="text-[9px] bg-amber-500/20 text-amber-400 px-1 rounded">PRO</span>}
         </button>
 
         {/* Tool Info Modal */}
