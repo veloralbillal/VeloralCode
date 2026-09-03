@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   RefreshCw,
@@ -14,9 +14,13 @@ import {
   GitFork,
   Terminal,
   Download,
+  Bookmark,
 } from 'lucide-react';
 import { ExportToolButton } from './ExportToolButton';
 import { CodeItem } from '../../types';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { toggleBookmark, checkIsBookmarked } from '../../services/userService';
 
 interface ToolTopBarProps {
   item: CodeItem;
@@ -55,6 +59,41 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
   consoleOpen,
   logCount,
 }) => {
+  const { currentUser } = useAuth();
+  const { showToast } = useToast();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    async function checkMark() {
+      if (currentUser?.uid && item.id) {
+        const marked = await checkIsBookmarked(currentUser.uid, item.id);
+        setIsBookmarked(marked);
+      }
+    }
+    checkMark();
+  }, [currentUser?.uid, item.id]);
+
+  const handleToggleBookmark = async () => {
+    if (!currentUser) {
+      showToast('বুকমার্ক করতে প্রথমে লগইন করুন', 'info');
+      window.location.hash = '#/login';
+      return;
+    }
+    if (!item.id) return;
+
+    try {
+      const nowMarked = await toggleBookmark(currentUser.uid, {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        language: item.language,
+      });
+      setIsBookmarked(nowMarked);
+      showToast(nowMarked ? 'টুলটি আপনার বুকমার্কে সেভ করা হয়েছে!' : 'বুকমার্ক থেকে সরিয়ে ফেলা হয়েছে', 'success');
+    } catch (err) {
+      showToast('বুকমার্ক আপডেট করতে সমস্যা হয়েছে', 'error');
+    }
+  };
   return (
     <header className="h-14 bg-slate-900 border-b border-slate-800 px-3 sm:px-4 flex items-center justify-between text-slate-200 z-40 select-none">
       {/* Left: Back button & Title */}
@@ -185,6 +224,19 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
           title="Tool Details & Information"
         >
           <Info className="w-3.5 h-3.5 text-sky-400" />
+        </button>
+
+        {/* Bookmark Toggle */}
+        <button
+          onClick={handleToggleBookmark}
+          className={`p-2 rounded-xl border transition ${
+            isBookmarked
+              ? 'bg-amber-500 text-white border-amber-400 shadow-sm shadow-amber-500/30'
+              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+          }`}
+          title={isBookmarked ? 'Remove from bookmarks' : 'Bookmark this tool'}
+        >
+          <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
         </button>
 
         {/* Share & Embed Button */}

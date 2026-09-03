@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileCode,
   Calendar,
@@ -10,6 +10,7 @@ import {
   Layers,
   Play,
   Lock,
+  Bookmark,
 } from 'lucide-react';
 import { CodeItem } from '../../types';
 import {
@@ -20,6 +21,7 @@ import {
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { trackToolCodeAction } from '../../services/distributionService';
+import { toggleBookmark, checkIsBookmarked } from '../../services/userService';
 
 interface CodeCardProps {
   item: CodeItem;
@@ -30,6 +32,40 @@ export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
   const { showToast } = useToast();
   const { isPremium, currentUser } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    async function checkMark() {
+      if (currentUser?.uid && item.id) {
+        const marked = await checkIsBookmarked(currentUser.uid, item.id);
+        setIsBookmarked(marked);
+      }
+    }
+    checkMark();
+  }, [currentUser?.uid, item.id]);
+
+  const handleToggleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      showToast('বুকমার্ক করতে প্রথমে লগইন করুন', 'info');
+      window.location.hash = '#/login';
+      return;
+    }
+    if (!item.id) return;
+
+    try {
+      const nowMarked = await toggleBookmark(currentUser.uid, {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        language: item.language,
+      });
+      setIsBookmarked(nowMarked);
+      showToast(nowMarked ? 'টুলটি আপনার বুকমার্কে সেভ করা হয়েছে!' : 'বুকমার্ক থেকে সরিয়ে ফেলা হয়েছে', 'success');
+    } catch (err) {
+      showToast('বুকমার্ক আপডেট করতে সমস্যা হয়েছে', 'error');
+    }
+  };
 
   const handleQuickCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,6 +162,18 @@ export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
         </div>
 
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleToggleBookmark}
+            title={isBookmarked ? 'Remove from bookmarks' : 'Bookmark this tool'}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isBookmarked
+                ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40'
+                : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+            }`}
+          >
+            <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+          </button>
           <button
             type="button"
             onClick={handleQuickCopy}
