@@ -15,6 +15,8 @@ import {
   Key,
   Code2,
   ArrowDownToLine,
+  Calendar,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { DashboardStats, CodeItem } from '../../types';
 import { subscribeToDashboardStats, subscribeToAllCodes } from '../../services/codeService';
@@ -171,6 +173,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             >
               <Coins className="w-4 h-4" />
               <span>Sellers & Points</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/banners')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold transition-all border border-indigo-500/40"
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span>Slider Banners</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/events')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold transition-all border border-indigo-500/40"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Events & Down Price</span>
             </button>
             <button
               onClick={() => onNavigate('#/admin/manage')}

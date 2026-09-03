@@ -197,20 +197,36 @@ export const AdminCreatorVerifications: React.FC = () => {
                 </div>
 
                 {/* Preview Thumbnail */}
-                {item.frontImageUrl && (
-                  <div className="flex gap-2 pt-1">
-                    <div
-                      onClick={() => setSelectedDoc(item)}
-                      className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-16 w-24 bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:opacity-80 transition"
-                    >
-                      <img src={item.frontImageUrl} alt="Doc Front" className="h-full w-full object-cover" />
-                    </div>
+                {(item.frontImageUrl || item.faceImageUrl) && (
+                  <div className="flex items-center gap-2 pt-1">
+                    {item.frontImageUrl && (
+                      <div
+                        onClick={() => setSelectedDoc(item)}
+                        className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-16 w-20 bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center hover:opacity-80 transition relative"
+                        title="Document Front"
+                      >
+                        <img src={item.frontImageUrl} alt="Doc Front" className="h-full w-full object-cover" />
+                        <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-white text-center font-bold py-0.5">Front</span>
+                      </div>
+                    )}
                     {item.backImageUrl && (
                       <div
                         onClick={() => setSelectedDoc(item)}
-                        className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-16 w-24 bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:opacity-80 transition"
+                        className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden h-16 w-20 bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center hover:opacity-80 transition relative"
+                        title="Document Back"
                       >
                         <img src={item.backImageUrl} alt="Doc Back" className="h-full w-full object-cover" />
+                        <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-white text-center font-bold py-0.5">Back</span>
+                      </div>
+                    )}
+                    {item.faceImageUrl && (
+                      <div
+                        onClick={() => setSelectedDoc(item)}
+                        className="cursor-pointer border-2 border-indigo-500/50 dark:border-indigo-400/50 rounded-xl overflow-hidden h-16 w-20 bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center hover:opacity-80 transition relative shadow-xs"
+                        title="Face Photo"
+                      >
+                        <img src={item.faceImageUrl} alt="Face / Selfie" className="h-full w-full object-cover" />
+                        <span className="absolute bottom-0 inset-x-0 bg-indigo-600/90 text-[9px] text-white text-center font-bold py-0.5">Face</span>
                       </div>
                     )}
                   </div>
@@ -274,25 +290,40 @@ export const AdminCreatorVerifications: React.FC = () => {
             </div>
 
             {/* Images */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Front Side:</p>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Front Side (NID):</p>
                 <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-black/5 flex items-center justify-center p-2">
                   <img
                     src={selectedDoc.frontImageUrl}
                     alt="Front"
-                    className="max-h-60 w-auto object-contain rounded-lg"
+                    className="max-h-56 w-auto object-contain rounded-lg"
                   />
                 </div>
               </div>
               {selectedDoc.backImageUrl && (
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Back Side:</p>
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Back Side (NID):</p>
                   <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-black/5 flex items-center justify-center p-2">
                     <img
                       src={selectedDoc.backImageUrl}
                       alt="Back"
-                      className="max-h-60 w-auto object-contain rounded-lg"
+                      className="max-h-56 w-auto object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+              )}
+              {selectedDoc.faceImageUrl && (
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                    <span>Face / Selfie Photo:</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-100 dark:bg-indigo-950 font-extrabold">Verified Face</span>
+                  </p>
+                  <div className="border-2 border-indigo-300 dark:border-indigo-800 rounded-2xl overflow-hidden bg-indigo-50/20 dark:bg-indigo-950/20 flex items-center justify-center p-2">
+                    <img
+                      src={selectedDoc.faceImageUrl}
+                      alt="Face Photo"
+                      className="max-h-56 w-auto object-contain rounded-lg"
                     />
                   </div>
                 </div>

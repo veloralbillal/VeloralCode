@@ -20,6 +20,8 @@ import { subscribeToCreatorCodes, fetchCreatorTransactions } from '../../service
 import { formatDate, getCategoryBadgeClass } from '../../utils/helpers';
 import { formatBDT, formatUSD, usdToBdt } from '../../utils/currency';
 import { formatCreatorName } from '../../utils/userDisplay';
+import { CreatorPayPerClickReport } from './CreatorPayPerClickReport';
+import { CreatorLinkGeneratorCard } from './CreatorLinkGeneratorCard';
 
 interface CreatorDashboardProps {
   onNavigate: (route: string) => void;
@@ -115,6 +117,9 @@ export const CreatorDashboard: React.FC<CreatorDashboardProps> = ({ onNavigate }
         <div className="absolute -right-8 -bottom-8 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
       </div>
 
+      {/* Creator Public Link Generator & Share Card */}
+      <CreatorLinkGeneratorCard onNavigate={onNavigate} />
+
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Views */}
@@ -189,6 +194,13 @@ export const CreatorDashboard: React.FC<CreatorDashboardProps> = ({ onNavigate }
           </div>
         </div>
       </div>
+
+      {/* Pay-Per-Click & Download/Copy Analytics Report (Daily, Weekly, Custom) */}
+      <CreatorPayPerClickReport
+        userProfile={userProfile}
+        creatorUid={currentUser?.uid || userProfile?.userId || ''}
+        creatorEmail={currentUser?.email || userProfile?.email || ''}
+      />
 
       {/* Two Column Layout: Top Performing Tools & Recent Uploads */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

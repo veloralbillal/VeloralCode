@@ -21,6 +21,8 @@ import {
   Code2,
   Megaphone,
   UserCheck,
+  Calendar,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -54,6 +56,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { label: 'KYC & Verifications', icon: UserCheck, route: '#/admin/verifications' },
     { label: 'Withdrawal Requests', icon: ArrowDownToLine, route: '#/admin/withdrawals' },
     { label: 'Creators & Wallets', icon: Sparkles, route: '#/admin/creators' },
+    { label: 'Slider Banners', icon: ImageIcon, route: '#/admin/banners' },
+    { label: 'Events & Pricing', icon: Calendar, route: '#/admin/events' },
     { label: 'Announcements', icon: Megaphone, route: '#/admin/announcements' },
     { label: 'License Keys', icon: Key, route: '#/admin/licenses' },
     { label: 'Sellers & Points', icon: Coins, route: '#/admin/sellers' },

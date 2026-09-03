@@ -19,6 +19,7 @@ import {
 } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
+import { trackToolCodeAction } from '../../services/distributionService';
 
 interface CodeCardProps {
   item: CodeItem;
@@ -27,7 +28,7 @@ interface CodeCardProps {
 
 export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
   const { showToast } = useToast();
-  const { isPremium } = useAuth();
+  const { isPremium, currentUser } = useAuth();
   const [copied, setCopied] = useState(false);
 
   const handleQuickCopy = async (e: React.MouseEvent) => {
@@ -41,6 +42,19 @@ export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
       setCopied(true);
       showToast('Code snippet copied to clipboard!', 'success');
       setTimeout(() => setCopied(false), 2000);
+
+      if (item.id) {
+        trackToolCodeAction({
+          codeId: item.id,
+          toolTitle: item.title,
+          creatorUid: item.creatorUid,
+          creatorEmail: item.authorEmail,
+          userUid: currentUser?.uid,
+          userEmail: currentUser?.email || undefined,
+          isPremium,
+          actionType: 'copy',
+        });
+      }
     }
   };
 

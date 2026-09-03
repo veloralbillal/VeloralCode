@@ -7,6 +7,7 @@ export interface CreatorDocumentSubmission {
   documentNumber: string;
   frontImageUrl?: string;
   backImageUrl?: string;
+  faceImageUrl?: string;
   submittedAt: number;
   reviewedAt?: number;
   reviewedBy?: string;
@@ -41,12 +42,17 @@ export interface UserProfile {
   creatorBio?: string;
   creatorSpecialty?: string;
   creatorDisplayName?: string;
+  creatorUsername?: string;
+  creatorSlug?: string;
   creatorAvatarUrl?: string;
   creatorSocialGithub?: string;
   creatorSocialWebsite?: string;
   creatorSocialTelegram?: string;
   creatorVerificationStatus?: 'not_submitted' | 'pending' | 'verified' | 'rejected';
   creatorKyc?: CreatorDocumentSubmission;
+  creatorPayoutModel?: 'pool' | 'fixed';
+  creatorPayoutModelLocked?: boolean;
+  creatorPayoutModelSetupAt?: number;
 }
 
 export interface LicenseKey {
@@ -75,6 +81,11 @@ export interface SellerPricingConfig {
   days180: number;
   days365: number;
   lifetime: number;
+  cost1Month?: number;
+  cost3Month?: number;
+  cost6Month?: number;
+  cost1Year?: number;
+  costLifetime?: number;
   updatedAt?: number;
   updatedBy?: string;
 }
@@ -145,6 +156,9 @@ export interface CodeItem {
   creatorUid?: string;
   creatorName?: string;
   creatorEmail?: string;
+  authorUid?: string;
+  authorEmail?: string;
+  creatorVerified?: boolean;
   creatorRole?: 'admin' | 'creator' | 'seller';
   views: number;
   runCount?: number;
@@ -214,6 +228,7 @@ export interface CreatorTransaction {
   amountBDT?: number;
   balanceAfter: number;
   description: string;
+  adminNote?: string;
   createdAt: number;
   createdBy?: string;
   status: 'completed' | 'pending' | 'cancelled';
@@ -322,3 +337,7 @@ export interface SiteConfig {
   updatedAt?: number;
   updatedBy?: string;
 }
+
+export * from './banner';
+export * from './event';
+export * from './distribution';

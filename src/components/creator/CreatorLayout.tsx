@@ -16,6 +16,7 @@ import {
   Award,
   UserCheck,
   User,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -87,6 +88,13 @@ export const CreatorLayout: React.FC<CreatorLayoutProps> = ({
       route: '#/creator/wallet',
       icon: Wallet,
       badge: formatBDT(balanceBDT),
+    },
+    {
+      id: 'reports',
+      label: 'Clicks & Copies Report',
+      route: '#/creator/reports',
+      icon: BarChart3,
+      badge: userProfile?.creatorPayoutModel === 'fixed' ? 'PayPerClick' : null,
     },
   ];
 

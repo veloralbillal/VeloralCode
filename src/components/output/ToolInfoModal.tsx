@@ -125,7 +125,7 @@ export const ToolInfoModal: React.FC<ToolInfoModalProps> = ({
             <button
               onClick={() => {
                 onClose();
-                onNavigate(`#/creator-profile/${item.creatorUid}`);
+                onNavigate(`#/creator/${item.creatorUid}`);
               }}
               className="text-[11px] text-emerald-400 hover:underline font-semibold self-start sm:self-auto"
             >

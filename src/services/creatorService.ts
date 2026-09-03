@@ -12,6 +12,8 @@ import { database } from './firebase';
 import { CodeItem, CreatorStats, CreatorTransaction, UserProfile } from '../types';
 import { generate8DigitUID } from '../utils/helpers';
 import { createSecondaryAuthUser } from './sellerService';
+import { getPlatformDistributionSettings } from './distributionService';
+import { USD_TO_BDT_RATE } from '../utils/currency';
 
 /**
  * Fetch all creators registered in the platform
@@ -478,6 +480,12 @@ export async function requestCreatorWithdrawal(
   withdrawalDetails: string
 ): Promise<void> {
   if (amount <= 0) throw new Error('Withdrawal amount must be greater than 0');
+
+  const settings = await getPlatformDistributionSettings();
+  const minWithdrawalUSD = parseFloat((settings.minWithdrawalBDT / USD_TO_BDT_RATE).toFixed(2));
+  if (amount < minWithdrawalUSD) {
+    throw new Error(`Minimum withdrawal amount is ৳${settings.minWithdrawalBDT} ($${minWithdrawalUSD.toFixed(2)} USD).`);
+  }
 
   const userRef = ref(database, `users/${creatorUid}`);
   const snap = await get(userRef);

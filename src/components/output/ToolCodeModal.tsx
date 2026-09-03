@@ -3,8 +3,13 @@ import { X, Copy, Download, Check, FileCode, Lock, Sparkles } from 'lucide-react
 import { CodeViewer } from '../common/CodeViewer';
 import { copyTextToClipboard, downloadCodeFile } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { trackToolCodeAction } from '../../services/distributionService';
 
 interface ToolCodeModalProps {
+  codeId?: string;
+  creatorUid?: string;
+  creatorEmail?: string;
   code: string;
   language: string;
   title: string;
@@ -15,6 +20,9 @@ interface ToolCodeModalProps {
 }
 
 export const ToolCodeModal: React.FC<ToolCodeModalProps> = ({
+  codeId,
+  creatorUid,
+  creatorEmail,
   code,
   language,
   title,
@@ -24,6 +32,7 @@ export const ToolCodeModal: React.FC<ToolCodeModalProps> = ({
   onOpenPremiumPrompt,
 }) => {
   const { showToast } = useToast();
+  const { currentUser } = useAuth();
   const [copied, setCopied] = React.useState(false);
 
   if (!isOpen) return null;
@@ -38,6 +47,20 @@ export const ToolCodeModal: React.FC<ToolCodeModalProps> = ({
       setCopied(true);
       showToast('Code copied to clipboard!', 'success');
       setTimeout(() => setCopied(false), 2000);
+
+      // Track distribution & anti-cheating
+      if (codeId) {
+        trackToolCodeAction({
+          codeId,
+          toolTitle: title,
+          creatorUid,
+          creatorEmail,
+          userUid: currentUser?.uid,
+          userEmail: currentUser?.email || undefined,
+          isPremium,
+          actionType: 'copy',
+        });
+      }
     }
   };
 
@@ -48,6 +71,20 @@ export const ToolCodeModal: React.FC<ToolCodeModalProps> = ({
     }
     downloadCodeFile(code, title, language);
     showToast(`Downloaded ${title}`, 'info');
+
+    // Track distribution & anti-cheating
+    if (codeId) {
+      trackToolCodeAction({
+        codeId,
+        toolTitle: title,
+        creatorUid,
+        creatorEmail,
+        userUid: currentUser?.uid,
+        userEmail: currentUser?.email || undefined,
+        isPremium,
+        actionType: 'download',
+      });
+    }
   };
 
   return (

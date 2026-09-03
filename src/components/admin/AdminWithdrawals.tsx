@@ -19,11 +19,15 @@ import { CreatorTransaction } from '../../types';
 import { fetchWithdrawalRequests, updateWithdrawalStatus } from '../../services/creatorService';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { AdminMinWithdrawalCard } from './AdminMinWithdrawalCard';
+import { AdminDownloadCopyReport } from './AdminDownloadCopyReport';
+import { Sliders, BarChart3, ListOrdered } from 'lucide-react';
 
 export const AdminWithdrawals: React.FC = () => {
   const { currentUser } = useAuth();
   const { showToast } = useToast();
 
+  const [activeTab, setActiveTab] = useState<'requests' | 'min_withdrawal' | 'reports'>('requests');
   const [withdrawals, setWithdrawals] = useState<CreatorTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,8 +106,62 @@ export const AdminWithdrawals: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Tab Navigation */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 rounded-2xl shadow-xs">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => setActiveTab('requests')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              activeTab === 'requests'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <ListOrdered className="w-4 h-4" />
+            <span>Withdrawal Requests ({pendingRequests.length} Pending)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('min_withdrawal')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              activeTab === 'min_withdrawal'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Sliders className="w-4 h-4" />
+            <span>Min. Withdrawal Settings (মিনিমাম উইথড্র)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              activeTab === 'reports'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Download & Copy Reports (ডাউনলোড ও কপি রিপোর্ট)</span>
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'min_withdrawal' && (
+        <AdminMinWithdrawalCard />
+      )}
+
+      {activeTab === 'reports' && (
+        <AdminDownloadCopyReport />
+      )}
+
+      {activeTab === 'requests' && (
+        <>
+          {/* Quick Min Withdrawal Card */}
+          <AdminMinWithdrawalCard />
+
+          {/* Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div 
           onClick={() => setStatusFilter('pending')}
           className={`p-5 rounded-2xl border cursor-pointer transition-all ${
@@ -430,6 +488,8 @@ export const AdminWithdrawals: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

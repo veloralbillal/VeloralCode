@@ -72,6 +72,8 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
   title: string;
   itemTitle?: string;
+  message?: string;
+  confirmLabel?: string;
   loading?: boolean;
 }
 
@@ -81,6 +83,8 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   onConfirm,
   title = 'Delete Code Entry',
   itemTitle,
+  message,
+  confirmLabel = 'Delete Permanently',
   loading = false,
 }) => {
   return (
@@ -92,7 +96,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
         <div className="text-center space-y-2">
           <h4 className="text-base font-semibold text-slate-900 dark:text-white">
-            Are you sure you want to delete this item?
+            {message || 'Are you sure you want to delete this item?'}
           </h4>
           {itemTitle && (
             <p className="text-sm text-slate-500 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800/80 p-2 rounded-lg break-all">
@@ -125,7 +129,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
                 <span>Deleting...</span>
               </>
             ) : (
-              'Delete Permanently'
+              confirmLabel
             )}
           </button>
         </div>

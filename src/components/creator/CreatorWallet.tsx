@@ -23,6 +23,9 @@ import {
 } from '../../services/creatorService';
 import { formatDate } from '../../utils/helpers';
 import { formatBDT, formatUSD, formatDualCurrency, usdToBdt, bdtToUsd, USD_TO_BDT_RATE } from '../../utils/currency';
+import { getPlatformDistributionSettings } from '../../services/distributionService';
+import { CreatorDistributionSetupCard } from './CreatorDistributionSetupCard';
+import { CreatorPayPerClickReport } from './CreatorPayPerClickReport';
 
 export const CreatorWallet: React.FC = () => {
   const { currentUser, userProfile, refreshUserProfile } = useAuth();
@@ -30,6 +33,7 @@ export const CreatorWallet: React.FC = () => {
 
   const [transactions, setTransactions] = useState<CreatorTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [minWithdrawalBDT, setMinWithdrawalBDT] = useState<number>(500);
 
   // Withdrawal form modal state
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -43,12 +47,20 @@ export const CreatorWallet: React.FC = () => {
   const balanceBDT = usdToBdt(balance);
   const totalEarningsBDT = usdToBdt(totalEarnings);
 
+  const minWithdrawalUSD = (minWithdrawalBDT / USD_TO_BDT_RATE).toFixed(2);
+
   const loadData = async () => {
     if (!currentUser) return;
     setLoading(true);
     try {
-      const txs = await fetchCreatorTransactions(currentUser.uid);
+      const [txs, settings] = await Promise.all([
+        fetchCreatorTransactions(currentUser.uid),
+        getPlatformDistributionSettings(),
+      ]);
       setTransactions(txs);
+      if (settings?.minWithdrawalBDT) {
+        setMinWithdrawalBDT(settings.minWithdrawalBDT);
+      }
     } catch (err: any) {
       showToast('Error loading wallet transactions: ' + err.message, 'error');
     } finally {
@@ -66,6 +78,12 @@ export const CreatorWallet: React.FC = () => {
 
     if (isNaN(amt) || amt <= 0) {
       showToast('Please enter a valid withdrawal amount.', 'warning');
+      return;
+    }
+
+    const minUSD = parseFloat(minWithdrawalUSD);
+    if (amt < minUSD) {
+      showToast(`Minimum withdrawal amount is ৳${minWithdrawalBDT} ($${minWithdrawalUSD} USD).`, 'warning');
       return;
     }
 
@@ -191,7 +209,7 @@ export const CreatorWallet: React.FC = () => {
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800">
               <span>Min. Withdrawal:</span>
-              <span className="font-semibold text-emerald-600">৳120 ($1.00)</span>
+              <span className="font-semibold text-emerald-600">৳{minWithdrawalBDT} (${minWithdrawalUSD})</span>
             </div>
           </div>
 
@@ -200,6 +218,21 @@ export const CreatorWallet: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Creator Distribution Setup Card (Option 1 vs Option 2/Fixed) */}
+      <CreatorDistributionSetupCard
+        userProfile={userProfile}
+        userId={currentUser?.uid || userProfile?.userId || ''}
+        userEmail={currentUser?.email || userProfile?.email || ''}
+        onUpdated={refreshUserProfile}
+      />
+
+      {/* Pay Per Click & Download/Copy Analytics Report (Daily, Weekly, Custom) */}
+      <CreatorPayPerClickReport
+        userProfile={userProfile}
+        creatorUid={currentUser?.uid || userProfile?.userId || ''}
+        creatorEmail={currentUser?.email || userProfile?.email || ''}
+      />
 
       {/* Transaction History Table */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
@@ -329,11 +362,11 @@ export const CreatorWallet: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
-                    min="1"
+                    min={minWithdrawalUSD}
                     max={balance}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    placeholder="e.g. 5.00"
+                    placeholder={`Min. $${minWithdrawalUSD} (৳${minWithdrawalBDT})`}
                     required
                     className="w-full pl-8 pr-28 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   />
@@ -343,6 +376,9 @@ export const CreatorWallet: React.FC = () => {
                     </span>
                   )}
                 </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Minimum withdrawal threshold: <strong>৳{minWithdrawalBDT}</strong> (≈ ${minWithdrawalUSD} USD)
+                </p>
               </div>
 
               <div className="space-y-1.5">

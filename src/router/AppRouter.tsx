@@ -31,27 +31,58 @@ import { CreatorDashboard } from '../components/creator/CreatorDashboard';
 import { CreatorUploadTool } from '../components/creator/CreatorUploadTool';
 import { CreatorToolsList } from '../components/creator/CreatorToolsList';
 import { CreatorWallet } from '../components/creator/CreatorWallet';
+import { CreatorPayPerClickReport } from '../components/creator/CreatorPayPerClickReport';
 import { CreatorPublicProfile } from '../components/creator/CreatorPublicProfile';
 import { CreatorProfileSettings } from '../components/creator/CreatorProfileSettings';
+import { CreatorAccessDenied } from '../components/creator/CreatorAccessDenied';
 import { AdminAnnouncements } from '../components/admin/AdminAnnouncements';
 import { AdminCreatorVerifications } from '../components/admin/AdminCreatorVerifications';
+import { AdminBanners } from '../components/admin/AdminBanners';
+import { AdminEvents } from '../components/admin/AdminEvents';
+import { EventsPage } from '../components/events/EventsPage';
 import { GlobalAnnouncementBar } from '../components/common/GlobalAnnouncementBar';
 import { UserProfileView } from '../components/user/UserProfile';
 import { ShieldAlert, LogIn, BookOpen, Coins, Sparkles } from 'lucide-react';
 
 export const AppRouter: React.FC = () => {
   const { currentUser, userProfile, isAdmin, isSeller, isCreator, loading: authLoading } = useAuth();
-  const [currentRoute, setCurrentRoute] = useState<string>(window.location.hash || '#/');
+  
+  // Resolve initial route from hash or pathname (e.g. /creator/veloralbillal)
+  const getInitialRoute = () => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path && path !== '/' && !window.location.hash) {
+        return '#' + path;
+      }
+    }
+    return window.location.hash || '#/';
+  };
+
+  const [currentRoute, setCurrentRoute] = useState<string>(getInitialRoute);
   const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentRoute(window.location.hash || '#/');
+    const handleRouteSync = () => {
+      const path = window.location.pathname;
+      if (path && path !== '/' && !window.location.hash) {
+        setCurrentRoute('#' + path);
+      } else {
+        setCurrentRoute(window.location.hash || '#/');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    // If initial URL has clean pathname like /creator/... without hash, sync hash for SPA stability
+    if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname !== '/' && !window.location.hash) {
+      window.location.hash = '#' + window.location.pathname;
+    }
+
+    window.addEventListener('hashchange', handleRouteSync);
+    window.addEventListener('popstate', handleRouteSync);
+    return () => {
+      window.removeEventListener('hashchange', handleRouteSync);
+      window.removeEventListener('popstate', handleRouteSync);
+    };
   }, []);
 
   const navigate = (newRoute: string) => {
@@ -305,6 +336,32 @@ export const AppRouter: React.FC = () => {
         );
       }
 
+      if (hash === '#/admin/banners') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Slider Banners Management"
+            subtitle="Upload hero banners, set display order, and configure redirection links"
+          >
+            <AdminBanners />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/events') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Events & Down Pricing"
+            subtitle="Manage developer workshops, masterclasses, regular prices, and special down prices"
+          >
+            <AdminEvents />
+          </AdminLayout>
+        );
+      }
+
       if (hash === '#/admin/announcements') {
         return (
           <AdminLayout
@@ -481,8 +538,32 @@ export const AppRouter: React.FC = () => {
       );
     }
 
-    // Creator Routes: #/creator, #/creator/upload, #/creator/edit/:id, #/creator/tools, #/creator/wallet
+    // Creator Routes:
+    // 1. Specific creator public page: #/creator/:username (e.g. veloralbillal.top/creator/veloralbillal) -> Separate Public Page
+    // 2. Generic directory: #/creator or #/creator/ -> Blocked with Access Denied for unauthorized visitors
+    // 3. Creator Studio: #/creator/upload, #/creator/tools, #/creator/wallet, #/creator/reports, #/creator/profile
     if (hash.startsWith('#/creator')) {
+      const creatorSubpath = hash.replace(/^#\/creator\/?/, '').trim();
+      const isStudioAction = [
+        'upload',
+        'tools',
+        'wallet',
+        'reports',
+        'profile',
+      ].includes(creatorSubpath) || creatorSubpath.startsWith('edit/');
+
+      // If this is a personalized creator handle/slug (e.g. #/creator/veloralbillal)
+      if (creatorSubpath && !isStudioAction) {
+        return (
+          <CreatorPublicProfile
+            creatorIdentifier={creatorSubpath}
+            onNavigate={navigate}
+            onOpenCode={(id) => navigate(`#/code/${id}`)}
+          />
+        );
+      }
+
+      // If checking auth state for studio or generic /creator access
       if (authLoading) {
         return (
           <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
@@ -492,42 +573,17 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      // Permission check: Must be authenticated and either creator or admin
-      if (!currentUser || (!isCreator && !isAdmin && userProfile?.role !== 'creator')) {
-        return (
-          <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-5">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-md">
-              <Sparkles className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Creator Studio Access Required
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                You must be logged in with a verified Creator account to upload web tools, edit codes, track views, and manage earnings. Creator accounts are provisioned via the administrator.
-              </p>
-            </div>
+      // Restrict Generic /creator route or Studio actions for unauthorized visitors
+      const isAuthorizedCreator = Boolean(
+        currentUser && (isCreator || isAdmin || userProfile?.role === 'creator')
+      );
 
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <button
-                onClick={() => navigate('#/login')}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition-all"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Creator Login</span>
-              </button>
-              <button
-                onClick={() => navigate('#/')}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <span>Back to Home</span>
-              </button>
-            </div>
-          </div>
-        );
+      if (!isAuthorizedCreator) {
+        // Direct access to generic /creator or protected studio routes is blocked
+        return <CreatorAccessDenied onNavigate={navigate} />;
       }
 
-      if (hash === '#/creator/profile') {
+      if (creatorSubpath === 'profile') {
         return (
           <CreatorLayout
             currentRoute={hash}
@@ -540,7 +596,7 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      if (hash === '#/creator/upload') {
+      if (creatorSubpath === 'upload') {
         return (
           <CreatorLayout
             currentRoute={hash}
@@ -553,8 +609,8 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      if (hash.startsWith('#/creator/edit/')) {
-        const editId = hash.replace('#/creator/edit/', '').trim();
+      if (creatorSubpath.startsWith('edit/')) {
+        const editId = creatorSubpath.replace('edit/', '').trim();
         return (
           <CreatorLayout
             currentRoute="#/creator/tools"
@@ -567,7 +623,7 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      if (hash === '#/creator/tools') {
+      if (creatorSubpath === 'tools') {
         return (
           <CreatorLayout
             currentRoute={hash}
@@ -580,7 +636,7 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      if (hash === '#/creator/wallet') {
+      if (creatorSubpath === 'wallet') {
         return (
           <CreatorLayout
             currentRoute={hash}
@@ -593,7 +649,26 @@ export const AppRouter: React.FC = () => {
         );
       }
 
-      // Default Creator Route: #/creator
+      if (creatorSubpath === 'reports') {
+        return (
+          <CreatorLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Clicks, Copies & Downloads Report"
+            subtitle="Monitor pay-per-click royalties, verified unique actions, and tool performance analytics"
+          >
+            <div className="space-y-6">
+              <CreatorPayPerClickReport
+                userProfile={userProfile}
+                creatorUid={currentUser?.uid || userProfile?.userId || ''}
+                creatorEmail={currentUser?.email || userProfile?.email || ''}
+              />
+            </div>
+          </CreatorLayout>
+        );
+      }
+
+      // Default Creator Route: #/creator (only accessible by authorized creators)
       return (
         <CreatorLayout
           currentRoute="#/creator"
@@ -604,6 +679,11 @@ export const AppRouter: React.FC = () => {
           <CreatorDashboard onNavigate={navigate} />
         </CreatorLayout>
       );
+    }
+
+    // Events route (Community bootcamps, workshops, down pricing)
+    if (hash === '#/events') {
+      return <EventsPage onNavigate={navigate} />;
     }
 
     // Explicit Explore / Codes Route (e.g. when seller or user browses code snippets)

@@ -237,6 +237,9 @@ export const CodeDetails: React.FC<CodeDetailsProps> = ({ codeId, onBack, onNavi
 
       {/* 4. Code Inspection Modal (for Premium & Preview) */}
       <ToolCodeModal
+        codeId={item.id}
+        creatorUid={item.creatorUid}
+        creatorEmail={item.authorEmail}
         code={item.code}
         language={item.language}
         title={item.title}

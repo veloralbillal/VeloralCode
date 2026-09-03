@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { SiteBrandingSettings } from './SiteBrandingSettings';
 import { AdminContactSettings } from './AdminContactSettings';
+import { AdminMinWithdrawalCard } from './AdminMinWithdrawalCard';
 import { firebaseConfig } from '../../services/firebase';
 import { createNewCode } from '../../services/codeService';
 import { copyTextToClipboard } from '../../utils/helpers';
@@ -243,6 +244,9 @@ export const AdminSettings: React.FC = () => {
     <div className="max-w-4xl space-y-6">
       {/* Telegram & WhatsApp Support Contact Settings */}
       <AdminContactSettings />
+
+      {/* Minimum Withdrawal & Creator Distribution Controls */}
+      <AdminMinWithdrawalCard />
 
       {/* Site Branding & Text Controls */}
       <SiteBrandingSettings />

@@ -52,7 +52,7 @@ export const AdminEditCode: React.FC<AdminEditCodeProps> = ({ codeId, onNavigate
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [version, setVersion] = useState('1.0.0');
   const [tagsInput, setTagsInput] = useState('');
-  const [status, setStatus] = useState<'published' | 'draft'>('published');
+  const [status, setStatus] = useState<'published' | 'draft' | 'pending_approval' | 'rejected'>('published');
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);

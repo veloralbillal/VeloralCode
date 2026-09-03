@@ -17,6 +17,8 @@ import { CodeCard } from './CodeCard';
 import { CardSkeleton } from '../common/LoadingSkeleton';
 import { useAuth } from '../../context/AuthContext';
 import { useSiteConfig } from '../../context/SiteConfigContext';
+import { SliderBanner } from '../banner/SliderBanner';
+import { EventsSection } from '../events/EventsSection';
 
 interface UserDashboardProps {
   onOpenCode: (id: string) => void;
@@ -120,6 +122,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Live Slider Banners Carousel */}
+      <SliderBanner onNavigate={onNavigate} />
+
       {/* Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-950 text-white p-6 sm:p-10 border border-indigo-800/40 shadow-2xl shadow-indigo-950/30">
         <div className="relative z-10 max-w-3xl space-y-4">
@@ -306,6 +311,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
           </div>
         )}
       </div>
+
+      {/* Featured Community Events & Workshops with Special Down Pricing */}
+      <EventsSection onNavigate={onNavigate} />
     </div>
   );
 };
