@@ -39,6 +39,7 @@ import { AdminAnnouncements } from '../components/admin/AdminAnnouncements';
 import { AdminCreatorVerifications } from '../components/admin/AdminCreatorVerifications';
 import { AdminBanners } from '../components/admin/AdminBanners';
 import { AdminEvents } from '../components/admin/AdminEvents';
+import { AdminSeoSettings } from '../components/admin/AdminSeoSettings';
 import { EventsPage } from '../components/events/EventsPage';
 import { GlobalAnnouncementBar } from '../components/common/GlobalAnnouncementBar';
 import { UserProfileView } from '../components/user/UserProfile';
@@ -384,6 +385,19 @@ export const AppRouter: React.FC = () => {
             subtitle="View registered developer accounts and security status"
           >
             <AdminUsers />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/seo') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="SEO & Robots.txt Manager"
+            subtitle="Search engine indexing rules, robots.txt, and meta tags"
+          >
+            <AdminSeoSettings />
           </AdminLayout>
         );
       }
