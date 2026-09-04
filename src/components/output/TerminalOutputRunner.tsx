@@ -24,23 +24,34 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code
       let results: string[] = [];
 
       if (language === 'Python') {
-        // Extract print statements or simulate output
         const lines = code.split('\n');
-        const printLines = lines.filter((l) => l.trim().startsWith('print('));
-        if (printLines.length > 0) {
-          printLines.forEach((pl) => {
-            const match = pl.match(/print\((.*)\)/);
+        let printedAny = false;
+        lines.forEach((l) => {
+          const trimmed = l.trim();
+          if (trimmed.startsWith('print(')) {
+            const match = trimmed.match(/print\((.*)\)/);
             if (match && match[1]) {
-              results.push(match[1].replace(/['"]/g, ''));
+              let val = match[1].trim();
+              if ((val.startsWith("'") && val.endsWith("'")) || (val.startsWith('"') && val.endsWith('"'))) {
+                val = val.slice(1, -1);
+              }
+              results.push(val);
+              printedAny = true;
             }
-          });
-        } else {
-          results.push('Program executed successfully.');
-          results.push('Exit code: 0 (Execution complete)');
+          }
+        });
+        if (!printedAny) {
+          results.push('Python 3.10.12 (Sandbox Environment)');
+          results.push('Program executed successfully with exit code 0.');
         }
       } else if (language === 'SQL') {
-        results.push('Query OK, 4 rows affected (0.02 sec)');
-        results.push('Rows returned: [ { id: 1, name: "Sample Record 1" }, { id: 2, name: "Sample Record 2" } ]');
+        results.push('Query executed successfully (0.015 sec)');
+        results.push('+----+------------------------+-------------+');
+        results.push('| id | title                  | status      |');
+        results.push('+----+------------------------+-------------+');
+        results.push('|  1 | Sample Code Snippet    | published   |');
+        results.push('+----+------------------------+-------------+');
+        results.push('(1 row in set)');
       } else if (language === 'Bash') {
         results.push('$ ' + (code.split('\n')[0] || 'bash script.sh'));
         results.push('[SUCCESS] Script executed without errors.');
@@ -52,7 +63,7 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code
       setOutputLogs((prev) => [...prev, ...results]);
       setIsRunning(false);
       setHasRun(true);
-    }, 600);
+    }, 500);
   };
 
   const handleClear = () => {
