@@ -5,12 +5,25 @@ import { AuthProvider } from './context/AuthContext';
 import { SiteConfigProvider } from './context/SiteConfigContext';
 import { AppRouter } from './router/AppRouter';
 import { initAllProtections } from './utils/protection';
+import { subscribePwaConfig } from './utils/pwa';
 
 export default function App() {
   useEffect(() => {
-    const cleanup = initAllProtections();
+    let cleanupProtections = () => {};
+    let cleanupPwa = () => {};
+    try {
+      cleanupProtections = initAllProtections();
+    } catch (err) {
+      console.warn('Protections init bypassed:', err);
+    }
+    try {
+      cleanupPwa = subscribePwaConfig(() => {});
+    } catch (err) {
+      console.warn('Pwa config bypassed:', err);
+    }
     return () => {
-      cleanup();
+      cleanupProtections();
+      cleanupPwa();
     };
   }, []);
 

@@ -12,29 +12,79 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CodeToolkit" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   </head>
   <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
     <div id="root">
-      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; background-color: #090d16; color: #f8fafc;">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; background-color: #090d16; color: #f8fafc; padding: 20px; text-align: center;">
         <div style="width: 44px; height: 44px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-        <p id="loading-text" style="margin-top: 18px; font-size: 14px; font-weight: 500; color: #94a3b8; letter-spacing: 0.5px;">Loading CodeToolkit...</p>
-        <div id="loading-fallback-actions" style="display: none; margin-top: 16px; text-align: center;">
-          <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">Taking longer than usual to connect...</p>
-          <button onclick="window.location.reload()" style="padding: 7px 16px; background: #6366f1; color: #ffffff; border: none; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
-            Tap to Reload
-          </button>
+        <p id="loading-text" style="margin-top: 18px; font-size: 14px; font-weight: 500; color: #94a3b8; letter-spacing: 0.5px;">Loading application...</p>
+        <div id="loading-fallback-actions" style="display: none; margin-top: 20px; text-align: center; max-width: 320px;">
+          <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 14px; line-height: 1.4;">Connecting to server or downloading assets...</p>
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="window.emergencyClearAndReload()" style="padding: 8px 18px; background: #6366f1; color: #ffffff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
+              Clear Cache & Reload
+            </button>
+            <a href="javascript:void(0)" onclick="window.open(window.location.href, '_blank')" style="display: inline-block; padding: 8px 14px; background: rgba(255,255,255,0.08); color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-size: 12px; font-weight: 500; text-decoration: none;">
+              Open in New Tab ↗
+            </a>
+          </div>
         </div>
         <style>
           @keyframes spin { to { transform: rotate(360deg); } }
         </style>
         <script>
-          // Show reload helper if app bundle doesn't mount within 3 seconds
+          // Emergency reset function
+          window.emergencyClearAndReload = function() {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(regs) {
+                for (var i = 0; i < regs.length; i++) regs[i].unregister();
+              }).catch(function() {});
+            }
+            if ('caches' in window) {
+              caches.keys().then(function(names) {
+                for (var i = 0; i < names.length; i++) caches.delete(names[i]);
+              }).catch(function() {});
+            }
+            setTimeout(function() {
+              window.location.href = window.location.pathname + '?_t=' + Date.now() + (window.location.hash || '');
+            }, 200);
+          };
+
+          // Clean up any stale service workers in development mode automatically
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) {
+                regs[i].unregister();
+              }
+            }).catch(function() {});
+          }
+
+          // Show reload helper only if connection takes longer than 10 seconds (reasonable for slow mobile connections)
           setTimeout(function() {
             var fb = document.getElementById('loading-fallback-actions');
             if (fb && document.getElementById('loading-text')) {
               fb.style.display = 'block';
             }
-          }, 3000);
+          }, 10000);
+
+          // Catch uncaught errors early to notify user
+          window.addEventListener('error', function(e) {
+            var fb = document.getElementById('loading-fallback-actions');
+            var lt = document.getElementById('loading-text');
+            if (fb && lt) {
+              lt.textContent = 'Connection issue detected';
+              lt.style.color = '#f87171';
+              fb.style.display = 'block';
+            }
+          });
         </script>
       </div>
     </div>

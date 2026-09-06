@@ -13,6 +13,7 @@ import {
   X,
   ExternalLink,
   User as UserIcon,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -120,6 +121,29 @@ export const UserLayout: React.FC<UserLayoutProps> = ({
               );
             })}
           </nav>
+
+          {/* Sub-Apps Section */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
+            <div className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
+              Apps & Utilities
+            </div>
+            <button
+              onClick={() => navTo('#/app/bakikhata')}
+              className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                currentRoute.startsWith('#/app/bakikhata')
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                  : 'text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200/70 dark:border-emerald-800/60'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <BookOpen className={`w-4 h-4 shrink-0 ${currentRoute.startsWith('#/app/bakikhata') ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`} />
+                <span className="truncate">বাকির খাতা (Baki Khata)</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shrink-0">
+                মুদি
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Sidebar Footer */}

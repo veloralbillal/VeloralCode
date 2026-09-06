@@ -26,6 +26,7 @@ import {
   Globe,
   Bot,
   Cpu,
+  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -67,6 +68,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { label: 'Sellers & Points', icon: Coins, route: '#/admin/sellers' },
     { label: 'Users', icon: Users, route: '#/admin/users' },
     { label: 'Pool & Indexes', icon: Cpu, route: '#/admin/pool' },
+    { label: 'PWA & Service Worker', icon: Smartphone, route: '#/admin/pwa' },
     { label: 'Settings', icon: Settings, route: '#/admin/settings' },
   ];
 
