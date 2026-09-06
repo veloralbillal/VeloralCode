@@ -3,6 +3,8 @@ import { Play, Code, Eye, Sparkles, Layers, Download, Copy, Check } from 'lucide
 import { IframeOutputRunner } from './IframeOutputRunner';
 import { JsonOutputRunner } from './JsonOutputRunner';
 import { TerminalOutputRunner } from './TerminalOutputRunner';
+import { PythonViewSwitcher } from './PythonViewSwitcher';
+import { PythonHtmlFrame } from './PythonHtmlFrame';
 import { CodeViewer } from '../common/CodeViewer';
 import { copyTextToClipboard, downloadCodeFile } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
@@ -17,6 +19,7 @@ export const CodeOutputManager: React.FC<CodeOutputManagerProps> = ({ code, lang
   const { showToast } = useToast();
   // Default to 'output' view so user directly sees the live result/working output!
   const [activeTab, setActiveTab] = useState<'output' | 'source'>('output');
+  const [pythonViewMode, setPythonViewMode] = useState<'terminal' | 'preview'>('preview');
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -90,7 +93,34 @@ export const CodeOutputManager: React.FC<CodeOutputManagerProps> = ({ code, lang
       {/* Main Content Area: Default shows Live Output directly! */}
       {activeTab === 'output' ? (
         <div>
-          {isWebLanguage ? (
+          {language === 'Python' ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-xs text-slate-500 font-medium">Python Output View Mode:</span>
+                <PythonViewSwitcher
+                  viewMode={pythonViewMode}
+                  onChangeMode={(mode) => setPythonViewMode(mode)}
+                />
+              </div>
+
+              {pythonViewMode === 'terminal' ? (
+                <TerminalOutputRunner
+                  code={code}
+                  language={language}
+                  onSwitchToPreview={() => setPythonViewMode('preview')}
+                />
+              ) : (
+                <div className="h-[460px] rounded-3xl overflow-hidden border border-slate-200/90 dark:border-slate-800 shadow-lg">
+                  <PythonHtmlFrame
+                    code={code}
+                    title={title}
+                    reloadKey={1}
+                    deviceMode="desktop"
+                  />
+                </div>
+              )}
+            </div>
+          ) : isWebLanguage ? (
             <IframeOutputRunner code={code} language={language} title={title} />
           ) : isJson ? (
             <JsonOutputRunner code={code} />

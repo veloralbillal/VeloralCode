@@ -1,6 +1,7 @@
 {
   "rules": {
     "users": {
+      ".indexOn": ["email", "role", "createdAt"],
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).child('role').val() === 'admin')"
@@ -14,13 +15,57 @@
     },
     "codes": {
       ".read": true,
-      ".indexOn": ["status", "category", "language", "updatedAt"],
+      ".indexOn": ["status", "category", "language", "updatedAt", "createdAt", "authorId", "isPopular", "isFeatured", "views", "averageRating"],
       "$codeId": {
-        ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('role').val() === 'admin' || data.child('authorId').val() === auth.uid || !data.exists())",
         "views": {
           ".write": true
+        },
+        "likes": {
+          ".write": "auth != null"
         }
       }
+    },
+    "events": {
+      ".read": true,
+      ".indexOn": ["status", "isPopup", "createdAt", "updatedAt", "price", "downPrice"],
+      "$eventId": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+    "banners": {
+      ".read": true,
+      ".indexOn": ["active", "order", "createdAt"],
+      "$bannerId": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+    "toolReviews": {
+      ".read": true,
+      "$codeId": {
+        ".indexOn": ["userId", "rating", "createdAt"],
+        ".write": "auth != null"
+      }
+    },
+    "tips": {
+      ".read": "auth != null",
+      ".indexOn": ["creatorId", "senderId", "createdAt"],
+      "$tipId": {
+        ".write": "auth != null"
+      }
+    },
+    "withdrawals": {
+      ".read": "auth != null",
+      ".indexOn": ["userId", "status", "createdAt"],
+      "$withdrawalId": {
+        ".write": "auth != null"
+      }
+    },
+    "announcements": {
+      ".read": true,
+      ".indexOn": ["active", "updatedAt"],
+      ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'"
     }
   }
 }
+

@@ -40,7 +40,9 @@ import { AdminCreatorVerifications } from '../components/admin/AdminCreatorVerif
 import { AdminBanners } from '../components/admin/AdminBanners';
 import { AdminEvents } from '../components/admin/AdminEvents';
 import { AdminSeoSettings } from '../components/admin/AdminSeoSettings';
+import { AdminConnectionPoolManager } from '../components/admin/AdminConnectionPoolManager';
 import { EventsPage } from '../components/events/EventsPage';
+import { EventPopupManager } from '../components/events/EventPopupManager';
 import { GlobalAnnouncementBar } from '../components/common/GlobalAnnouncementBar';
 import { UserProfileView } from '../components/user/UserProfile';
 import { ShieldAlert, LogIn, BookOpen, Coins, Sparkles } from 'lucide-react';
@@ -398,6 +400,19 @@ export const AppRouter: React.FC = () => {
             subtitle="Search engine indexing rules, robots.txt, and meta tags"
           >
             <AdminSeoSettings />
+          </AdminLayout>
+        );
+      }
+
+      if (hash === '#/admin/pool') {
+        return (
+          <AdminLayout
+            currentRoute={hash}
+            onNavigate={navigate}
+            title="Connection Pooling & Database Indexes"
+            subtitle="High-concurrency cluster management, wire socket multiplexing, and query indexing"
+          >
+            <AdminConnectionPoolManager />
           </AdminLayout>
         );
       }
@@ -774,6 +789,9 @@ export const AppRouter: React.FC = () => {
 
       {/* Global Toast Notification Container */}
       <ToastContainer />
+
+      {/* Pop-up Event for User Panel (Admin Controlled) */}
+      {!isAdminRoute && <EventPopupManager onNavigate={navigate} />}
 
       {/* Documentation & Demo Admin Setup Modal */}
       <SetupGuideModal

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Maximize2, Minimize2, Smartphone, Tablet, Monitor, Terminal, AlertCircle } from 'lucide-react';
+import { generateJavaScriptHtmlRunner } from '../../utils/javascriptRunnerHelper';
 
 interface IframeOutputRunnerProps {
   code: string;
@@ -40,63 +41,7 @@ export const IframeOutputRunner: React.FC<IframeOutputRunnerProps> = ({ code, la
 </body>
 </html>`;
     } else if (language === 'JavaScript' || language === 'TypeScript') {
-      htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-  </style>
-</head>
-<body class="p-4 bg-slate-950 text-emerald-400 font-mono text-sm min-h-screen">
-  <div class="mb-3 pb-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
-    <span>Console / App Execution Output</span>
-    <span class="text-indigo-400 font-bold">● Running Live</span>
-  </div>
-  <div id="output-screen" class="space-y-1.5 leading-relaxed"></div>
-  
-  <script>
-    const screen = document.getElementById('output-screen');
-    function appendLog(msg, type = 'log') {
-      const line = document.createElement('div');
-      line.className = type === 'error' ? 'text-rose-400' : (type === 'warn' ? 'text-amber-400' : 'text-emerald-300');
-      line.textContent = '> ' + (typeof msg === 'object' ? JSON.stringify(msg, null, 2) : msg);
-      screen.appendChild(line);
-    }
-
-    const _log = console.log;
-    const _error = console.error;
-    const _warn = console.warn;
-
-    console.log = (...args) => {
-      _log.apply(console, args);
-      args.forEach(a => appendLog(a, 'log'));
-      window.parent.postMessage({ type: 'LOG', data: args.join(' ') }, '*');
-    };
-    console.error = (...args) => {
-      _error.apply(console, args);
-      args.forEach(a => appendLog(a, 'error'));
-    };
-    console.warn = (...args) => {
-      _warn.apply(console, args);
-      args.forEach(a => appendLog(a, 'warn'));
-    };
-
-    window.onerror = (msg, url, line) => {
-      appendLog('Runtime Error: ' + msg + ' (Line ' + line + ')', 'error');
-      return false;
-    };
-
-    try {
-      ${code}
-    } catch(err) {
-      appendLog('Script Error: ' + err.message, 'error');
-    }
-  </script>
-</body>
-</html>`;
+      htmlContent = generateJavaScriptHtmlRunner(code, title);
     } else {
       // HTML, Markdown or rich web document
       const isCompleteDoc = code.includes('<html') || code.includes('<!DOCTYPE') || code.includes('<body');

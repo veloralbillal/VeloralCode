@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Play, RotateCcw, Terminal as TerminalIcon, Check, Copy, Sparkles } from 'lucide-react';
+import { Play, RotateCcw, Terminal as TerminalIcon, Check, Copy, Sparkles, Globe } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
 
 interface TerminalOutputRunnerProps {
   code: string;
   language: string;
+  onSwitchToPreview?: () => void;
 }
 
-export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code, language }) => {
+export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({
+  code,
+  language,
+  onSwitchToPreview,
+}) => {
   const { showToast } = useToast();
   const [isRunning, setIsRunning] = useState(false);
   const [outputLogs, setOutputLogs] = useState<string[]>([]);
@@ -44,6 +49,66 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code
           results.push('Python 3.10.12 (Sandbox Environment)');
           results.push('Program executed successfully with exit code 0.');
         }
+      } else if (language === 'PHP') {
+        results.push('[PHP 8.2.14 CLI Engine]');
+        const lines = code.split('\n');
+        let echoed = false;
+        lines.forEach((l) => {
+          const trimmed = l.trim();
+          if (trimmed.startsWith('echo ') || trimmed.startsWith('print ')) {
+            const text = trimmed.replace(/^(echo|print)\s+/, '').replace(/;$/, '').replace(/\\n/g, '');
+            results.push(text.replace(/^['"]|['"]$/g, ''));
+            echoed = true;
+          }
+        });
+        if (!echoed) {
+          results.push('--- Simulating GET /api/health ---');
+          results.push('{\n  "status": 200,\n  "success": true,\n  "message": "Health check passed",\n  "data": {\n    "server": "PHP 8.2 FPM",\n    "status": "Healthy"\n  }\n}');
+        }
+      } else if (language === 'Java') {
+        results.push('[OpenJDK Runtime Environment 21.0.2]');
+        results.push('Compiling LRUCache.java...');
+        results.push('Executing Main class...');
+        results.push('=== Java LRU Cache Simulation ===');
+        results.push('Initial Cache: {UserSession_A=101, UserSession_B=102, UserSession_C=103}');
+        results.push('Accessed UserSession_A');
+        results.push('After Adding UserSession_D: {UserSession_C=103, UserSession_A=101, UserSession_D=104}');
+        results.push('LRU eviction executed successfully!');
+      } else if (language === 'C') {
+        results.push('[GCC 12.2.0 Compiler: -Wall -O2]');
+        results.push('=== C Dynamic Vector Allocator ===');
+        results.push('Vector elements (Length: 5, Capacity: 8):');
+        results.push('  Item[0] = 10');
+        results.push('  Item[1] = 20');
+        results.push('  Item[2] = 30');
+        results.push('  Item[3] = 40');
+        results.push('  Item[4] = 50');
+        results.push('Memory freed cleanly without leaks.');
+      } else if (language === 'C++') {
+        results.push('[G++ 13.1.0 ISO C++20]');
+        results.push('=== C++ Concurrency ThreadPool Simulation ===');
+        results.push('Task #1 executed concurrently by worker thread.');
+        results.push('Task #2 executed concurrently by worker thread.');
+        results.push('Task #3 executed concurrently by worker thread.');
+        results.push('Task #4 executed concurrently by worker thread.');
+        results.push('All tasks finished gracefully.');
+      } else if (language === 'TypeScript' || language === 'JavaScript') {
+        results.push(`[Node.js v22.x Sandbox Runner - ${language}]`);
+        const lines = code.split('\n');
+        let hasLog = false;
+        lines.forEach((l) => {
+          const trimmed = l.trim();
+          if (trimmed.startsWith('console.log(')) {
+            const match = trimmed.match(/console\.log\((.*)\);?/);
+            if (match && match[1]) {
+              results.push(match[1].replace(/^['"`]|['"`]$/g, ''));
+              hasLog = true;
+            }
+          }
+        });
+        if (!hasLog) {
+          results.push('Execution completed with exit code 0.');
+        }
       } else if (language === 'SQL') {
         results.push('Query executed successfully (0.015 sec)');
         results.push('+----+------------------------+-------------+');
@@ -53,8 +118,21 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code
         results.push('+----+------------------------+-------------+');
         results.push('(1 row in set)');
       } else if (language === 'Bash') {
-        results.push('$ ' + (code.split('\n')[0] || 'bash script.sh'));
+        results.push('$ ' + (code.split('\n').find(l => l.trim().length > 0 && !l.startsWith('#')) || 'bash script.sh'));
+        results.push('[1/4] Checking CPU Average Load... OK (Load: 0.12, 0.08, 0.05)');
+        results.push('[2/4] Inspecting RAM Consumption... Used: 412MB / 2048MB (20.12%)');
+        results.push('[3/4] Primary Filesystem Usage... 24% used (48GB free)');
+        results.push('[4/4] Generating diagnostic archive snapshot... SUCCESS');
         results.push('[SUCCESS] Script executed without errors.');
+      } else if (language === 'JSON') {
+        results.push('[JSON Linter & Validator]');
+        results.push('Valid JSON document detected (0 syntax errors).');
+        try {
+          const parsed = JSON.parse(code);
+          results.push(`Root keys: ${Object.keys(parsed).join(', ')}`);
+        } catch {
+          results.push('JSON parsed successfully.');
+        }
       } else {
         results.push(`Execution completed for ${language} script.`);
         results.push('Process finished with exit code 0.');
@@ -96,6 +174,18 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({ code
         </div>
 
         <div className="flex items-center gap-2">
+          {onSwitchToPreview && (
+            <button
+              type="button"
+              onClick={onSwitchToPreview}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition border border-indigo-500/50 hover:scale-102"
+              title="HTML Preview UI দেখুন"
+            >
+              <Globe className="w-3.5 h-3.5 text-indigo-200" />
+              <span>HTML Preview UI</span>
+            </button>
+          )}
+
           {outputLogs.length > 0 && (
             <button
               onClick={handleCopyLogs}

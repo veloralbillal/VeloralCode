@@ -23,7 +23,7 @@ export const EventPriceBox: React.FC<EventPriceBoxProps> = ({
     <div className="p-3.5 sm:p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
       <div className="space-y-0.5">
         <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
-          Regular Fee: <span className="line-through">{currency}{price.toLocaleString()}</span>
+          Regular Fee: <span className="line-through">{currency}{(price ?? 0).toLocaleString()}</span>
         </span>
 
         <div className="flex items-baseline gap-2">
@@ -31,7 +31,7 @@ export const EventPriceBox: React.FC<EventPriceBoxProps> = ({
             Down Price:
           </span>
           <div className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">
-            {currency}{downPrice.toLocaleString()}
+            {currency}{(downPrice ?? 0).toLocaleString()}
           </div>
         </div>
       </div>

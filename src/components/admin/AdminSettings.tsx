@@ -19,12 +19,14 @@ import {
 import { SiteBrandingSettings } from './SiteBrandingSettings';
 import { AdminContactSettings } from './AdminContactSettings';
 import { AdminMinWithdrawalCard } from './AdminMinWithdrawalCard';
+import { AdminConnectionPoolManager } from './AdminConnectionPoolManager';
 import { firebaseConfig } from '../../services/firebase';
 import { createNewCode } from '../../services/codeService';
 import { copyTextToClipboard } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { CodeItem } from '../../types';
+import { SAMPLE_TOOLS_BY_LANGUAGE } from '../../data/sampleTools';
 
 const STARTER_SNIPPETS: Omit<CodeItem, 'id' | 'createdAt' | 'updatedAt' | 'views' | 'createdBy' | 'creatorEmail'>[] = [
   {
@@ -105,7 +107,7 @@ export const AdminSettings: React.FC = () => {
   const { showToast } = useToast();
   const [seeding, setSeeding] = useState(false);
   const [copiedConfig, setCopiedConfig] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'branding' | 'contact' | 'database'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'branding' | 'contact' | 'database' | 'pool'>('general');
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [allowRegistration, setAllowRegistration] = useState(true);
   const [autoApproveTools, setAutoApproveTools] = useState(false);
@@ -145,15 +147,16 @@ export const AdminSettings: React.FC = () => {
     setSeeding(true);
     try {
       let count = 0;
-      for (const snippet of STARTER_SNIPPETS) {
+      const allSamples = Object.values(SAMPLE_TOOLS_BY_LANGUAGE);
+      for (const snippet of allSamples) {
         await createNewCode(
           snippet,
           currentUser?.uid || 'admin',
-          currentUser?.email || 'admin@codetoolkit.demo'
+          currentUser?.email || 'admin@codetoolkit.com'
         );
         count++;
       }
-      showToast(`Seeded ${count} starter snippets to Realtime Database!`, 'success');
+      showToast(`Successfully seeded all ${count} sample tools across all languages to Realtime Database!`, 'success');
     } catch (err: any) {
       showToast('Seeding failed: ' + (err.message || 'Check database permissions'), 'error');
     } finally {
@@ -229,6 +232,19 @@ export const AdminSettings: React.FC = () => {
         >
           <Database className="w-3.5 h-3.5" />
           <span>Firebase RTDB & Seeder</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('pool')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+            activeTab === 'pool'
+              ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+              : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+          }`}
+        >
+          <Cpu className="w-3.5 h-3.5" />
+          <span>Pool & Indexes (10,000+ Safe)</span>
         </button>
       </div>
 
@@ -374,6 +390,11 @@ export const AdminSettings: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tab 5: Connection Pooling & Indexes */}
+      {activeTab === 'pool' && (
+        <AdminConnectionPoolManager />
       )}
     </div>
   );

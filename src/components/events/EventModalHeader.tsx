@@ -15,13 +15,19 @@ export const EventModalHeader: React.FC<EventModalHeaderProps> = ({
 }) => {
   return (
     <div className="relative w-full h-40 sm:h-56 md:h-64 bg-slate-950 shrink-0 select-none">
-      {/* Cover Image */}
-      <img
-        src={event.imageUrl}
-        alt={event.title}
-        className="w-full h-full object-cover object-center"
-        referrerPolicy="no-referrer"
-      />
+      {/* Cover Image or Fallback Banner */}
+      {event.imageUrl ? (
+        <img
+          src={event.imageUrl}
+          alt={event.title}
+          className="w-full h-full object-cover object-center"
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-amber-500/20 via-indigo-500/20 to-slate-950 flex items-center justify-center">
+          <Sparkles className="w-12 h-12 text-indigo-400/80" />
+        </div>
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none" />
 
       {/* Top Left: Event Status Badge */}

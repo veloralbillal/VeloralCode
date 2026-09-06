@@ -34,10 +34,12 @@ const LANGUAGES: ('All' | SupportedLanguage)[] = [
   'Python',
   'PHP',
   'Java',
+  'C',
   'C++',
   'SQL',
   'Bash',
   'JSON',
+  'XML',
   'Markdown',
 ];
 

@@ -169,6 +169,8 @@ export const CodeDetails: React.FC<CodeDetailsProps> = ({ codeId, onBack, onNavi
         onToggleConsole={() => setConsoleOpen(!consoleOpen)}
         consoleOpen={consoleOpen}
         logCount={logs.length}
+        onToggleReviews={() => setReviewsOpen(!reviewsOpen)}
+        reviewsOpen={reviewsOpen}
       />
 
       {/* 2. Direct Live Output / Working Tool Canvas */}
@@ -180,22 +182,6 @@ export const CodeDetails: React.FC<CodeDetailsProps> = ({ codeId, onBack, onNavi
           reloadKey={reloadKey}
           deviceMode={deviceMode}
         />
-
-        {/* Floating Reviews / Feedback Trigger at bottom right */}
-        <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2">
-          <button
-            onClick={() => setReviewsOpen(!reviewsOpen)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-bold shadow-xl backdrop-blur-md transition hover:scale-105"
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Community Reviews & Ratings</span>
-            {item.ratingsCount ? (
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px]">
-                ★ {item.averageRating || 5.0} ({item.ratingsCount})
-              </span>
-            ) : null}
-          </button>
-        </div>
 
         {/* Console Drawer */}
         <ToolConsoleDrawer

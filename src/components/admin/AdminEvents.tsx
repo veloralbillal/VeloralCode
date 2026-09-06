@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit3, Trash2, Calendar, MapPin, Tag, ExternalLink } from 'lucide-react';
+import { PlusCircle, Calendar, AlertTriangle } from 'lucide-react';
 import { EventItem } from '../../types/event';
 import {
   subscribeToAllEvents,
   createEvent,
   updateEvent,
   deleteEvent,
+  setEventAsPopup,
 } from '../../services/eventService';
 import { AdminEventModal } from './AdminEventModal';
+import { EventPopupModal } from '../events/EventPopupModal';
 import { DeleteConfirmModal } from '../common/Modal';
+import { AdminActivePopupBanner } from './events/AdminActivePopupBanner';
+import { AdminEventCard } from './events/AdminEventCard';
 import { useToast } from '../../context/ToastContext';
 
 export const AdminEvents: React.FC = () => {
@@ -19,6 +23,7 @@ export const AdminEvents: React.FC = () => {
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<EventItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [previewEvent, setPreviewEvent] = useState<EventItem | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -37,6 +42,19 @@ export const AdminEvents: React.FC = () => {
     }
   };
 
+  const handleTogglePopup = async (ev: EventItem) => {
+    try {
+      const nextState = !ev.isPopup;
+      await setEventAsPopup(ev.id, nextState);
+      showToast(
+        nextState ? `"${ev.title}" is now the active popup warning!` : 'Popup deactivated.',
+        'success'
+      );
+    } catch (err: any) {
+      showToast('Failed to update popup status', 'error');
+    }
+  };
+
   const handleDelete = async () => {
     if (!deletingEvent) return;
     try {
@@ -51,24 +69,27 @@ export const AdminEvents: React.FC = () => {
     }
   };
 
+  const activePopup = events.find((e) => e.isPopup);
+
   return (
     <div className="space-y-6">
-      {/* Top action bar */}
+      {/* Top Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-500" />
-            <span>Event Management</span>
+            <span>Event & Warning Popup Management</span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
               {events.length}
             </span>
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Create events with Title, Description, Regular Price, Down Price, and Image Upload.
+            Create warning popups with optional image and link, targeted to user, creator, or seller accounts.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => {
             setEditingEvent(null);
             setModalOpen(true);
@@ -76,115 +97,49 @@ export const AdminEvents: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all cursor-pointer self-start sm:self-auto"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Add New Event</span>
+          <span>Create Warning / Event</span>
         </button>
       </div>
+
+      {/* Active User Warning Popup Banner */}
+      {activePopup && (
+        <AdminActivePopupBanner
+          activeEvent={activePopup}
+          onPreview={(ev) => setPreviewEvent(ev)}
+          onDeactivate={(ev) => handleTogglePopup(ev)}
+        />
+      )}
 
       {/* Events Grid */}
       {loading ? (
         <div className="p-12 text-center text-slate-400">Loading events...</div>
       ) : events.length === 0 ? (
         <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No Events Created Yet</h3>
+          <AlertTriangle className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No Events or Popups Created Yet</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Click "Add New Event" to publish workshops, bootcamps, and discount down payments.
+            Click "Create Warning / Event" to publish targeted popups and notices.
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((ev) => {
-            const currency = ev.currency || '৳';
-            return (
-              <div
-                key={ev.id}
-                className="group flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-md transition-all"
-              >
-                {/* Event Cover */}
-                <div className="relative w-full h-44 bg-slate-950 overflow-hidden">
-                  <img
-                    src={ev.imageUrl}
-                    alt={ev.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-
-                  {/* Status */}
-                  <div className="absolute top-3 left-3">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        ev.status === 'active'
-                          ? 'bg-emerald-500 text-white'
-                          : ev.status === 'upcoming'
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-slate-700 text-slate-300'
-                      }`}
-                    >
-                      {ev.status}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h4 className="text-sm font-bold text-white line-clamp-1">{ev.title}</h4>
-                  </div>
-                </div>
-
-                {/* Body */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
-                    {ev.description}
-                  </p>
-
-                  {/* Pricing Box */}
-                  <div className="p-2.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-slate-400 line-through">
-                        Reg: {currency}{ev.price.toLocaleString()}
-                      </span>
-                      <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <span>Down:</span>
-                        <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">
-                          {currency}{ev.downPrice.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {ev.eventDate && (
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[120px]">
-                        {ev.eventDate}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => {
-                        setEditingEvent(ev);
-                        setModalOpen(true);
-                      }}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors cursor-pointer"
-                      title="Edit Event"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setDeletingEvent(ev)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-colors cursor-pointer"
-                      title="Delete Event"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {events.map((ev) => (
+            <AdminEventCard
+              key={ev.id}
+              event={ev}
+              onTogglePopup={handleTogglePopup}
+              onPreview={(item) => setPreviewEvent(item)}
+              onEdit={(item) => {
+                setEditingEvent(item);
+                setModalOpen(true);
+              }}
+              onDelete={(item) => setDeletingEvent(item)}
+            />
+          ))}
         </div>
       )}
 
-      {/* Event Create / Edit Modal */}
+      {/* Modal for Creating / Editing Events */}
       <AdminEventModal
         isOpen={modalOpen}
         event={editingEvent}
@@ -195,12 +150,20 @@ export const AdminEvents: React.FC = () => {
         onSave={handleCreateOrUpdate}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Popup Live Preview */}
+      <EventPopupModal
+        isOpen={!!previewEvent}
+        event={previewEvent}
+        onClose={() => setPreviewEvent(null)}
+        previewMode={true}
+      />
+
+      {/* Delete Confirmation */}
       <DeleteConfirmModal
         isOpen={!!deletingEvent}
-        title="Delete Event"
+        title="Delete Event / Warning"
         itemTitle={deletingEvent?.title}
-        message="Are you sure you want to permanently delete this event? This action cannot be undone."
+        message="Are you sure you want to delete this event or warning popup?"
         loading={deleteLoading}
         onConfirm={handleDelete}
         onClose={() => setDeletingEvent(null)}

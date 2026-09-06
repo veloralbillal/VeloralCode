@@ -5,12 +5,11 @@ import {
   get,
   remove,
   update,
-  onValue,
-  off,
   runTransaction,
 } from 'firebase/database';
 import { database } from './firebase';
 import { CodeItem, DashboardStats } from '../types';
+import { connectionPool } from './connectionPool';
 
 const VIEWED_SESSION_KEY = 'codetoolkit_viewed_';
 
@@ -18,16 +17,13 @@ export function subscribeToPublishedCodes(
   callback: (codes: CodeItem[]) => void,
   onError?: (error: Error) => void
 ): () => void {
-  const codesRef = ref(database, 'codes');
-
-  const unsubscribe = onValue(
-    codesRef,
-    (snapshot) => {
-      if (!snapshot.exists()) {
+  return connectionPool.subscribe(
+    'codes',
+    (val) => {
+      if (!val) {
         callback([]);
         return;
       }
-      const val = snapshot.val();
       const items: CodeItem[] = Object.keys(val)
         .map((key) => ({
           id: key,
@@ -38,31 +34,21 @@ export function subscribeToPublishedCodes(
 
       callback(items);
     },
-    (err) => {
-      console.warn('Realtime codes fetch error:', err);
-      if (onError) onError(err);
-    }
+    onError
   );
-
-  return () => {
-    off(codesRef, 'value', unsubscribe);
-  };
 }
 
 export function subscribeToAllCodes(
   callback: (codes: CodeItem[]) => void,
   onError?: (error: Error) => void
 ): () => void {
-  const codesRef = ref(database, 'codes');
-
-  const unsubscribe = onValue(
-    codesRef,
-    (snapshot) => {
-      if (!snapshot.exists()) {
+  return connectionPool.subscribe(
+    'codes',
+    (val) => {
+      if (!val) {
         callback([]);
         return;
       }
-      const val = snapshot.val();
       const items: CodeItem[] = Object.keys(val)
         .map((key) => ({
           id: key,
@@ -72,15 +58,8 @@ export function subscribeToAllCodes(
 
       callback(items);
     },
-    (err) => {
-      console.warn('Realtime all codes fetch error:', err);
-      if (onError) onError(err);
-    }
+    onError
   );
-
-  return () => {
-    off(codesRef, 'value', unsubscribe);
-  };
 }
 
 export async function getCodeItemById(id: string): Promise<CodeItem | null> {
@@ -141,9 +120,12 @@ export async function incrementCodeViewCount(id: string): Promise<void> {
     }
     sessionStorage.setItem(sessionKey, '1');
 
-    const viewsRef = ref(database, `codes/${id}/views`);
-    await runTransaction(viewsRef, (currentViews) => {
-      return (currentViews || 0) + 1;
+    // Throttled high-concurrency write through connection pool to absorb spikes
+    await connectionPool.enqueueWrite(`view_${id}`, async () => {
+      const viewsRef = ref(database, `codes/${id}/views`);
+      await runTransaction(viewsRef, (currentViews) => {
+        return (currentViews || 0) + 1;
+      });
     });
   } catch (err) {
     // If permission or network prevents transaction, silently ignore view count update
@@ -154,9 +136,6 @@ export async function incrementCodeViewCount(id: string): Promise<void> {
 export function subscribeToDashboardStats(
   callback: (stats: DashboardStats) => void
 ): () => void {
-  const codesRef = ref(database, 'codes');
-  const usersRef = ref(database, 'users');
-
   let currentCodes: CodeItem[] = [];
   let userCount = 0;
 
@@ -175,9 +154,8 @@ export function subscribeToDashboardStats(
     });
   };
 
-  const unsubscribeCodes = onValue(codesRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const val = snapshot.val();
+  const unsubCodes = connectionPool.subscribe('codes', (val) => {
+    if (val) {
       currentCodes = Object.keys(val).map((k) => val[k]);
     } else {
       currentCodes = [];
@@ -185,9 +163,9 @@ export function subscribeToDashboardStats(
     updateStats();
   });
 
-  const unsubscribeUsers = onValue(usersRef, (snapshot) => {
-    if (snapshot.exists()) {
-      userCount = Object.keys(snapshot.val()).length;
+  const unsubUsers = connectionPool.subscribe('users', (val) => {
+    if (val) {
+      userCount = Object.keys(val).length;
     } else {
       userCount = 0;
     }
@@ -195,8 +173,8 @@ export function subscribeToDashboardStats(
   });
 
   return () => {
-    off(codesRef, 'value', unsubscribeCodes);
-    off(usersRef, 'value', unsubscribeUsers);
+    unsubCodes();
+    unsubUsers();
   };
 }
 

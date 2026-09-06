@@ -15,6 +15,7 @@ import {
   Terminal,
   Download,
   Bookmark,
+  MessageSquare,
 } from 'lucide-react';
 import { ExportToolButton } from './ExportToolButton';
 import { CodeItem } from '../../types';
@@ -39,6 +40,8 @@ interface ToolTopBarProps {
   onToggleConsole: () => void;
   consoleOpen: boolean;
   logCount: number;
+  onToggleReviews?: () => void;
+  reviewsOpen?: boolean;
 }
 
 export const ToolTopBar: React.FC<ToolTopBarProps> = ({
@@ -58,6 +61,8 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
   onToggleConsole,
   consoleOpen,
   logCount,
+  onToggleReviews,
+  reviewsOpen,
 }) => {
   const { currentUser } = useAuth();
   const { showToast } = useToast();
@@ -220,6 +225,24 @@ export const ToolTopBar: React.FC<ToolTopBarProps> = ({
         >
           <Info className="w-3.5 h-3.5 text-sky-400" />
         </button>
+
+        {/* Reviews & Ratings Drawer */}
+        {onToggleReviews && (
+          <button
+            onClick={onToggleReviews}
+            className={`p-2 rounded-xl border transition flex items-center gap-1 ${
+              reviewsOpen
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm shadow-indigo-600/30'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+            }`}
+            title="Community Reviews & Ratings"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+            {item.averageRating && (
+              <span className="text-[10px] font-bold text-amber-300 hidden xl:inline">★ {item.averageRating}</span>
+            )}
+          </button>
+        )}
 
         {/* Bookmark Toggle */}
         <button

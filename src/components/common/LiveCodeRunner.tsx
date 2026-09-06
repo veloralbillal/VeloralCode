@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Play, RefreshCw, Eye, AlertCircle, CheckCircle } from 'lucide-react';
 import { SupportedLanguage } from '../../types';
+import { generateJavaScriptHtmlRunner } from '../../utils/javascriptRunnerHelper';
 
 interface LiveCodeRunnerProps {
   code: string;
@@ -67,26 +68,8 @@ export const LiveCodeRunner: React.FC<LiveCodeRunnerProps> = ({ code, language }
   let srcDoc = code;
   if (language === 'CSS') {
     srcDoc = `<!DOCTYPE html><html><head><style>${code}</style></head><body style="font-family: sans-serif; padding: 20px;"><h2>CSS Style Preview</h2><p>This is a live preview test container demonstrating your CSS styles.</p><button class="btn" style="padding: 8px 16px; cursor: pointer;">Test Button</button></body></html>`;
-  } else if (language === 'JavaScript') {
-    srcDoc = `<!DOCTYPE html><html><head><style>body { font-family: monospace; background: #0f172a; color: #38bdf8; padding: 16px; font-size: 13px; margin: 0; }</style></head><body><div id="log-output"></div><script>
-      const logBox = document.getElementById('log-output');
-      const originalLog = console.log;
-      console.log = function(...args) {
-        originalLog.apply(console, args);
-        const p = document.createElement('div');
-        p.textContent = '> ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ');
-        p.style.marginBottom = '4px';
-        logBox.appendChild(p);
-      };
-      try {
-        ${code}
-      } catch(err) {
-        const p = document.createElement('div');
-        p.textContent = 'Error: ' + err.message;
-        p.style.color = '#f87171';
-        logBox.appendChild(p);
-      }
-    </script></body></html>`;
+  } else if (language === 'JavaScript' || language === 'TypeScript') {
+    srcDoc = generateJavaScriptHtmlRunner(code, 'JavaScript Live Preview');
   }
 
   return (

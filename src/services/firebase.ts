@@ -22,11 +22,21 @@ export const database = getDatabase(app);
 // Initialize analytics if supported in browser environment
 export let analytics: ReturnType<typeof getAnalytics> | null = null;
 if (typeof window !== 'undefined') {
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  }).catch(() => {
-    // Analytics initialization failed or not supported in environment
-  });
+  try {
+    isSupported()
+      .then((supported) => {
+        if (supported) {
+          try {
+            analytics = getAnalytics(app);
+          } catch {
+            // Analytics blocked by privacy settings (e.g. Brave shields)
+          }
+        }
+      })
+      .catch(() => {
+        // Analytics initialization failed or not supported in environment
+      });
+  } catch {
+    // Safe fallback
+  }
 }

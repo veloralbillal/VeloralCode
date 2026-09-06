@@ -25,6 +25,7 @@ import {
   Image as ImageIcon,
   Globe,
   Bot,
+  Cpu,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -65,6 +66,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { label: 'License Keys', icon: Key, route: '#/admin/licenses' },
     { label: 'Sellers & Points', icon: Coins, route: '#/admin/sellers' },
     { label: 'Users', icon: Users, route: '#/admin/users' },
+    { label: 'Pool & Indexes', icon: Cpu, route: '#/admin/pool' },
     { label: 'Settings', icon: Settings, route: '#/admin/settings' },
   ];
 

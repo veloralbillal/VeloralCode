@@ -1,6 +1,8 @@
-import { ref, get, set, push, update, remove, onValue, Unsubscribe } from 'firebase/database';
+import { ref, get, set, push, update, remove, Unsubscribe } from 'firebase/database';
 import { database } from './firebase';
-import { EventItem } from '../types/event';
+import { EventItem, PopupType, TargetRole } from '../types/event';
+import { connectionPool } from './connectionPool';
+import { sanitizeEventPayload } from './events/eventSanitizer';
 
 const EVENTS_REF = 'events';
 
@@ -18,6 +20,8 @@ export const INITIAL_EVENTS: EventItem[] = [
     actionUrl: 'https://t.me/BillalHossen',
     actionLabel: 'Buy',
     status: 'active',
+    isPopup: true,
+    popupBadge: '🔥 Special Masterclass',
     createdAt: Date.now() - 172800000,
   },
   {
@@ -53,19 +57,61 @@ export const INITIAL_EVENTS: EventItem[] = [
 ];
 
 /**
- * Fetch all events from RTDB
+ * Normalizes raw event objects to prevent undefined or malformed fields from crashing the app
+ */
+export function normalizeEvent(id: string, raw: any): EventItem {
+  const price = typeof raw?.price === 'number' ? raw.price : (raw?.price !== undefined && raw?.price !== '' ? Number(raw.price) : undefined);
+  const downPrice = typeof raw?.downPrice === 'number' ? raw.downPrice : (raw?.downPrice !== undefined && raw?.downPrice !== '' ? Number(raw.downPrice) : undefined);
+
+  let targetRoles: TargetRole[] = ['all'];
+  if (Array.isArray(raw?.targetRoles) && raw.targetRoles.length > 0) {
+    targetRoles = raw.targetRoles;
+  } else if (typeof raw?.targetRole === 'string') {
+    targetRoles = [raw.targetRole as TargetRole];
+  }
+
+  return {
+    id,
+    title: raw?.title || 'Notice / Event',
+    description: raw?.description || '',
+    price,
+    downPrice,
+    currency: raw?.currency || '৳',
+    imageUrl: raw?.imageUrl || '',
+    eventDate: raw?.eventDate || '',
+    eventLocation: raw?.eventLocation || '',
+    actionUrl: raw?.actionUrl || '',
+    actionLabel: raw?.actionLabel || '',
+    status: raw?.status === 'upcoming' || raw?.status === 'ended' ? raw.status : 'active',
+    isPopup: Boolean(raw?.isPopup),
+    popupBadge: raw?.popupBadge || '⚠️ Important Notice',
+    popupType: (raw?.popupType as PopupType) || 'warning',
+    targetRoles,
+    createdAt: Number(raw?.createdAt) || Date.now(),
+    updatedAt: Number(raw?.updatedAt) || Date.now(),
+  };
+}
+
+/**
+ * Fetch all events from RTDB (Tier-1 memory cached to protect against 10,000+ users spikes)
  */
 export async function fetchEvents(): Promise<EventItem[]> {
   try {
+    const cached = connectionPool.getCached<EventItem[]>('events_list');
+    if (cached) return cached;
+
     const eventsRef = ref(database, EVENTS_REF);
     const snap = await get(eventsRef);
     if (!snap.exists()) {
       return INITIAL_EVENTS;
     }
     const val = snap.val();
-    return Object.keys(val)
-      .map((k) => ({ id: k, ...val[k] }))
+    const list = Object.keys(val)
+      .map((k) => normalizeEvent(k, val[k]))
       .sort((a, b) => b.createdAt - a.createdAt);
+    
+    connectionPool.setCache('events_list', list, 10000);
+    return list;
   } catch (err) {
     console.error('Error fetching events:', err);
     return INITIAL_EVENTS;
@@ -73,21 +119,21 @@ export async function fetchEvents(): Promise<EventItem[]> {
 }
 
 /**
- * Subscribe to all events for admin management
+ * Subscribe to all events using Connection Pooling.
+ * Multiplexes single socket listener across all active components.
  */
 export function subscribeToAllEvents(
   onUpdate: (events: EventItem[]) => void,
   onError?: (err: any) => void
 ): Unsubscribe {
-  const eventsRef = ref(database, EVENTS_REF);
-  return onValue(
-    eventsRef,
-    (snap) => {
-      if (snap.exists()) {
-        const val = snap.val();
+  return connectionPool.subscribe(
+    EVENTS_REF,
+    (val) => {
+      if (val) {
         const list: EventItem[] = Object.keys(val)
-          .map((k) => ({ id: k, ...val[k] }))
+          .map((k) => normalizeEvent(k, val[k]))
           .sort((a, b) => b.createdAt - a.createdAt);
+        connectionPool.setCache('events_list', list, 15000);
         onUpdate(list);
       } else {
         onUpdate(INITIAL_EVENTS);
@@ -124,15 +170,19 @@ export async function createEvent(data: Omit<EventItem, 'id' | 'createdAt'>): Pr
   const eventsRef = ref(database, EVENTS_REF);
   const newRef = push(eventsRef);
 
-  const event: EventItem = {
-    id: newRef.key || Date.now().toString(),
-    ...data,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+  const eventId = newRef.key || Date.now().toString();
+  const now = Date.now();
+
+  const cleanPayload = sanitizeEventPayload(data, false);
+  const fullPayload = {
+    ...cleanPayload,
+    id: eventId,
+    createdAt: now,
+    updatedAt: now,
   };
 
-  await set(newRef, event);
-  return event;
+  await set(newRef, fullPayload);
+  return normalizeEvent(eventId, fullPayload);
 }
 
 /**
@@ -140,10 +190,41 @@ export async function createEvent(data: Omit<EventItem, 'id' | 'createdAt'>): Pr
  */
 export async function updateEvent(id: string, data: Partial<EventItem>): Promise<void> {
   const eventRef = ref(database, `${EVENTS_REF}/${id}`);
+  const cleanPayload = sanitizeEventPayload(data, true);
+
   await update(eventRef, {
-    ...data,
+    ...cleanPayload,
     updatedAt: Date.now(),
   });
+}
+
+/**
+ * Set an event as active popup (Admin)
+ * Can deactivate other popups to ensure only 1 primary popup displays to users
+ */
+export async function setEventAsPopup(id: string, isPopup: boolean): Promise<void> {
+  const eventsRef = ref(database, EVENTS_REF);
+  const snap = await get(eventsRef);
+  if (snap.exists()) {
+    const val = snap.val();
+    const updates: Record<string, any> = {};
+
+    // If activating this popup, deactivate others so only one primary popup shows
+    if (isPopup) {
+      Object.keys(val).forEach((k) => {
+        if (val[k].isPopup && k !== id) {
+          updates[`${k}/isPopup`] = false;
+        }
+      });
+    }
+
+    updates[`${id}/isPopup`] = isPopup;
+    updates[`${id}/updatedAt`] = Date.now();
+    await update(eventsRef, updates);
+  } else {
+    const singleRef = ref(database, `${EVENTS_REF}/${id}`);
+    await update(singleRef, { isPopup, updatedAt: Date.now() });
+  }
 }
 
 /**

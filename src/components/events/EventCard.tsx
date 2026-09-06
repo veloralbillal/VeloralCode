@@ -11,8 +11,8 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
   const currency = event.currency || '৳';
   const hasDownPrice = typeof event.downPrice === 'number' && event.downPrice > 0;
-  const savings = hasDownPrice && event.price > event.downPrice
-    ? Math.round(((event.price - event.downPrice) / event.price) * 100)
+  const savings = hasDownPrice && event.price && event.price > (event.downPrice || 0)
+    ? Math.round(((event.price - (event.downPrice || 0)) / event.price) * 100)
     : 0;
 
   return (
@@ -20,14 +20,20 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
       onClick={() => onSelect(event)}
       className="group flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-600 transition-all duration-300 cursor-pointer"
     >
-      {/* Event Cover Image */}
+      {/* Event Cover Image or Warning Banner */}
       <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100 dark:bg-slate-800">
-        <img
-          src={event.imageUrl}
-          alt={event.title}
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          referrerPolicy="no-referrer"
-        />
+        {event.imageUrl ? (
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-amber-500/20 via-indigo-500/20 to-slate-900 flex items-center justify-center">
+            <Calendar className="w-12 h-12 text-indigo-400/80" />
+          </div>
+        )}
 
         {/* Status Badge */}
         <div className="absolute top-3 left-3">
@@ -83,7 +89,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-400 line-through">
-                {currency}{event.price.toLocaleString()}
+                {currency}{(event.price ?? 0).toLocaleString()}
               </span>
               <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded">
                 Down Price
@@ -91,7 +97,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
             </div>
             <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-baseline">
               <span className="text-base text-indigo-600 dark:text-indigo-400 mr-0.5">{currency}</span>
-              <span>{event.downPrice ? event.downPrice.toLocaleString() : event.price.toLocaleString()}</span>
+              <span>{(event.downPrice ?? event.price ?? 0).toLocaleString()}</span>
             </div>
           </div>
 
