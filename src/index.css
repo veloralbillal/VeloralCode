@@ -6,9 +6,25 @@
   }
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior-y: contain;
   }
   code, pre, kbd {
     font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* Prevent text dragging and selection on UI controls while preserving code and inputs */
+  img, a {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  /* Text inputs, code blocks, and editors remain selectable */
+  input, textarea, pre, code, [contenteditable="true"], .select-text {
+    -webkit-user-select: text !important;
+    user-select: text !important;
   }
 }
 
