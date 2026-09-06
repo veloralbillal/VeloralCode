@@ -36,7 +36,7 @@ export const BannerSlide: React.FC<BannerSlideProps> = ({ banner, onNavigate }) 
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent sm:hidden" />
 
       {/* Content Container */}
-      <div className="relative z-10 h-full flex flex-col justify-end sm:justify-center p-6 sm:p-10 max-w-2xl space-y-3 sm:space-y-4">
+      <div className="relative z-10 h-full flex flex-col justify-end sm:justify-center px-12 py-6 sm:p-10 max-w-2xl space-y-2.5 sm:space-y-4">
         {banner.badge && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 backdrop-blur-md border border-indigo-400/40 text-indigo-300 text-[11px] font-bold tracking-wider uppercase w-fit">
             <Sparkles className="w-3 h-3 text-indigo-400" />

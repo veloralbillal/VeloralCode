@@ -20,13 +20,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // Storage might be blocked by browser privacy shields
     }
-    try {
-      if (typeof window !== 'undefined' && window.matchMedia) {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-    } catch {
-      // Fallback
-    }
+    // Default to dark mode for modern developer toolkit aesthetic
     return 'dark';
   });
 
