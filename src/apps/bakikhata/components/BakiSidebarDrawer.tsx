@@ -21,9 +21,11 @@ import {
   Moon,
   LogOut,
   ChevronRight,
+  Download,
 } from 'lucide-react';
 import { BakiStats } from '../types';
 import { formatTaka } from '../utils/bakiUtils';
+import { usePWAInstall } from '../../../utils/pwa/usePWAInstall';
 
 interface BakiSidebarDrawerProps {
   isOpen: boolean;
@@ -76,6 +78,8 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
   onNavigate,
   onLogout,
 }) => {
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+
   if (!isOpen) return null;
 
   const isCreator = userProfile?.role === 'creator' || isAdmin;
@@ -134,6 +138,31 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               <span className="font-extrabold text-amber-400">{formatTaka(stats.tuesdayDueAmount)}</span>
             </div>
           </div>
+
+          {/* PWA Install App Card */}
+          {!isInstalled && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-black text-white">বাকির খাতা অ্যাপ PWA</span>
+                </div>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500 text-white">
+                  Offline Ready
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-300/90 leading-tight">
+                হোমস্ক্রিনে অ্যাপ হিসেবে ইন্সটল করুন এবং যেকোনো সময় অফলাইনে ব্যবহার করুন।
+              </p>
+              <button
+                onClick={install}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>📱 বাকির খাতা ইন্সটল করুন</span>
+              </button>
+            </div>
+          )}
 
           {/* Section 1: খাতা ও ফিল্টার */}
           <div className="space-y-1">
