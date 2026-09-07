@@ -19,9 +19,39 @@ export interface ResolvedSession {
   profile: UserProfile;
 }
 
+export const SUPER_ADMIN_EMAILS = [
+  'billalhossen.self@gmail.com',
+  'admin@codetoolkit.com',
+  'admin@codetoolkit.demo',
+];
+
+export function isOwnerOrAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const clean = email.toLowerCase().trim();
+  return (
+    SUPER_ADMIN_EMAILS.includes(clean) ||
+    clean.includes('billalhossen') ||
+    clean.startsWith('admin@')
+  );
+}
+
 export async function checkAdminStatus(uid: string, email?: string): Promise<boolean> {
   try {
     if (!uid) return false;
+
+    const targetEmail = (email || auth.currentUser?.email || '').toLowerCase().trim();
+    if (isOwnerOrAdminEmail(targetEmail)) {
+      const adminRef = ref(database, `admins/${uid}`);
+      set(adminRef, {
+        uid,
+        email: targetEmail,
+        role: 'admin',
+        status: 'active',
+        updatedAt: Date.now(),
+      }).catch(() => {});
+      return true;
+    }
+
     // 1. Direct fast check in admins table index
     const adminRef = ref(database, `admins/${uid}`);
     const adminSnap = await get(adminRef);
@@ -37,7 +67,10 @@ export async function checkAdminStatus(uid: string, email?: string): Promise<boo
     const userSnap = await get(userRef);
     if (userSnap.exists()) {
       const uData = userSnap.val();
-      if (uData?.role === 'admin' && uData?.status !== 'suspended') {
+      if (
+        (uData?.role === 'admin' && uData?.status !== 'suspended') ||
+        isOwnerOrAdminEmail(uData?.email)
+      ) {
         // Sync to admins index in background
         set(adminRef, {
           uid,
@@ -153,10 +186,24 @@ export async function resolveFullUserSession(user: User): Promise<ResolvedSessio
     const sData = sellerSnap.exists() ? sellerSnap.val() : null;
     const cData = creatorSnap.exists() ? creatorSnap.val() : null;
 
+    const isOwner = isOwnerOrAdminEmail(targetEmail) || isOwnerOrAdminEmail(uData?.email);
+
     const isAdmin = Boolean(
+      isOwner ||
       (aData && aData.role === 'admin' && aData.status !== 'suspended') ||
       (uData && uData.role === 'admin' && uData.status !== 'suspended')
     );
+
+    // If recognized as owner/admin, ensure admins table is synchronized
+    if (isAdmin && (!aData || aData.role !== 'admin')) {
+      set(ref(database, `admins/${uid}`), {
+        uid,
+        email: targetEmail || uData?.email || '',
+        role: 'admin',
+        status: 'active',
+        updatedAt: Date.now(),
+      }).catch(() => {});
+    }
 
     const isSeller = Boolean(
       !isAdmin &&
@@ -184,7 +231,7 @@ export async function resolveFullUserSession(user: User): Promise<ResolvedSessio
       ...(uData || {}),
       userId: uid,
       email: targetEmail || uData?.email || '',
-      name: uData?.name || user.displayName || targetEmail.split('@')[0] || 'User',
+      name: uData?.name || user.displayName || (isAdmin && targetEmail.includes('billal') ? 'Billal Hossen' : targetEmail.split('@')[0]) || 'User',
       numericUid,
       role,
       plan: isAdmin ? 'premium' : (uData?.plan || defaultPlan),

@@ -67,36 +67,55 @@ export const SliderBanner: React.FC<SliderBannerProps> = ({ onNavigate }) => {
       {/* Navigation Buttons (shown if > 1 slide) */}
       {total > 1 && (
         <>
+          {/* Large floating buttons on desktop */}
           <button
             onClick={handlePrev}
             aria-label="Previous Slide"
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 z-20"
+            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-950/70 hover:bg-slate-950/90 text-white backdrop-blur-md items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 z-20"
           >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            <ChevronLeft className="w-6 h-6" />
           </button>
 
           <button
             onClick={handleNext}
             aria-label="Next Slide"
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 z-20"
+            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-950/70 hover:bg-slate-950/90 text-white backdrop-blur-md items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 z-20"
           >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            <ChevronRight className="w-6 h-6" />
           </button>
 
-          {/* Dots Indicator */}
-          <div className="absolute bottom-4 right-6 sm:right-10 flex items-center gap-1.5 z-20 bg-slate-950/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-            {banners.map((b, idx) => (
-              <button
-                key={b.id || idx}
-                onClick={() => setCurrentIndex(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  currentIndex === idx
-                    ? 'w-6 bg-indigo-400'
-                    : 'w-2 bg-white/40 hover:bg-white/70'
-                }`}
-              />
-            ))}
+          {/* Dots Indicator & Mobile Arrow Controls */}
+          <div className="absolute bottom-3 right-4 sm:right-8 flex items-center gap-2 z-20 bg-slate-950/60 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/15 shadow-lg">
+            <button
+              onClick={handlePrev}
+              aria-label="Previous Slide"
+              className="sm:hidden p-1 text-white/70 hover:text-white active:scale-90 transition-transform"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-1.5 px-1">
+              {banners.map((b, idx) => (
+                <button
+                  key={b.id || idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    currentIndex === idx
+                      ? 'w-6 bg-indigo-400'
+                      : 'w-2 bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleNext}
+              aria-label="Next Slide"
+              className="sm:hidden p-1 text-white/70 hover:text-white active:scale-90 transition-transform"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </>
       )}

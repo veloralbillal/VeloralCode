@@ -10,6 +10,11 @@ import {
   PlusCircle,
   TrendingUp,
   FolderCode,
+  User,
+  KeyRound,
+  Bookmark,
+  Shield,
+  Coins,
 } from 'lucide-react';
 import { CodeItem, SupportedLanguage } from '../../types';
 import { subscribeToPublishedCodes } from '../../services/codeService';
@@ -44,7 +49,7 @@ const LANGUAGES: ('All' | SupportedLanguage)[] = [
 ];
 
 export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavigate }) => {
-  const { isAdmin } = useAuth();
+  const { currentUser, userProfile, isAdmin, isSeller, isCreator, isPremium } = useAuth();
   const { siteConfig } = useSiteConfig();
   const [codes, setCodes] = useState<CodeItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +131,102 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Live Slider Banners Carousel */}
       <SliderBanner onNavigate={onNavigate} />
+
+      {/* Logged-in User Quick Dashboard Hub */}
+      {currentUser && (
+        <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border border-indigo-500/30 shadow-xl text-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-lg font-black shadow-md shadow-indigo-600/30 shrink-0">
+                {(userProfile?.name || currentUser.displayName || currentUser.email)?.[0]?.toUpperCase() || 'U'}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-base sm:text-lg font-extrabold text-white truncate">
+                    Welcome back, {userProfile?.name || currentUser.displayName || currentUser.email?.split('@')[0]}!
+                  </h2>
+                  <span
+                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                      isAdmin
+                        ? 'bg-purple-500/30 text-purple-300 border border-purple-400/40'
+                        : isSeller
+                        ? 'bg-amber-500/30 text-amber-300 border border-amber-400/40'
+                        : isCreator
+                        ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-400/40'
+                        : isPremium
+                        ? 'bg-amber-500/30 text-amber-300 border border-amber-400/40'
+                        : 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30'
+                    }`}
+                  >
+                    {isAdmin
+                      ? '⚡ Master Admin'
+                      : isSeller
+                      ? '💼 Reseller Partner'
+                      : isCreator
+                      ? '🚀 Verified Creator'
+                      : isPremium
+                      ? '★ Premium Member'
+                      : 'Free Member'}
+                  </span>
+                  {userProfile?.numericUid && (
+                    <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md">
+                      #{userProfile.numericUid}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-400 mt-1 truncate">
+                  {isAdmin
+                    ? 'Logged in with Master Administrator authority. Full access to control and configure the platform.'
+                    : `Account connected: ${currentUser.email}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Action Shortcuts */}
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
+              {isAdmin && (
+                <button
+                  onClick={() => onNavigate('#/admin')}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-md shadow-purple-600/30"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Admin Panel</span>
+                </button>
+              )}
+              {isSeller && (
+                <button
+                  onClick={() => onNavigate('#/seller')}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-md shadow-amber-600/30"
+                >
+                  <Coins className="w-3.5 h-3.5" />
+                  <span>Seller Hub</span>
+                </button>
+              )}
+              <button
+                onClick={() => onNavigate('#/profile')}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/60 text-slate-200 text-xs font-semibold transition"
+              >
+                <User className="w-3.5 h-3.5 text-indigo-400" />
+                <span>My Profile</span>
+              </button>
+              <button
+                onClick={() => onNavigate('#/profile/bookmarks')}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/60 text-slate-200 text-xs font-semibold transition"
+              >
+                <Bookmark className="w-3.5 h-3.5 text-amber-400" />
+                <span>Bookmarks</span>
+              </button>
+              <button
+                onClick={() => onNavigate('#/profile/licenses')}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/60 text-slate-200 text-xs font-semibold transition"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Licenses</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-950 text-white p-6 sm:p-10 border border-indigo-800/40 shadow-2xl shadow-indigo-950/30">
