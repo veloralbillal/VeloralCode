@@ -14,15 +14,32 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
-          id: '/',
+          id: '/?app=bakikhata',
           name: 'বাকির খাতা - ডিজিটাল হিসাব ও রিচার্জ',
           short_name: 'বাকির খাতা',
           description: 'দোকানের ডিজিটাল বাকির খাতা, হিসাব-নিকাশ, বিকাশ ও মোবাইল রিচার্জ ম্যানেজমেন্ট অ্যাপ। অফলাইনেও ব্যবহারযোগ্য।',
           theme_color: '#059669',
           background_color: '#0f172a',
           display: 'standalone',
-          start_url: '/',
+          orientation: 'portrait-primary',
+          start_url: '/?app=bakikhata#/app/bakikhata',
           scope: '/',
+          shortcuts: [
+            {
+              name: 'বাকির খাতা',
+              short_name: 'খাতা',
+              description: 'কাস্টমারদের বাকির খাতা ও খতিয়ান',
+              url: '/?app=bakikhata#/app/bakikhata',
+              icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+            },
+            {
+              name: 'বিকাশ ও রিচার্জ',
+              short_name: 'বিকাশ',
+              description: 'বিকাশ ও মোবাইল রিচার্জ হিসাব',
+              url: '/?app=bakikhata&tab=bkash#/app/bakikhata',
+              icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
+            },
+          ],
           icons: [
             {
               src: '/pwa-192x192.png',

@@ -337,7 +337,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
             </span>
 
             <button
-              onClick={() => handleAction(() => onNavigate('#/'))}
+              onClick={() => handleAction(() => onNavigate('#/explore'))}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <LayoutDashboard className="w-4 h-4 text-indigo-400" />

@@ -36,7 +36,8 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
   if (!isOpen) return null;
 
   const openInNewTab = () => {
-    window.open(window.location.href, '_blank', 'noopener,noreferrer');
+    const origin = window.location.origin;
+    window.open(`${origin}/?app=bakikhata#/app/bakikhata`, '_blank', 'noopener,noreferrer');
   };
 
   return (

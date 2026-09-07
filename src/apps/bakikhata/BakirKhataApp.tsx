@@ -109,6 +109,26 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
 
   // Real-time synchronization for Baki Khata
   useEffect(() => {
+    try {
+      localStorage.setItem('last_active_app', 'bakikhata');
+      localStorage.setItem('pwa_default_app', 'bakikhata');
+    } catch {
+      // ignore
+    }
+
+    if (typeof window !== 'undefined') {
+      const search = window.location.search || '';
+      if (search.includes('tab=bkash')) {
+        setActiveTab('bkash');
+      } else if (search.includes('tab=recharge')) {
+        setActiveTab('recharge');
+      } else if (search.includes('action=add_due')) {
+        setAddDueOpen(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = subscribeBakirKhata(currentUser?.uid, ({ customers, transactions }) => {
       setCustomers(customers);
       setTransactions(transactions);

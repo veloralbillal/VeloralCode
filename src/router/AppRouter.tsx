@@ -32,11 +32,49 @@ export const AppRouter: React.FC = () => {
   
   const getInitialRoute = () => {
     if (typeof window !== 'undefined') {
-      const path = window.location.pathname;
+      const path = window.location.pathname || '';
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        document.referrer.includes('android-app://');
+
+      // 1. Direct creator route: /creator/:id
       if (path.startsWith('/creator/') && path.length > '/creator/'.length) {
         return `#${path}`;
       }
-      return window.location.hash || '#/';
+
+      // 2. Direct Bakir Khata paths: /app/bakikhata or /bakikhata
+      if (path === '/app/bakikhata' || path.startsWith('/app/bakikhata') || path === '/bakikhata') {
+        return '#/app/bakikhata';
+      }
+
+      // 3. PWA query param (e.g., from manifest start_url: /?app=bakikhata)
+      if (search.includes('app=bakikhata') || search.includes('pwa=bakikhata')) {
+        return '#/app/bakikhata';
+      }
+
+      // 4. Standalone installed PWA mode:
+      // When opened from Android/iOS/Desktop home screen without an explicit sub-route,
+      // it MUST open the installed Bakir Khata app directly!
+      if (isStandalone && (!hash || hash === '#/' || hash === '#' || hash === '')) {
+        return '#/app/bakikhata';
+      }
+
+      // 5. If user previously used Bakir Khata and opens in standalone mode
+      try {
+        const lastApp = localStorage.getItem('last_active_app');
+        if (lastApp === 'bakikhata' && isStandalone && (!hash || hash === '#/')) {
+          return '#/app/bakikhata';
+        }
+      } catch {
+        // ignore localStorage access errors
+      }
+
+      // 6. Explicit hash navigation
+      return hash || '#/';
     }
     return '#/';
   };
@@ -45,6 +83,13 @@ export const AppRouter: React.FC = () => {
   const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   useEffect(() => {
+    // If the resolved route is Bakir Khata (e.g., in installed PWA or via query param)
+    // but the address bar hash is empty, sync it for consistent navigation.
+    const initial = getInitialRoute();
+    if (initial === '#/app/bakikhata' && window.location.hash !== '#/app/bakikhata') {
+      window.location.hash = '#/app/bakikhata';
+    }
+
     const handleHashChange = () => {
       setCurrentRoute(window.location.hash || '#/');
       window.scrollTo({ top: 0, behavior: 'smooth' });
