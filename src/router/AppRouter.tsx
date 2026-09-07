@@ -18,6 +18,8 @@ const AuthPage = lazy(() => import('../components/auth/AuthPage').then((m) => ({
 const CodeDetails = lazy(() => import('../components/user/CodeDetails').then((m) => ({ default: m.CodeDetails })));
 const UserProfileView = lazy(() => import('../components/user/UserProfile').then((m) => ({ default: m.UserProfileView })));
 const BakirKhataApp = lazy(() => import('../apps/bakikhata').then((m) => ({ default: m.BakirKhataApp })));
+const UrlShortenerApp = lazy(() => import('../apps/urlshortener').then((m) => ({ default: m.UrlShortenerApp })));
+const LinkRedirectHandler = lazy(() => import('../apps/urlshortener').then((m) => ({ default: m.LinkRedirectHandler })));
 const EventsPage = lazy(() => import('../components/events/EventsPage').then((m) => ({ default: m.EventsPage })));
 
 const RouteLoadingFallback = () => (
@@ -49,6 +51,29 @@ export const AppRouter: React.FC = () => {
       // 2. Direct Bakir Khata paths: /app/bakikhata or /bakikhata
       if (path === '/app/bakikhata' || path.startsWith('/app/bakikhata') || path === '/bakikhata') {
         return '#/app/bakikhata';
+      }
+
+      // 2b. Direct URL Shortener paths: /app/shortener or /shortener
+      if (path === '/app/shortener' || path.startsWith('/app/shortener') || path === '/shortener' || path === '/app/urlshortener') {
+        return '#/app/shortener';
+      }
+
+      // 2c. Direct Short URL redirect paths: /r/:slug or /s/:slug
+      if (path.startsWith('/r/') || path.startsWith('/s/')) {
+        const slug = path.replace(/^\/(r|s)\//, '').split('?')[0];
+        if (slug) return `#/r/${slug}`;
+      }
+
+      // 2d. Clean direct domain slug (e.g. domain/random-code)
+      if (path && path.length > 1 && path.startsWith('/') && !path.includes('.')) {
+        const potentialSlug = path.substring(1).split('/')[0].split('?')[0];
+        const reserved = [
+          'admin', 'app', 'profile', 'creator', 'events', 'explore', 'codes',
+          'seller', 'login', 'register', 'r', 's', 'api', 'bakikhata', 'shortener'
+        ];
+        if (potentialSlug && !reserved.includes(potentialSlug.toLowerCase())) {
+          return `#/r/${potentialSlug}`;
+        }
       }
 
       // 3. PWA query param (e.g., from manifest start_url: /?app=bakikhata)
@@ -143,6 +168,41 @@ export const AppRouter: React.FC = () => {
           <BakirKhataApp onBackToApp={() => navigate('#/profile')} />
         </Suspense>
       );
+    }
+
+    // URL Shortener Sub-App
+    if (hash === '#/app/shortener' || hash.startsWith('#/app/shortener') || hash === '#/app/urlshortener') {
+      return (
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <UrlShortenerApp onNavigate={navigate} />
+        </Suspense>
+      );
+    }
+
+    // Short URL Redirect Handler: #/r/:slug or #/s/:slug
+    if (hash.startsWith('#/r/') || hash.startsWith('#/s/')) {
+      const slug = hash.replace(/^#\/(r|s)\//, '').split('?')[0];
+      return (
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <LinkRedirectHandler slug={slug} onNavigate={navigate} />
+        </Suspense>
+      );
+    }
+
+    // Direct clean domain slug hash handler (e.g. #/random-code)
+    if (hash.startsWith('#/') && hash.length > 2 && !hash.startsWith('#/app') && !hash.startsWith('#/admin') && !hash.startsWith('#/profile') && !hash.startsWith('#/seller') && !hash.startsWith('#/creator') && !hash.startsWith('#/code/')) {
+      const candidateSlug = hash.replace(/^#\//, '').split('?')[0].split('/')[0];
+      const reserved = [
+        'admin', 'app', 'profile', 'creator', 'events', 'explore', 'codes',
+        'seller', 'login', 'register', 'code', 'view', 'api', 'bakikhata', 'shortener'
+      ];
+      if (candidateSlug && !reserved.includes(candidateSlug.toLowerCase())) {
+        return (
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <LinkRedirectHandler slug={candidateSlug} onNavigate={navigate} />
+          </Suspense>
+        );
+      }
     }
 
     // Code Details Route: #/code/:id
@@ -267,8 +327,10 @@ export const AppRouter: React.FC = () => {
   const isToolRunnerRoute = currentRoute.startsWith('#/code/');
   const isUserProfileRoute = currentRoute.startsWith('#/profile');
   const isBakirKhataRoute = currentRoute.startsWith('#/app/bakikhata');
+  const isUrlShortenerRoute = currentRoute.startsWith('#/app/shortener') || currentRoute.startsWith('#/app/urlshortener');
+  const isLinkRedirectRoute = currentRoute.startsWith('#/r/') || currentRoute.startsWith('#/s/');
 
-  const hideGlobalLayout = isAdminRoute || isSellerRoute || isCreatorRoute || isToolRunnerRoute || isUserProfileRoute || isBakirKhataRoute;
+  const hideGlobalLayout = isAdminRoute || isSellerRoute || isCreatorRoute || isToolRunnerRoute || isUserProfileRoute || isBakirKhataRoute || isUrlShortenerRoute || isLinkRedirectRoute;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-150">

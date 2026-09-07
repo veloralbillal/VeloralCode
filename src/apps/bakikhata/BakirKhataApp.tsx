@@ -162,9 +162,9 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const handleExecuteRecharge = async (payload: any) => {
     try {
       await addRechargeTransactionToDb(currentUser?.uid, payload);
-      showToast('মোবাইল রিচার্জ সফলভাবে সম্পন্ন হয়েছে!', 'success');
+      showToast('Mobile recharge completed successfully!', 'success');
     } catch (err: any) {
-      showToast(err.message || 'রিচার্জ সম্পন্ন করতে সমস্যা হয়েছে', 'error');
+      showToast(err.message || 'Failed to complete mobile recharge', 'error');
     }
   };
 
@@ -226,14 +226,14 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           customerPhone: created.phone,
           type: 'due',
           category: 'other',
-          itemsSummary: 'প্রারম্ভিক বকেয়া ব্যালেন্স',
+          itemsSummary: 'Initial Credit Balance',
           amount: custData.initialDue,
           timestamp: Date.now(),
         });
       }
-      showToast(`${created.name} এর খাতা সফলভাবে তৈরি হয়েছে`, 'success');
+      showToast(`${created.name}'s ledger created successfully`, 'success');
     } catch {
-      showToast('গ্রাহক সংরক্ষণে ত্রুটি হয়েছে', 'error');
+      showToast('Error saving customer', 'error');
     }
   };
 
@@ -287,9 +287,9 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         );
       }
 
-      showToast(`৳${data.amount} বাকি সফলভাবে যোগ করা হয়েছে`, 'success');
+      showToast(`৳${data.amount} credit added successfully`, 'success');
     } catch {
-      showToast('বাকি সংরক্ষণে সমস্যা হয়েছে', 'error');
+      showToast('Error saving credit record', 'error');
     }
   };
 
@@ -299,12 +299,12 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       const isDeduction =
         payload.type === 'send_money' || payload.type === 'cash_in';
       showToast(
-        `বিকাশ লেনদেন সফল! ফান্ড ${isDeduction ? 'কমেছে' : 'বেড়েছে'}। বর্তমান ব্যালেন্স: ৳${result.fund.currentBalance}`,
+        `Transaction successful! Fund ${isDeduction ? 'deducted' : 'added'}. Current balance: ৳${result.fund.currentBalance}`,
         'success'
       );
       return result;
     } catch {
-      showToast('বিকাশ লেনদেনে সমস্যা হয়েছে', 'error');
+      showToast('Bkash transaction failed', 'error');
       throw new Error('Bkash operation failed');
     }
   };
@@ -312,10 +312,10 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const handleUpdateBkashFund = async (amount: number, mode: 'add' | 'set', note?: string) => {
     try {
       const updated = await updateBkashFundBalance(currentUser?.uid, amount, mode, note);
-      showToast(`বিকাশ ফান্ড আপডেট সফল! বর্তমান ব্যালেন্স: ৳${updated.currentBalance}`, 'success');
+      showToast(`Fund balance updated successfully! Current balance: ৳${updated.currentBalance}`, 'success');
       return updated;
     } catch {
-      showToast('বিকাশ ফান্ড আপডেটে সমস্যা হয়েছে', 'error');
+      showToast('Failed to update fund balance', 'error');
       throw new Error('Fund update failed');
     }
   };
@@ -337,15 +337,15 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         customerPhone: customer.phone,
         type: 'payment',
         category: 'other',
-        itemsSummary: data.note || 'বকেয়া পরিশোধ',
+        itemsSummary: data.note || 'Due payment',
         amount: data.amount,
         paymentMethod: data.paymentMethod,
         isTuesdaySettlement: data.isTuesdaySettlement,
         timestamp: data.timestamp,
       });
-      showToast(`৳${data.amount} পেমেন্ট জমা ও খাতা আপডেট হয়েছে`, 'success');
+      showToast(`৳${data.amount} payment collected and ledger updated`, 'success');
     } catch {
-      showToast('পেমেন্ট সংরক্ষণে সমস্যা হয়েছে', 'error');
+      showToast('Error saving payment record', 'error');
     }
   };
 
@@ -413,19 +413,19 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         onSelectTuesdayFilter={() => {
           setActiveTab('khata');
           setIsTuesdayFilterActive(true);
-          showToast('মঙ্গলবার কালেকশন ফিল্টার চালু হয়েছে', 'info');
+          showToast('Tuesday collection filter activated', 'info');
         }}
         onSelectAllCustomers={() => {
           setActiveTab('khata');
           setIsTuesdayFilterActive(false);
-          showToast('সব গ্রাহকের তালিকা প্রদর্শিত হচ্ছে', 'info');
+          showToast('Showing all customers', 'info');
         }}
         onSelectKhataTab={() => {
           setActiveTab('khata');
         }}
         onSelectBkashTab={() => {
           setActiveTab('bkash');
-          showToast('বিকাশ ও মোবাইল ব্যাংকিং ফান্ড কাউন্টারে যাচ্ছেন', 'info');
+          showToast('Switched to Bkash & MFS Fund Counter', 'info');
         }}
         onOpenBkashAction={(type) => {
           setBkashActionInitialType(type || 'recharge');
@@ -446,11 +446,11 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         onOpenDailyReport={() => setDailyReportOpen(true)}
         onExportCsv={() => {
           if (customers.length === 0) {
-            showToast('কোনো কাস্টমার ডেটা পাওয়া যায়নি', 'warning');
+            showToast('No customer data found', 'warning');
             return;
           }
           exportCustomersToCsv(customers);
-          showToast('কাস্টমার ডেটা CSV ফরম্যাটে এক্সপোর্ট করা হয়েছে', 'success');
+          showToast('Customer data exported as CSV', 'success');
         }}
         onPrintLedger={() => {
           window.print();
@@ -461,7 +461,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         onLogout={async () => {
           try {
             await logout();
-            showToast('সফলভাবে লগআউট হয়েছে', 'info');
+            showToast('Logged out successfully', 'info');
           } catch (e: any) {
             showToast(e.message || 'Logout failed', 'error');
           }

@@ -26,15 +26,15 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
   const getOpBadge = (type: BkashOpType) => {
     switch (type) {
       case 'send_money':
-        return { label: 'সেন্ড মানি', color: 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300', icon: Send };
+        return { label: 'Send Money', color: 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300', icon: Send };
       case 'cash_in':
-        return { label: 'ক্যাশ ইন', color: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300', icon: Smartphone };
+        return { label: 'Cash In', color: 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300', icon: Smartphone };
       case 'cash_out':
-        return { label: 'ক্যাশ আউট', color: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300', icon: ArrowDownRight };
+        return { label: 'Cash Out', color: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300', icon: ArrowDownRight };
       case 'fund_load':
-        return { label: 'ফান্ড লোড', color: 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300', icon: ArrowUpRight };
+        return { label: 'Fund Refill', color: 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300', icon: ArrowUpRight };
       default:
-        return { label: 'সমন্বয়', color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300', icon: RefreshCw };
+        return { label: 'Adjusted', color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300', icon: RefreshCw };
     }
   };
 
@@ -48,7 +48,7 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="নম্বর বা কাস্টমারের নাম দিয়ে খুঁজুন..."
+            placeholder="Search by number or customer name..."
             className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
           />
         </div>
@@ -56,11 +56,11 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
         {/* Filter Pills */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 text-[11px] font-bold">
           {[
-            { id: 'all', label: 'সকল লেনদেন' },
-            { id: 'send_money', label: 'সেন্ড মানি' },
-            { id: 'cash_in', label: 'ক্যাশ ইন' },
-            { id: 'cash_out', label: 'ক্যাশ আউট' },
-            { id: 'fund_load', label: 'ফান্ড লোড' },
+            { id: 'all', label: 'All Transactions' },
+            { id: 'send_money', label: 'Send Money' },
+            { id: 'cash_in', label: 'Cash In' },
+            { id: 'cash_out', label: 'Cash Out' },
+            { id: 'fund_load', label: 'Fund Refill' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -106,12 +106,12 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
                       )}
                       {tx.isDue && (
                         <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-extrabold">
-                          বাকি (খাতায় জমা)
+                          Due (Added to Ledger)
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                      {tx.customerName && <span>গ্রাহক: {tx.customerName} • </span>}
+                      {tx.customerName && <span>Customer: {tx.customerName} • </span>}
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-slate-400" />
                         {new Date(tx.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' })}
@@ -133,7 +133,7 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
                     {isFundInflow ? `+ ${formatTaka(tx.amount)}` : `- ${formatTaka(tx.amount)}`}
                   </div>
                   <div className="text-[10px] text-slate-400">
-                    ফান্ড: {formatTaka(tx.balanceAfter)}
+                    Fund: {formatTaka(tx.balanceAfter)}
                   </div>
                 </div>
               </div>
@@ -141,7 +141,7 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
           })
         ) : (
           <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700">
-            <p className="text-xs text-slate-400">কোনো বিকাশ লেনদেন পাওয়া যায়নি</p>
+            <p className="text-xs text-slate-400">No Bkash transactions found</p>
           </div>
         )}
       </div>

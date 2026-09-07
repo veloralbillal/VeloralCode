@@ -46,7 +46,7 @@ export const CreatorKycStatusCard: React.FC<CreatorKycStatusCardProps> = ({
             <div className="mt-2 p-3 rounded-xl bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
               <Camera className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <strong className="block font-bold">Face Photo Required (মুখমণ্ডলের ছবি আবশ্যক):</strong>
+                <strong className="block font-bold">Face Photo Required:</strong>
                 <span>
                   Your account is approved, but the latest platform policy requires a clear Face / Selfie photo. Please submit your face photo below to keep your verification fully compliant.
                 </span>

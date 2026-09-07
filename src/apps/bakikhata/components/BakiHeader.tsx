@@ -31,7 +31,7 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
           <button
             onClick={onOpenSidebar}
             className="p-2 rounded-xl text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition shrink-0"
-            title="মেনু / সাইডবার খুলুন"
+            title="Open Menu / Sidebar"
             aria-label="Open Sidebar Menu"
           >
             <Menu className="w-5 h-5" />
@@ -41,7 +41,7 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
             <button
               onClick={onBackToApp}
               className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0"
-              title="ফিরে যান"
+              title="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -54,14 +54,14 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                বাকির খাতা
+                Baki Khata
               </h1>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                মুদি ও বিকাশ
+                Grocery & MFS
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-              চা, পান, মুদির সওদা ও বিকাশ লেনদেনের বকেয়া হিসাব
+              Daily store ledger, grocery credit, and Bkash transactions
             </p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="গ্রাহকের নাম বা মোবাইল নম্বর..."
+              placeholder="Search customer name or phone..."
               className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -84,10 +84,10 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
               id="pwa-header-install-btn"
               onClick={onOpenInstall}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition shrink-0 active:scale-95"
-              title="বাকির খাতা অ্যাপ ইনস্টল করুন"
+              title="Install Baki Khata App"
             >
               <Download className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span className="hidden sm:inline">অ্যাপ ইনস্টল</span>
+              <span className="hidden sm:inline">Install App</span>
             </button>
           )}
 
@@ -96,8 +96,8 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
           >
             <UserPlus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden sm:inline">নতুন কাস্টমার</span>
-            <span className="sm:hidden">কাস্টমার</span>
+            <span className="hidden sm:inline">New Customer</span>
+            <span className="sm:hidden">Customer</span>
           </button>
 
           <button
@@ -105,7 +105,7 @@ export const BakiHeader: React.FC<BakiHeaderProps> = ({
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20 transition"
           >
             <Plus className="w-4 h-4" />
-            <span>নতুন বাকি লিখুন</span>
+            <span>Add New Credit</span>
           </button>
         </div>
       </div>

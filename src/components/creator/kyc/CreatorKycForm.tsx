@@ -87,25 +87,25 @@ export const CreatorKycForm: React.FC<CreatorKycFormProps> = ({
         {/* Document Type */}
         <div className="space-y-1.5">
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Document Type (ডকুমেন্ট ধরন) <span className="text-rose-500">*</span>
+            Document Type <span className="text-rose-500">*</span>
           </label>
           <select
             value={documentType}
             onChange={(e: any) => setDocumentType(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-hidden font-medium"
           >
-            <option value="nid">National ID (NID Card) - জাতীয় পরিচয়পত্র</option>
-            <option value="passport">Passport - পাসপোর্ট</option>
-            <option value="driving_license">Driving License - ড্রাইভিং লাইসেন্স</option>
-            <option value="student_id">Student ID - স্টুডেন্ট আইডি</option>
-            <option value="trade_license">Trade License - ট্রেড লাইসেন্স</option>
+            <option value="nid">National ID (NID Card)</option>
+            <option value="passport">Passport</option>
+            <option value="driving_license">Driving License</option>
+            <option value="student_id">Student ID</option>
+            <option value="trade_license">Trade License</option>
           </select>
         </div>
 
         {/* Legal Full Name */}
         <div className="space-y-1.5">
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Full Legal Name (ডকুমেন্টের নাম) <span className="text-rose-500">*</span>
+            Full Legal Name (as per Document) <span className="text-rose-500">*</span>
           </label>
           <input
             type="text"
@@ -135,7 +135,7 @@ export const CreatorKycForm: React.FC<CreatorKycFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
         {/* Front Photo */}
         <KycPhotoUploadBox
-          label="1. NID Front Side (সামনের ছবি)"
+          label="1. ID Front Side Photo"
           sublabel="Required"
           required
           value={frontImage}
@@ -145,7 +145,7 @@ export const CreatorKycForm: React.FC<CreatorKycFormProps> = ({
 
         {/* Back Photo */}
         <KycPhotoUploadBox
-          label="2. NID Back Side (পেছনের ছবি)"
+          label="2. ID Back Side Photo"
           sublabel="Optional"
           value={backImage}
           onChange={setBackImage}
@@ -154,7 +154,7 @@ export const CreatorKycForm: React.FC<CreatorKycFormProps> = ({
 
         {/* Face / Selfie Photo (Critical Requirement from User) */}
         <KycPhotoUploadBox
-          label="3. Face / Selfie Photo (মুখমণ্ডলের ছবি)"
+          label="3. Live Face / Selfie Photo"
           sublabel="Face photo required"
           required
           value={faceImage}
@@ -167,7 +167,7 @@ export const CreatorKycForm: React.FC<CreatorKycFormProps> = ({
       <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-start gap-3 text-xs text-indigo-950 dark:text-indigo-200">
         <Camera className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-bold">Face Verification Guideline (মুখমণ্ডলের ছবির নিয়মাবলী):</p>
+          <p className="font-bold">Face Verification Guidelines:</p>
           <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
             Please capture a clear, well-lit photo of your face (or a selfie holding your NID card). Ensure good lighting, no sunglasses or caps covering your face. Your photo is securely encrypted and used strictly for creator identity verification.
           </p>

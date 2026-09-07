@@ -14,6 +14,7 @@ import {
   ExternalLink,
   User as UserIcon,
   BookOpen,
+  Link2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -137,10 +138,27 @@ export const UserLayout: React.FC<UserLayoutProps> = ({
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <BookOpen className={`w-4 h-4 shrink-0 ${currentRoute.startsWith('#/app/bakikhata') ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`} />
-                <span className="truncate">বাকির খাতা (Baki Khata)</span>
+                <span className="truncate">Baki Khata Ledger</span>
               </div>
               <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white shrink-0">
-                মুদি
+                Ledger
+              </span>
+            </button>
+
+            <button
+              onClick={() => navTo('#/app/shortener')}
+              className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                currentRoute.startsWith('#/app/shortener')
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
+                  : 'text-violet-700 dark:text-violet-400 bg-violet-50/80 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/50 border border-violet-200/70 dark:border-violet-800/60'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Link2 className={`w-4 h-4 shrink-0 ${currentRoute.startsWith('#/app/shortener') ? 'text-white' : 'text-violet-600 dark:text-violet-400'}`} />
+                <span className="truncate">URL Shortener & Ads</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-violet-600 text-white shrink-0">
+                New
               </span>
             </button>
           </div>

@@ -17,6 +17,7 @@ import {
   ArrowDownToLine,
   Calendar,
   Image as ImageIcon,
+  Link2,
 } from 'lucide-react';
 import { DashboardStats, CodeItem } from '../../types';
 import { subscribeToDashboardStats, subscribeToAllCodes } from '../../services/codeService';
@@ -180,6 +181,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
             >
               <ImageIcon className="w-4 h-4" />
               <span>Slider Banners</span>
+            </button>
+            <button
+              onClick={() => onNavigate('#/admin/shortener')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30"
+            >
+              <Link2 className="w-4 h-4" />
+              <span>URL Shortener & Ads</span>
             </button>
             <button
               onClick={() => onNavigate('#/admin/events')}

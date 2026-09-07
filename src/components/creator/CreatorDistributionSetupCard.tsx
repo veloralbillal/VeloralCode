@@ -61,7 +61,7 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
           </div>
           <div>
             <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-              Earning Distribution Setup (আর্নিং ডিস্ট্রিবিউশন মডেল)
+              Earning Distribution Setup
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Choose how your tools earn revenue from subscribers. Once set up, your selection is permanently locked.
@@ -71,7 +71,7 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
 
         {isLocked && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            <Lock className="w-3.5 h-3.5" /> Model Locked (স্থায়ী লককৃত)
+            <Lock className="w-3.5 h-3.5" /> Model Locked
           </span>
         )}
       </div>
@@ -82,13 +82,13 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
           <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-sm">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              Active Model: {userProfile?.creatorPayoutModel === 'fixed' ? 'Fixed Pay-per-Download (৳৩ প্রতি কপি)' : '60%-40% Subscription Royalty Pool'}
+              Active Model: {userProfile?.creatorPayoutModel === 'fixed' ? 'Fixed Pay-per-Download (৳3 per copy)' : '60%-40% Subscription Royalty Pool'}
             </span>
           </div>
           <p className="text-xs text-emerald-700 dark:text-emerald-400">
             {userProfile?.creatorPayoutModel === 'fixed'
-              ? 'আপনার টুলের প্রতিটি ইউনিক পেইড কোড কপি ও ডাউনলোডে স্বয়ংক্রিয়ভাবে ফিক্সড টাকা আপনার ওয়ালেটে জমা হচ্ছে।'
-              : 'মাসিক প্ল্যাটফর্ম সাবস্ক্রিপশন আয়ের ৪০% ফান্ডের আনুপাতিক হারে আপনার ওয়ালেটে রয়্যালটি যোগ হচ্ছে।'}
+              ? 'Your wallet receives fixed earnings automatically on each unique paid code copy or file download.'
+              : 'Your wallet receives monthly royalty shares proportional to your tool usage from the 40% subscription pool.'}
           </p>
           <div className="pt-1 text-[11px] text-slate-400">
             Locked on: {userProfile?.creatorPayoutModelSetupAt ? new Date(userProfile.creatorPayoutModelSetupAt).toLocaleDateString() : 'Active'} • Cannot be modified.
@@ -117,10 +117,10 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
                 {selectedModel === 'pool' && <CheckCircle className="w-4 h-4 text-indigo-600" />}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">
-                মাসিক সাবস্ক্রিপশন পুল শেয়ার
+                Monthly Subscription Pool Share
               </p>
               <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                প্ল্যাটফর্মের সাবস্ক্রিপশন আয়ের ৪০% ক্রিয়েটর পুল ফান্ডে জমা হয়। পুরো মাসে আপনার টুলের ডাউনলোড অনুপাত অনুযায়ী মাস শেষে মোটা অঙ্কের রয়্যালটি পাবেন।
+                40% of platform subscription revenue is pooled for creators. You earn monthly royalties proportional to your tool downloads.
               </p>
             </div>
 
@@ -143,10 +143,10 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
                 {selectedModel === 'fixed' && <CheckCircle className="w-4 h-4 text-indigo-600" />}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">
-                ফিক্সড রেট পার কপি/ডাউনলোড (৳৩)
+                Fixed Rate Per Copy/Download (৳3)
               </p>
               <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                যেকোনো সাবস্ক্রাইবার ইউজার আপনার কোড কপি বা ফাইল ডাউনলোড করলেই সাথে সাথে আপনার ওয়ালেটে ফিক্সড ৩ টাকা যুক্ত হয়ে যাবে। সহজ ও তাৎক্ষণিক আর্নিং।
+                Whenever any subscriber copies your code or downloads files, ৳3 is credited instantly to your wallet.
               </p>
             </div>
           </div>
@@ -155,7 +155,7 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
           <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              <strong>সতর্কতা:</strong> আপনি যে অপশনটি ভালো মনে করবেন সেটি নির্বাচন করে নিশ্চিত করুন। একবার সেটআপ করলে তা লক হয়ে যাবে এবং পরবর্তীতে আর পরিবর্তন করা যাবে না।
+              <strong>Notice:</strong> Choose your preferred model carefully. Once confirmed, this selection will be locked permanently and cannot be changed later.
             </span>
           </div>
 
@@ -167,7 +167,7 @@ export const CreatorDistributionSetupCard: React.FC<CreatorDistributionSetupCard
               className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition flex items-center gap-2 disabled:opacity-50"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>Confirm & Lock Earning Model (লক করে সেটআপ করুন)</span>
+              <span>Confirm & Lock Earning Model</span>
             </button>
           </div>
         </div>

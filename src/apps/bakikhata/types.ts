@@ -13,8 +13,8 @@ export interface Customer {
   address?: string;
   totalDue: number;
   totalPaid: number;
-  settlesOnTuesday: boolean; // মঙ্গলবার পরিশোধ করে কি না
-  preferredSettlementDay?: string; // e.g. 'মঙ্গলবার'
+  settlesOnTuesday: boolean; // Settles on Tuesday
+  preferredSettlementDay?: string; // e.g. 'Tuesday'
   lastActivityAt: number; // timestamp
   createdAt: number; // timestamp
   notes?: string;
@@ -25,17 +25,17 @@ export interface BakiTransaction {
   customerId: string;
   customerName: string;
   customerPhone?: string;
-  type: TransactionType; // 'due' (বাকি) or 'payment' (পরিশোধ)
+  type: TransactionType; // 'due' (credit/due) or 'payment' (paid)
   category: BakiCategory; // 'cha_pan' | 'mudi' | 'bkash' | 'other'
   bkashType?: BkashType;
-  mfsNumber?: string; // বিকাশ বা মোবাইল রিচার্জ নম্বর
-  itemsSummary: string; // যেমন: "২ কাপ দুধ চা, ১টি পান" অথবা "বিকাশ ক্যাশ আউট ৳১০০০"
+  mfsNumber?: string; // MFS or mobile recharge number
+  itemsSummary: string; // e.g. "2 Cups Tea, 1 Betel leaf" or "Cash Out ৳1000"
   amount: number;
   paymentMethod?: PaymentMethod;
   note?: string;
   timestamp: number; // exact epoch timestamp
   formattedDate?: string;
-  isTuesdaySettlement?: boolean; // মঙ্গলবারের বকেয়া পরিশোধ
+  isTuesdaySettlement?: boolean; // Tuesday weekly settlement
   createdBy?: string;
 }
 

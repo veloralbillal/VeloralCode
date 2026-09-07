@@ -34,7 +34,7 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
         phone: phone.trim(),
         address: address.trim(),
         settlesOnTuesday,
-        preferredSettlementDay: settlesOnTuesday ? 'মঙ্গলবার' : 'অন্য দিন',
+        preferredSettlementDay: settlesOnTuesday ? 'Tuesday' : 'Other Day',
         notes: notes.trim(),
         initialDue: Number(initialDue) || 0,
       });
@@ -61,9 +61,9 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                নতুন গ্রাহক যুক্ত করুন
+                Add New Customer
               </h3>
-              <p className="text-[11px] text-slate-500">খাতার জন্য কাস্টমারের তথ্য দিন</p>
+              <p className="text-[11px] text-slate-500">Enter customer details for ledger</p>
             </div>
           </div>
           <button
@@ -78,14 +78,14 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-              গ্রাহকের নাম *
+              Customer Name *
             </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="যেমন: রফিক ভাই (টেইলার্স)"
+              placeholder="e.g. Rafiq Bhai (Tailor)"
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
@@ -94,7 +94,7 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
                 <Phone className="w-3 h-3 text-slate-400" />
-                <span>মোবাইল নম্বর</span>
+                <span>Mobile Number</span>
               </label>
               <input
                 type="tel"
@@ -107,7 +107,7 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
 
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                পূর্বের বকেয়া (যদি থাকে)
+                Starting Due Balance (Optional)
               </label>
               <input
                 type="number"
@@ -123,13 +123,13 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
               <MapPin className="w-3 h-3 text-slate-400" />
-              <span>ঠিকানা বা দোকান/কর্মক্ষেত্র</span>
+              <span>Address or Workplace</span>
             </label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="যেমন: লেকের পাড় গ্যারেজ / স্কুলের সামনে"
+              placeholder="e.g. Garage Lane, Near School"
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
@@ -140,10 +140,10 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
               <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <div>
                 <span className="font-bold text-amber-900 dark:text-amber-200 block">
-                  মঙ্গলবার পরিশোধ করে?
+                  Settles on Tuesday?
                 </span>
                 <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80">
-                  গ্রাহক প্রতি মঙ্গলবার সাপ্তাহিক হিসাব পরিশোধ করবেন
+                  Customer settles weekly dues every Tuesday
                 </span>
               </div>
             </div>
@@ -161,14 +161,14 @@ export const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
             >
-              বাতিল
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
               className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 disabled:opacity-50"
             >
-              {saving ? 'সংরক্ষণ হচ্ছে...' : 'গ্রাহক যোগ করুন'}
+              {saving ? 'Saving...' : 'Add Customer'}
             </button>
           </div>
         </form>

@@ -11,7 +11,7 @@ export const RechargeHistoryList: React.FC<RechargeHistoryListProps> = ({ transa
   if (transactions.length === 0) {
     return (
       <div className="py-12 text-center text-slate-400 text-xs">
-        কোনো মোবাইল রিচার্জের তথ্য নেই। উপরে "+ নতুন রিচার্জ" বাটনে ক্লিক করুন।
+        No mobile recharge records found. Click "+ New Recharge" above.
       </div>
     );
   }
@@ -55,7 +55,7 @@ export const RechargeHistoryList: React.FC<RechargeHistoryListProps> = ({ transa
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5 truncate">
-                {tx.customerName ? `গ্রাহক: ${tx.customerName}` : tx.isDue ? 'বাকি খাতায় যুক্ত' : 'নগদ রিচার্জ'} {tx.note ? `• ${tx.note}` : ''}
+                {tx.customerName ? `Customer: ${tx.customerName}` : tx.isDue ? 'Recorded as Due' : 'Cash Recharge'} {tx.note ? `• ${tx.note}` : ''}
               </p>
               <span className="text-[10px] text-slate-400">
                 {new Date(tx.timestamp).toLocaleString('bn-BD', {
@@ -73,7 +73,7 @@ export const RechargeHistoryList: React.FC<RechargeHistoryListProps> = ({ transa
               {formatTaka(tx.amount)}
             </div>
             <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-              লাভ +{formatTaka(tx.profitAmount)} ({tx.commissionRate}%)
+              Profit +{formatTaka(tx.profitAmount)} ({tx.commissionRate}%)
             </div>
           </div>
         </div>

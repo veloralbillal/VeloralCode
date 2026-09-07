@@ -49,17 +49,17 @@ export const BkashSectionView: React.FC<BkashSectionViewProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-black text-slate-900 dark:text-white">
-              বিকাশ ও এমএফএস লেনদেনের খতিয়ান
+              Bkash & MFS Transaction History
             </h3>
             <p className="text-xs text-slate-500">
-              ফান্ড ব্যালেন্সের পরিবর্তনের সাথে স্বয়ংক্রিয় হিসাব
+              Automatic balance tracking with real-time fund updates
             </p>
           </div>
           <button
             onClick={() => handleOpenAction('send_money')}
             className="px-3.5 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-extrabold text-xs shadow-xs"
           >
-            + নতুন লেনদেন
+            + New Transaction
           </button>
         </div>
 

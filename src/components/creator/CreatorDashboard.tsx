@@ -93,7 +93,7 @@ export const CreatorDashboard: React.FC<CreatorDashboardProps> = ({ onNavigate }
               Hello, {creatorDisplayName}!
             </h2>
             <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">
-              Upload web tools, codes, and scripts. Receive tips, earnings in BDT (টাকা), and rewards when your tools go live!
+              Upload web tools, codes, and scripts. Receive tips, earnings in BDT (৳), and rewards when your tools go live!
             </p>
           </div>
 

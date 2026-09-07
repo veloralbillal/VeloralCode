@@ -110,7 +110,7 @@ export async function updateBkashFundBalance(
       balanceBefore,
       balanceAfter: updatedFund.currentBalance,
       isDue: false,
-      note: note || (mode === 'set' ? 'ফান্ড ব্যালেন্স সমন্বয়' : 'নতুন ফান্ড রিফিল/লোড'),
+      note: note || (mode === 'set' ? 'Fund balance adjustment' : 'New fund refill/load'),
       timestamp: Date.now(),
     };
 
@@ -214,7 +214,7 @@ export async function executeBkashOperation(
       ]);
 
       if (payload.isDue && customer) {
-        let summaryDesc = `বিকাশ ${payload.type === 'send_money' ? 'সেন্ড মানি' : payload.type === 'cash_in' ? 'ক্যাশ ইন' : 'লেনদেন'}`;
+        let summaryDesc = `Bkash ${payload.type === 'send_money' ? 'Send Money' : payload.type === 'cash_in' ? 'Cash In' : 'Transaction'}`;
         if (payload.targetNumber) {
           summaryDesc += ` (${payload.targetNumber})`;
         }

@@ -118,12 +118,12 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-black text-sm text-white tracking-tight">বাকির খাতা মেনু</h3>
+                  <h3 className="font-black text-sm text-white tracking-tight">Baki Khata Menu</h3>
                   <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500 text-white">
                     PRO
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400">দোকান ও লেনদেনের খতিয়ান</p>
+                <p className="text-[11px] text-slate-400">Shop ledger & store transactions</p>
               </div>
             </div>
             <button
@@ -137,14 +137,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
           {/* Quick Balance Summary Pill */}
           <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/70 space-y-2">
             <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span>মোট বকেয়া পাওনা:</span>
-              <span className="font-mono text-emerald-400 font-bold">{stats.totalCustomers} জন গ্রাহক</span>
+              <span>Total Due Balance:</span>
+              <span className="font-mono text-emerald-400 font-bold">{stats.totalCustomers} customers</span>
             </div>
             <div className="text-xl font-black text-rose-400">
               {formatTaka(stats.totalDueAmount)}
             </div>
             <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-              <span>মঙ্গলবার কালেকশন:</span>
+              <span>Tuesday Collections:</span>
               <span className="font-extrabold text-amber-400">{formatTaka(stats.tuesdayDueAmount)}</span>
             </div>
           </div>
@@ -155,14 +155,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-black text-white">বাকির খাতা অ্যাপ PWA</span>
+                  <span className="text-xs font-black text-white">Baki Khata PWA App</span>
                 </div>
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500 text-white">
                   Offline Ready
                 </span>
               </div>
               <p className="text-[11px] text-emerald-300/90 leading-tight">
-                হোমস্ক্রিনে অ্যাপ হিসেবে ইন্সটল করুন এবং যেকোনো সময় অফলাইনে ব্যবহার করুন।
+                Install as an app to your home screen and use offline anytime.
               </p>
               <div className="flex gap-2">
                 <button
@@ -173,24 +173,24 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition active:scale-95 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>📱 বাকির খাতা ইন্সটল করুন</span>
+                  <span>📱 Install Baki Khata App</span>
                 </button>
                 <button
                   id="pwa-drawer-guide-action"
                   onClick={() => setShowInstallGuide(true)}
                   className="px-2.5 py-2 rounded-xl bg-emerald-900/60 border border-emerald-500/40 hover:bg-emerald-800/60 text-emerald-200 text-xs font-semibold transition"
-                  title="ইনস্টল নিয়মাবলী"
+                  title="Installation Instructions"
                 >
-                  সাহায্য
+                  Help
                 </button>
               </div>
             </div>
           )}
 
-          {/* Section 1: খাতা ও ফিল্টার */}
+          {/* Section 1: Ledger & Filters */}
           <div className="space-y-1">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              খাতার ফিল্টার ও তালিকা
+              Ledger Filters & Lists
             </span>
 
             <button
@@ -199,7 +199,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Users className="w-4 h-4 text-indigo-400" />
-                <span>সব কাস্টমার খতিয়ান</span>
+                <span>All Customer Ledgers</span>
               </div>
               <span className="text-[10px] text-slate-400">{stats.totalCustomers}</span>
             </button>
@@ -210,18 +210,18 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Calendar className="w-4 h-4 text-amber-400" />
-                <span>মঙ্গলবার কালেকশন ট্র্যাকার</span>
+                <span>Tuesday Collection Tracker</span>
               </div>
               <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black">
-                {stats.tuesdayCustomerCount} জন
+                {stats.tuesdayCustomerCount} cust.
               </span>
             </button>
           </div>
 
-          {/* Section: বিকাশ ও মোবাইল ব্যাংকিং ফান্ড */}
+          {/* Section: Bkash & Mobile Banking Fund */}
           <div className="space-y-1 pt-2 border-t border-slate-800">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-pink-400">
-              বিকাশ ও মোবাইল ব্যাংকিং
+              Bkash & Mobile Banking
             </span>
 
             <button
@@ -230,7 +230,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Smartphone className="w-4 h-4 text-pink-400" />
-                <span>বিকাশ কাউন্টার ও ফান্ড</span>
+                <span>Bkash Counter & Fund</span>
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-600 text-white font-black">
                 {formatTaka(bkashFundBalance)}
@@ -242,13 +242,13 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
                 onClick={() => handleAction(() => onOpenBkashAction && onOpenBkashAction('recharge'))}
                 className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] font-bold bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-700 transition"
               >
-                <span>⚡ রিচার্জ</span>
+                <span>⚡ Recharge</span>
               </button>
               <button
                 onClick={() => handleAction(() => onOpenBkashAction && onOpenBkashAction('send_money'))}
                 className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-[11px] font-bold bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-700 transition"
               >
-                <span>💸 সেন্ড মানি</span>
+                <span>💸 Send Money</span>
               </button>
             </div>
 
@@ -256,14 +256,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               onClick={() => handleAction(() => onOpenBkashRefill && onOpenBkashRefill('add'))}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold text-pink-300 hover:bg-pink-950/40 transition"
             >
-              <span>+ বিকাশ ফান্ড লোড / রিফিল</span>
+              <span>+ Refill Bkash Fund</span>
             </button>
           </div>
 
-          {/* Section 2: হিসাব ও দ্রুত এন্ট্রি */}
+          {/* Section 2: Quick Entries */}
           <div className="space-y-1 pt-2 border-t border-slate-800">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              দ্রুত এন্ট্রি ও ক্যাটাগরি
+              Quick Entries & Categories
             </span>
 
             <button
@@ -271,7 +271,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-800/60 hover:bg-emerald-900/50 transition"
             >
               <PlusCircle className="w-4 h-4 text-emerald-400" />
-              <span>নতুন কাস্টমার তৈরি করুন</span>
+              <span>Create New Customer</span>
             </button>
 
             <button
@@ -279,7 +279,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <Coffee className="w-4 h-4 text-amber-400" />
-              <span>চা ও পানের বাকি লিখুন</span>
+              <span>Record Tea & Betel Due</span>
             </button>
 
             <button
@@ -287,7 +287,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <ShoppingBag className="w-4 h-4 text-emerald-400" />
-              <span>মুদি পণ্যের বাকি এন্ট্রি</span>
+              <span>Record Grocery Due</span>
             </button>
 
             <button
@@ -295,14 +295,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <Smartphone className="w-4 h-4 text-pink-400" />
-              <span>বিকাশ ও মোবাইল রিচার্জ লেনদেন</span>
+              <span>Record Bkash & Recharge</span>
             </button>
           </div>
 
-          {/* Section 3: টুলস ও রিপোর্ট */}
+          {/* Section 3: Tools & Reports */}
           <div className="space-y-1 pt-2 border-t border-slate-800">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              টুলস ও রিপোর্ট
+              Tools & Reports
             </span>
 
             <button
@@ -310,7 +310,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <BarChart3 className="w-4 h-4 text-cyan-400" />
-              <span>আজকের দিনের জমার রিপোর্ট</span>
+              <span>Today collection report</span>
             </button>
 
             <button
@@ -318,7 +318,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              <span>এক্সেল / CSV ব্যাকআপ ডাউনলোড</span>
+              <span>Download Excel / CSV backup</span>
             </button>
 
             <button
@@ -326,14 +326,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
             >
               <Printer className="w-4 h-4 text-purple-400" />
-              <span>খাতা প্রিন্ট / ভাউচার তৈরি</span>
+              <span>Print ledger statement</span>
             </button>
           </div>
 
-          {/* Section 4: প্ল্যাটফর্ম ও অন্যান্য নেভিগেশন */}
+          {/* Section 4: Platform Navigation */}
           <div className="space-y-1 pt-2 border-t border-slate-800">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              প্ল্যাটফর্ম হাব ও লিংক
+              Platform Hub & Links
             </span>
 
             <button
@@ -409,14 +409,14 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:text-white transition"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-400" />}
-              <span>{theme === 'dark' ? 'লাইট মোড' : 'ডার্ক মোড'}</span>
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
 
             {currentUser && (
               <button
                 onClick={() => handleAction(onLogout)}
                 className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition"
-                title="সাইন আউট"
+                title="Sign Out"
               >
                 <LogOut className="w-4 h-4" />
               </button>

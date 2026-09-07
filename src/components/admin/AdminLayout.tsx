@@ -27,6 +27,7 @@ import {
   Bot,
   Cpu,
   Smartphone,
+  Link2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -61,6 +62,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { label: 'Withdrawal Requests', icon: ArrowDownToLine, route: '#/admin/withdrawals' },
     { label: 'Creators & Wallets', icon: Sparkles, route: '#/admin/creators' },
     { label: 'Slider Banners', icon: ImageIcon, route: '#/admin/banners' },
+    { label: 'URL Shortener & Ads', icon: Link2, route: '#/admin/shortener' },
     { label: 'Events & Pricing', icon: Calendar, route: '#/admin/events' },
     { label: 'Announcements', icon: Megaphone, route: '#/admin/announcements' },
     { label: 'SEO & Robots.txt', icon: Globe, route: '#/admin/seo' },

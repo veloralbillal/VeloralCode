@@ -1,7 +1,7 @@
 import { Customer, BakiTransaction } from '../types';
 
 export const exportCustomersToCsv = (customers: Customer[]) => {
-  const headers = ['আইডি', 'গ্রাহকের নাম', 'ফোন নম্বর', 'ঠিকানা', 'বর্তমান বাকি (৳)', 'পরিশোধিত টাকা (৳)', 'মঙ্গলবার পরিশোধ'];
+  const headers = ['ID', 'Customer Name', 'Phone Number', 'Address', 'Current Due (৳)', 'Total Paid (৳)', 'Tuesday Settlement'];
   const rows = customers.map((c) => [
     c.id,
     `"${c.name.replace(/"/g, '""')}"`,
@@ -9,7 +9,7 @@ export const exportCustomersToCsv = (customers: Customer[]) => {
     `"${(c.address || '').replace(/"/g, '""')}"`,
     c.totalDue,
     c.totalPaid,
-    c.settlesOnTuesday ? 'হ্যাঁ' : 'না',
+    c.settlesOnTuesday ? 'Yes' : 'No',
   ]);
 
   const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -24,16 +24,16 @@ export const exportCustomersToCsv = (customers: Customer[]) => {
 };
 
 export const exportTransactionsToCsv = (transactions: BakiTransaction[]) => {
-  const headers = ['আইডি', 'তারিখ ও সময়', 'গ্রাহকের নাম', 'ধরন', 'বিবরণ', 'ক্যাটাগরি', 'পরিমাণ (৳)', 'পেমেন্ট মেথড'];
+  const headers = ['ID', 'Date & Time', 'Customer Name', 'Type', 'Description', 'Category', 'Amount (৳)', 'Payment Method'];
   const rows = transactions.map((t) => [
     t.id,
     `"${new Date(t.timestamp).toLocaleString('bn-BD')}"`,
     `"${t.customerName.replace(/"/g, '""')}"`,
-    t.type === 'due' ? 'বাকি' : 'জমা',
+    t.type === 'due' ? 'Due' : 'Payment',
     `"${(t.itemsSummary || '').replace(/"/g, '""')}"`,
     t.category,
     t.amount,
-    t.paymentMethod || 'ক্যাশ',
+    t.paymentMethod || 'Cash',
   ]);
 
   const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');

@@ -13,46 +13,46 @@ interface PresetItem {
 
 const PRESETS: PresetItem[] = [
   {
-    label: 'দুধ চা (৳১০)',
+    label: 'Milk Tea (৳10)',
     amount: 10,
     category: 'cha_pan',
-    itemsSummary: '১ কাপ স্পেশাল দুধ চা',
+    itemsSummary: '1 cup special milk tea',
     icon: Coffee,
   },
   {
-    label: 'লাল চা (৳৬)',
+    label: 'Black Tea (৳6)',
     amount: 6,
     category: 'cha_pan',
-    itemsSummary: '১ কাপ রঙ চা / লেবু চা',
+    itemsSummary: '1 cup black / lemon tea',
     icon: Coffee,
   },
   {
-    label: 'মিষ্টি পান (৳১০)',
+    label: 'Sweet Paan (৳10)',
     amount: 10,
     category: 'cha_pan',
-    itemsSummary: '১ খিলি মিষ্টি সুপারি পান',
+    itemsSummary: '1 sweet paan with betel nut',
     icon: Sparkles,
   },
   {
-    label: 'চা + পান (৳২০)',
+    label: 'Tea + Paan (৳20)',
     amount: 20,
     category: 'cha_pan',
-    itemsSummary: '১ কাপ দুধ চা ও ১ খিলি পান',
+    itemsSummary: '1 cup milk tea and 1 sweet paan',
     icon: Zap,
   },
   {
-    label: 'রিচার্জ (৳২০)',
+    label: 'Recharge (৳20)',
     amount: 20,
     category: 'bkash',
     bkashType: 'recharge',
-    itemsSummary: 'মোবাইল রিচার্জ ২০ টাকা',
+    itemsSummary: 'Mobile recharge 20 Taka',
     icon: Smartphone,
   },
   {
-    label: 'মুদি সওদা',
+    label: 'Grocery',
     amount: 0,
     category: 'mudi',
-    itemsSummary: 'মুদি নিত্যপ্রয়োজনীয় সামগ্রী',
+    itemsSummary: 'Daily grocery groceries',
     icon: ShoppingBag,
   },
 ];
@@ -66,7 +66,7 @@ export const QuickAddBar: React.FC<QuickAddBarProps> = ({ onSelectPreset }) => {
     <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <span className="text-xs font-bold text-slate-400 whitespace-nowrap px-1">
-          দ্রুত বাকি লিখুন:
+          Quick Credit:
         </span>
         {PRESETS.map((p, idx) => {
           const Icon = p.icon;

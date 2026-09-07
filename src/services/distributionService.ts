@@ -144,9 +144,9 @@ interface TrackCodeActionParams {
 
 /**
  * Track user copy/download with Anti-Cheating Rules:
- * Rule 1: Unique User Only (একই ইউজারের ১ বারই কাউন্ট)
- * Rule 2: No Earning From Own Code (নিজের কোডে কোনো আর্নিং নেই)
- * Rule 3: Paid Subscription Only (শুধুমাত্র পেইড সাবস্ক্রিপশন থাকলে আর্নিং)
+ * Rule 1: Unique User Only (Counted once per user)
+ * Rule 2: No Earning From Own Code (Zero earnings from self-actions)
+ * Rule 3: Paid Subscription Only (Earnings applicable on paid subscribers)
  */
 export async function trackToolCodeAction(params: TrackCodeActionParams): Promise<{
   isEligibleForPayout: boolean;

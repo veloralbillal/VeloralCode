@@ -24,7 +24,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
     const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
     const intlPhone = cleanPhone.startsWith('0') ? '88' + cleanPhone : cleanPhone;
     const message = encodeURIComponent(
-      `আসসালামু আলাইকুম ${customer.name} ভাই, আপনার দোকানে মোট বাকি বকেয়া রয়েছে ${formatTaka(customer.totalDue)}। সুবিধাজনক সময়ে (বিশেষ করে মঙ্গলবার) পরিশোধ করার জন্য অনুরোধ করা হলো। ধন্যবাদ!`
+      `Hello ${customer.name}, your current outstanding credit balance at our shop is ${formatTaka(customer.totalDue)}. Please settle it at your earliest convenience. Thank you!`
     );
     window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
   };
@@ -63,7 +63,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                   : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
               }`}
             >
-              {hasDue ? `বাকি: ${formatTaka(customer.totalDue)}` : 'পরিশোধ সম্পন্ন'}
+              {hasDue ? `Due: ${formatTaka(customer.totalDue)}` : 'Paid in Full'}
             </span>
           </div>
         </div>
@@ -73,13 +73,13 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
           {customer.settlesOnTuesday && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800">
               <Calendar className="w-3 h-3" />
-              <span>মঙ্গলবার পেমেন্ট</span>
+              <span>Tuesday Settlement</span>
             </span>
           )}
 
           <div className="flex items-center gap-1 text-slate-400 ml-auto">
             <Clock className="w-3 h-3" />
-            <span>শেষ লেনদেন: {formatDateTime(customer.lastActivityAt)}</span>
+            <span>Last Activity: {formatDateTime(customer.lastActivityAt)}</span>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
           className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition border border-rose-200/60 dark:border-rose-800"
         >
           <PlusCircle className="w-3.5 h-3.5" />
-          <span>বাকি দিন</span>
+          <span>+ Due</span>
         </button>
 
         <button
@@ -104,13 +104,13 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
           }`}
         >
           <CheckCircle className="w-3.5 h-3.5" />
-          <span>টাকা জমা</span>
+          <span>Collect</span>
         </button>
 
         {hasDue && customer.phone && (
           <button
             onClick={handleWhatsAppReminder}
-            title="হোয়াটসঅ্যাপে তাগাদা পাঠান"
+            title="Send friendly reminder on WhatsApp"
             className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition border border-emerald-200 dark:border-emerald-800"
           >
             <MessageSquare className="w-3.5 h-3.5" />
@@ -119,7 +119,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
 
         <button
           onClick={() => onViewDetails(customer)}
-          title="সম্পূর্ণ খাতা দেখুন"
+          title="View Full Statement"
           className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
         >
           <ChevronRight className="w-4 h-4" />

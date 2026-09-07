@@ -40,16 +40,16 @@ export const TuesdaySettlementBanner: React.FC<TuesdaySettlementBannerProps> = (
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-sm sm:text-base font-black">
-                {isTodayTuesday ? '🔔 আজ মঙ্গলবার — সাপ্তাহিক বাকি পরিশোধের দিন!' : '🗓️ মঙ্গলবার পেমেন্ট ট্র্যাকার'}
+                {isTodayTuesday ? '🔔 Today is Tuesday — Weekly Due Collection Day!' : '🗓️ Tuesday Settlement Tracker'}
               </h2>
               <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-white/70 dark:bg-slate-800/80">
-                {isTodayTuesday ? 'আজকের দিন' : `${daysLeft} দিন বাকি`}
+                {isTodayTuesday ? 'Today' : `${daysLeft} days left`}
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
               {isTodayTuesday
-                ? `আজকের মধ্যে ${tuesdayCustomerCount} জন গ্রাহকের কাছে মোট ${formatTaka(tuesdayDueAmount)} বকেয়া পাওনা রয়েছে।`
-                : `আগামী মঙ্গলবার (${dateStr})-এ ${tuesdayCustomerCount} জন কাস্টমারের ${formatTaka(tuesdayDueAmount)} পরিশোধের কথা রয়েছে।`}
+                ? `Today ${tuesdayCustomerCount} customers have a combined ${formatTaka(tuesdayDueAmount)} due scheduled for collection.`
+                : `Next Tuesday (${dateStr}), ${tuesdayCustomerCount} customers are scheduled to pay ${formatTaka(tuesdayDueAmount)}.`}
             </p>
           </div>
         </div>
@@ -64,7 +64,7 @@ export const TuesdaySettlementBanner: React.FC<TuesdaySettlementBannerProps> = (
             }`}
           >
             {isFilterActive ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
-            <span>{isFilterActive ? 'সব কাস্টমার দেখুন' : 'শুধু মঙ্গলবারের কাস্টমার'}</span>
+            <span>{isFilterActive ? 'Show All Customers' : 'Only Tuesday Customers'}</span>
             <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
           </button>
         </div>

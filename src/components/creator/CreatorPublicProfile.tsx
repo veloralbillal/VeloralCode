@@ -122,12 +122,12 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
 
   const handleFollowToggle = async () => {
     if (!currentUser) {
-      showToast('ক্রিয়েটরকে ফলো করতে প্রথমে লগইন করুন', 'info');
+      showToast('Please login first to follow this creator', 'info');
       onNavigate('#/login');
       return;
     }
     if (currentUser.uid === actualUid) {
-      showToast('আপনি নিজেকে ফলো করতে পারবেন না', 'warning');
+      showToast('You cannot follow your own profile', 'warning');
       return;
     }
 
@@ -135,9 +135,9 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
       const nowFollowing = await toggleFollowCreator(currentUser.uid, actualUid);
       setIsFollowing(nowFollowing);
       setFollowersCount((prev) => (nowFollowing ? prev + 1 : Math.max(0, prev - 1)));
-      showToast(nowFollowing ? 'ক্রিয়েটরকে ফলো করা শুরু করেছেন!' : 'আনফলো করা হয়েছে', 'success');
+      showToast(nowFollowing ? 'Following creator!' : 'Unfollowed', 'success');
     } catch (err: any) {
-      showToast(err.message || 'অ্যাকশন সম্পন্ন করা যায়নি', 'error');
+      showToast(err.message || 'Failed to complete action', 'error');
     }
   };
 
@@ -155,10 +155,10 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
         document.body.removeChild(ta);
       }
       setCopiedLink(true);
-      showToast('ক্রিয়েটরের পাবলিক লিংক কপি করা হয়েছে!', 'success');
+      showToast('Creator public link copied to clipboard!', 'success');
       setTimeout(() => setCopiedLink(false), 2500);
     } catch (err) {
-      showToast('লিংক কপি করা যায়নি', 'error');
+      showToast('Failed to copy link', 'error');
     }
   };
 
@@ -190,7 +190,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
         <div className="w-10 h-10 rounded-full border-3 border-emerald-600 border-t-transparent animate-spin" />
         <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-          ক্রিয়েটর পোর্টফোলিও লোড হচ্ছে...
+          Loading creator portfolio...
         </p>
       </div>
     );
@@ -206,13 +206,13 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              ক্রিয়েটর প্রোফাইল পাওয়া যায়নি
+              Creator Profile Not Found
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                 "{targetIdentifier}"
               </span>{' '}
-              নামে কোনো নিবন্ধিত ক্রিয়েটরের পাবলিক একাউন্ট খুঁজে পাওয়া যায়নি। লিংকটি সঠিক কিনা যাচাই করুন।
+              No public creator account found for this handle. Please check the URL and try again.
             </p>
           </div>
           <div className="pt-2 flex flex-col gap-2">
@@ -220,13 +220,13 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
               onClick={() => onNavigate('#/codes')}
               className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
             >
-              সকল পাবলিক টুলস এক্সপ্লোর করুন
+              Explore All Public Tools
             </button>
             <button
               onClick={() => onNavigate('#/')}
               className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             >
-              হোম পেজে ফিরে যান
+              Return to Home
             </button>
           </div>
         </div>
@@ -244,7 +244,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
             className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 transition hover:bg-slate-800"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>সকল টুলস ক্যাটালগ</span>
+            <span>All Tools Catalog</span>
           </button>
 
           {/* Share Profile Link button */}
@@ -257,7 +257,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
             }`}
           >
             {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'লিংক কপি হয়েছে!' : 'শেয়ার প্রোফাইল'}</span>
+            <span>{copiedLink ? 'Link Copied!' : 'Share Profile'}</span>
           </button>
         </div>
 
@@ -279,7 +279,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
                   <h1 className="text-xl sm:text-2xl font-black">{cleanDisplayName}</h1>
                   {isVerified && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> ভেরিফাইড
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Verified
                     </span>
                   )}
                   <CreatorBadge stats={{ liveTools: tools.length, totalViews, totalEarnings: creatorUser.creatorEarnings }} />
@@ -340,7 +340,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
                 }`}
               >
                 <Users className="w-4 h-4" />
-                <span>{isFollowing ? 'ফলোয়িং (Following)' : 'ফলো করুন (Follow)'}</span>
+                <span>{isFollowing ? 'Following' : 'Follow Creator'}</span>
               </button>
             </div>
           </div>
@@ -349,15 +349,15 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
           <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-slate-800 text-center">
             <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
               <p className="text-lg font-black text-emerald-400">{tools.length}</p>
-              <p className="text-[11px] text-slate-400">পাবলিশ করা টুলস</p>
+              <p className="text-[11px] text-slate-400">Published Tools</p>
             </div>
             <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
               <p className="text-lg font-black text-cyan-400">{totalViews.toLocaleString()}</p>
-              <p className="text-[11px] text-slate-400">মোট ভিউ ও রান</p>
+              <p className="text-[11px] text-slate-400">Total Views & Runs</p>
             </div>
             <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
               <p className="text-lg font-black text-purple-400">{followersCount.toLocaleString()}</p>
-              <p className="text-[11px] text-slate-400">ফলোয়ার্স</p>
+              <p className="text-[11px] text-slate-400">Followers</p>
             </div>
           </div>
         </div>
@@ -367,7 +367,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h2 className="text-lg font-bold flex items-center gap-2">
               <Code2 className="w-5 h-5 text-emerald-400" />
-              <span>এই ক্রিয়েটরের তৈরি টুলস ({filteredTools.length})</span>
+              <span>Tools by this creator ({filteredTools.length})</span>
             </h2>
 
             {/* Search Input */}
@@ -378,7 +378,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="টুল খুঁজুন..."
+                  placeholder="Search tools..."
                   className="bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-emerald-500"
                 />
               </div>
@@ -402,7 +402,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
           {filteredTools.length === 0 ? (
             <div className="text-center py-12 bg-slate-900 border border-slate-800 rounded-3xl p-6">
               <p className="text-sm font-semibold text-slate-400">
-                {searchQuery ? 'কোনো টুল পাওয়া যায়নি।' : 'এই ক্রিয়েটরের এখনও কোনো লাইভ পাবলিক টুল নেই।'}
+                {searchQuery ? 'No tools found matching search query.' : 'This creator has no live public tools yet.'}
               </p>
             </div>
           ) : (
@@ -444,7 +444,7 @@ export const CreatorPublicProfile: React.FC<CreatorPublicProfileProps> = ({
                       }}
                       className="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-bold transition flex items-center gap-1"
                     >
-                      <span>টুল ব্যবহার করুন</span>
+                      <span>Use Tool</span>
                       <ExternalLink className="w-3 h-3" />
                     </button>
                   </div>

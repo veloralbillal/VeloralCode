@@ -17,6 +17,7 @@ import {
   Moon,
   Sun,
   Code2,
+  Link2,
 } from 'lucide-react';
 import { useSiteConfig } from '../../context/SiteConfigContext';
 
@@ -206,10 +207,27 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <BookOpen className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>বাকির খাতা (Baki Khata)</span>
+                <span>Baki Khata Ledger</span>
               </div>
               <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500 text-white">
-                মুদি/দোকান
+                Ledger
+              </span>
+            </button>
+
+            <button
+              onClick={() => navTo('#/app/shortener')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition border ${
+                currentRoute.startsWith('#/app/shortener')
+                  ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-600/20'
+                  : 'bg-violet-950/40 border-violet-800/60 text-violet-300 hover:bg-violet-900/50'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Link2 className="w-4 h-4 text-violet-400 shrink-0" />
+                <span>URL Shortener & Ads</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-violet-500 text-white">
+                New / Free
               </span>
             </button>
           </div>

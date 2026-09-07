@@ -47,7 +47,7 @@ export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
   const handleToggleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentUser) {
-      showToast('বুকমার্ক করতে প্রথমে লগইন করুন', 'info');
+      showToast('Please login first to bookmark', 'info');
       window.location.hash = '#/login';
       return;
     }
@@ -61,9 +61,9 @@ export const CodeCard: React.FC<CodeCardProps> = ({ item, onOpen }) => {
         language: item.language,
       });
       setIsBookmarked(nowMarked);
-      showToast(nowMarked ? 'টুলটি আপনার বুকমার্কে সেভ করা হয়েছে!' : 'বুকমার্ক থেকে সরিয়ে ফেলা হয়েছে', 'success');
+      showToast(nowMarked ? 'Tool saved to your bookmarks!' : 'Removed from bookmarks', 'success');
     } catch (err) {
-      showToast('বুকমার্ক আপডেট করতে সমস্যা হয়েছে', 'error');
+      showToast('Failed to update bookmark', 'error');
     }
   };
 

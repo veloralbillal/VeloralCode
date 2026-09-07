@@ -30,7 +30,7 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
   const [amount, setAmount] = useState<string>(String(customer.totalDue || ''));
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [isTuesdaySettlement, setIsTuesdaySettlement] = useState<boolean>(customer.settlesOnTuesday);
-  const [note, setNote] = useState<string>('বকেয়া পরিশোধ');
+  const [note, setNote] = useState<string>('Due settlement');
   const [saving, setSaving] = useState(false);
 
   const handleFullPayment = () => {
@@ -49,7 +49,7 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
         paymentMethod,
         isTuesdaySettlement,
         timestamp: Date.now(),
-        note: note.trim() || (isTuesdaySettlement ? 'মঙ্গলবার সাপ্তাহিক পরিশোধ' : 'নগদ জমা'),
+        note: note.trim() || (isTuesdaySettlement ? 'Tuesday weekly settlement' : 'Cash payment'),
       });
       onClose();
     } finally {
@@ -70,7 +70,7 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                টাকা জমা ও হিসাব নিষ্পত্তি
+                Collect Payment & Settle Due
               </h3>
               <p className="text-[11px] text-slate-500">
                 {customer.name} {customer.phone ? `(${customer.phone})` : ''}
@@ -89,7 +89,7 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
           {/* Due info card */}
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-slate-500 block">বর্তমান মোট বাকি:</span>
+              <span className="text-[11px] text-slate-500 block">Current Total Due:</span>
               <span className="text-lg font-black text-rose-600 dark:text-rose-400">
                 {formatTaka(customer.totalDue)}
               </span>
@@ -99,14 +99,14 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
               onClick={handleFullPayment}
               className="px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-200 transition text-[11px]"
             >
-              পুরো টাকা পরিশোধ
+              Pay Full Due Amount
             </button>
           </div>
 
           {/* Amount input */}
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-              জমাকৃত টাকার পরিমাণ (৳) *
+              Payment Amount (৳) *
             </label>
             <input
               type="number"
@@ -116,11 +116,11 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
               step="any"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="টাকা লিখুন..."
+              placeholder="Enter amount in Taka..."
               className="w-full px-3.5 py-2.5 text-lg font-extrabold rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 focus:ring-2 focus:ring-emerald-500"
             />
             <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1 px-1">
-              <span>পরিশোধের পর বাকি থাকবে:</span>
+              <span>Remaining Due After Payment:</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">
                 {formatTaka(remainingDue)}
               </span>
@@ -130,14 +130,14 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
           {/* Payment Method */}
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              পেমেন্ট মাধ্যম
+              Payment Method
             </label>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { id: 'cash', label: 'নগদ ক্যাশ' },
-                { id: 'bkash', label: 'বিকাশ' },
-                { id: 'nagad', label: 'নগদ' },
-                { id: 'other', label: 'অন্যান্য' },
+                { id: 'cash', label: 'Cash' },
+                { id: 'bkash', label: 'Bkash' },
+                { id: 'nagad', label: 'Nagad' },
+                { id: 'other', label: 'Other' },
               ].map((m) => (
                 <button
                   key={m.id}
@@ -161,10 +161,10 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
               <Calendar className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <div>
                 <span className="font-bold text-amber-900 dark:text-amber-200 block">
-                  মঙ্গলবার সাপ্তাহিক পরিশোধ হিসেবে চিহ্নিত
+                  Marked as Tuesday Weekly Settlement
                 </span>
                 <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80">
-                  মঙ্গলবারের কালেকশন রিপোর্টে এই জমা যুক্ত হবে
+                  Included in Tuesday collection report
                 </span>
               </div>
             </div>
@@ -179,13 +179,13 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
           {/* Note */}
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-              নোট / বিবরণ
+              Notes / Remarks
             </label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="যেমন: মঙ্গলবারের সম্পূর্ণ হিসাব পরিশোধ"
+              placeholder="e.g., Full weekly settlement paid"
               className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
@@ -197,14 +197,14 @@ export const CollectPaymentModal: React.FC<CollectPaymentModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
             >
-              বাতিল
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !Number(amount)}
               className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 disabled:opacity-50"
             >
-              {saving ? 'জমা হচ্ছে...' : 'টাকা জমা নিশ্চিত করুন'}
+              {saving ? 'Collecting...' : 'Confirm Payment Collection'}
             </button>
           </div>
         </form>

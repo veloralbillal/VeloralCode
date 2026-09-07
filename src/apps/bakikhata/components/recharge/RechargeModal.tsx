@@ -53,11 +53,11 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mobileNumber || mobileNumber.length < 11) {
-      alert('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন');
+      alert('Enter a valid 11-digit mobile number');
       return;
     }
     if (!amount || amount <= 0) {
-      alert('সঠিক রিচার্জ পরিমাণ দিন');
+      alert('Enter a valid recharge amount');
       return;
     }
 
@@ -73,7 +73,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
         profitAmount,
         isDue,
         customerId: cust ? cust.id : undefined,
-        customerName: cust ? cust.name : isDue ? 'বাকি গ্রাহক' : 'নগদ রিচার্জ',
+        customerName: cust ? cust.name : isDue ? 'Due Customer' : 'Cash Recharge',
         note,
       });
       setLoading(false);
@@ -93,8 +93,8 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
               <Zap className="w-5 h-5 text-amber-200" />
             </div>
             <div>
-              <h3 className="text-base font-black">মোবাইল রিচার্জ করুন</h3>
-              <p className="text-[11px] text-amber-100">অপারেটর ও কমিশন হিসাব</p>
+              <h3 className="text-base font-black">Mobile Recharge</h3>
+              <p className="text-[11px] text-amber-100">Operator & Commission Calculation</p>
             </div>
           </div>
           <button
@@ -108,7 +108,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Operator Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">অপারেটর</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Operator</label>
             <div className="grid grid-cols-5 gap-1.5">
               {(
                 [
@@ -138,7 +138,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
           {/* Mobile Number */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              মোবাইল নম্বর (১১ ডিজিট)
+              Mobile Number (11 digits)
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -178,7 +178,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                টাকার পরিমাণ (৳)
+                Amount (৳)
               </label>
               <input
                 type="number"
@@ -192,7 +192,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                কমিশন হার (%)
+                Commission Rate (%)
               </label>
               <input
                 type="number"
@@ -207,7 +207,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
 
           {/* Profit preview box */}
           <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-between text-xs">
-            <span className="font-bold text-amber-800 dark:text-amber-300">রিচার্জ থেকে আনুমানিক লাভ:</span>
+            <span className="font-bold text-amber-800 dark:text-amber-300">Estimated Recharge Profit:</span>
             <span className="font-black text-sm text-amber-700 dark:text-amber-400">
               +{formatTaka(profitAmount)}
             </span>
@@ -215,7 +215,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
 
           {/* Payment Type */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">লেনদেনের ধরন</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Payment Type</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -229,7 +229,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                 }`}
               >
-                নগদ পেমেন্ট
+                Cash Payment
               </button>
               <button
                 type="button"
@@ -240,7 +240,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                 }`}
               >
-                বাকি খাতা (Due)
+                Customer Ledger (Due)
               </button>
             </div>
           </div>
@@ -248,14 +248,14 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
           {isDue && (
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                গ্রাহক নির্বাচন করুন (ঐচ্ছিক)
+                Select Customer (Optional)
               </label>
               <select
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
                 className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"
               >
-                <option value="">-- সাধারণ বাকি গ্রাহক --</option>
+                <option value="">-- General Due Customer --</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name} ({c.phone})
@@ -267,12 +267,12 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
 
           {/* Note */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">নোট (ঐচ্ছিক)</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Note (Optional)</label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="যেমন: ইমার্জেন্সি রিচার্জ"
+              placeholder="e.g., Emergency Recharge"
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
             />
           </div>
@@ -284,7 +284,7 @@ export const RechargeModal: React.FC<RechargeModalProps> = ({
               className="w-full py-3 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-600/30 transition flex items-center justify-center gap-2"
             >
               <Zap className="w-4 h-4" />
-              <span>{loading ? 'প্রসেসিং...' : `রিচার্জ সম্পন্ন করুন (${formatTaka(amount)})`}</span>
+              <span>{loading ? 'Processing...' : `Execute Recharge (${formatTaka(amount)})`}</span>
             </button>
           </div>
         </form>

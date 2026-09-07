@@ -46,9 +46,9 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
         language: item.language,
       });
       setBookmarks((prev) => prev.filter((x) => x.codeId !== item.codeId));
-      showToast('বুকমার্ক থেকে সরিয়ে ফেলা হয়েছে', 'info');
+      showToast('Removed from bookmarks', 'info');
     } catch {
-      showToast('বুকমার্ক আপডেট করতে সমস্যা হয়েছে', 'error');
+      showToast('Failed to update bookmark', 'error');
     }
   };
 
@@ -79,7 +79,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
               </span>
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              আপনার সংরক্ষিত সমস্ত ফেভারিট কোড ও ওয়েব টুলস এখানে গ্রিড আকারে সাজানো আছে।
+              All your saved favorite codes and web tools are organized here in a grid.
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="বুকমার্ক খুঁজুন..."
+              placeholder="Search bookmarks..."
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-hidden focus:border-amber-500 w-full sm:w-48 shadow-xs"
             />
           </div>
@@ -105,7 +105,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
             >
               {categories.map((c) => (
                 <option key={c} value={c}>
-                  {c === 'all' ? 'সকল ক্যাটাগরি' : c}
+                  {c === 'all' ? 'All Categories' : c}
                 </option>
               ))}
             </select>
@@ -134,17 +134,17 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              কোনো বুকমার্ক সেভ করা নেই
+              No Bookmarks Saved Yet
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              এক্সপ্লোর বা ক্যাটালগ থেকে যেকোনো পছন্দের টুল বা কোডের বুকমার্ক আইকনে ক্লিক করে এখানে সেভ করে রাখুন।
+              Click the bookmark icon on any code or tool from the catalog to save it here for quick access.
             </p>
           </div>
         </div>
       ) : filteredBookmarks.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-10 text-center space-y-2">
           <p className="text-xs font-semibold text-slate-500">
-            "{searchQuery}" এর সাথে মিলে এমন কোনো বুকমার্ক পাওয়া যায়নি।
+            No bookmarks matching "{searchQuery}" found.
           </p>
         </div>
       ) : (
@@ -169,7 +169,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
                 </h3>
 
                 <p className="text-[11px] text-slate-400">
-                  সংরক্ষিত হয়েছে: {formatDate(b.bookmarkedAt)}
+                  Saved on: {formatDate(b.bookmarkedAt)}
                 </p>
               </div>
 
@@ -181,7 +181,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
                   title="Remove from bookmarks"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>রিমুভ</span>
+                  <span>Remove</span>
                 </button>
 
                 {onNavigateToCode && (
@@ -190,7 +190,7 @@ export const UserBookmarksCard: React.FC<UserBookmarksCardProps> = ({
                     onClick={() => onNavigateToCode(b.codeId)}
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm shadow-amber-500/30 transition active:scale-95"
                   >
-                    <span>ওপেন করুন</span>
+                    <span>Open Tool</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}

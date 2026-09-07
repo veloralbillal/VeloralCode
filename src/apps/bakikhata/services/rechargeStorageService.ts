@@ -14,7 +14,7 @@ const SAMPLE_RECHARGES: RechargeTransaction[] = [
     commissionRate: 3.2,
     profitAmount: 6.4,
     isDue: false,
-    note: 'সরাসরি ক্যাশ রিচার্জ',
+    note: 'Direct cash recharge',
     timestamp: Date.now() - 1000 * 60 * 30,
   },
   {
@@ -26,7 +26,7 @@ const SAMPLE_RECHARGES: RechargeTransaction[] = [
     commissionRate: 3.5,
     profitAmount: 17.5,
     isDue: false,
-    note: 'ইন্টারনেট প্যাক',
+    note: 'Internet pack',
     timestamp: Date.now() - 1000 * 60 * 120,
   },
 ];

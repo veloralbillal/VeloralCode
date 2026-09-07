@@ -139,7 +139,7 @@ export const LicenseRedeemCard: React.FC<LicenseRedeemCardProps> = ({ onSuccess 
       <form onSubmit={handleRedeem} className="space-y-3 text-xs">
         <div>
           <label className="block text-slate-600 dark:text-slate-400 font-bold mb-1.5">
-            {isPremium ? 'Renew / Activate New License Key' : 'License Key (লাইসেন্স কি)'}
+            {isPremium ? 'Renew / Activate New License Key' : 'License Key'}
           </label>
           <div className="relative">
             <input

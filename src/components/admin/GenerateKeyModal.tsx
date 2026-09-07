@@ -113,7 +113,7 @@ export const GenerateKeyModal: React.FC<GenerateKeyModalProps> = ({
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Expire Duration (মেয়াদ)</span>
+                <span>Expiry Duration</span>
               </label>
               <button
                 type="button"

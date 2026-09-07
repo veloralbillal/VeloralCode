@@ -28,7 +28,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
         }`}
       >
         <BookOpen className="w-4 h-4" />
-        <span>বাকির খাতা</span>
+        <span>Baki Khata</span>
         <span
           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
             activeTab === 'khata'
@@ -36,7 +36,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
               : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
           }`}
         >
-          {totalCustomers} জন
+          {totalCustomers} customers
         </span>
       </button>
 
@@ -49,7 +49,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
         }`}
       >
         <Smartphone className="w-4 h-4" />
-        <span>বিকাশ ব্যবসা</span>
+        <span>Bkash Counter</span>
         <span
           className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
             activeTab === 'bkash'
@@ -57,7 +57,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
               : 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300'
           }`}
         >
-          ফান্ড {formatTaka(bkashFundBalance)}
+          Fund {formatTaka(bkashFundBalance)}
         </span>
       </button>
 
@@ -70,7 +70,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
         }`}
       >
         <Zap className="w-4 h-4 text-amber-300" />
-        <span>মোবাইল রিচার্জ</span>
+        <span>Mobile Recharge</span>
         <span
           className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
             activeTab === 'recharge'
@@ -78,7 +78,7 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
               : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
           }`}
         >
-          লাভ {formatTaka(totalRechargeProfit)}
+          Profit {formatTaka(totalRechargeProfit)}
         </span>
       </button>
     </div>

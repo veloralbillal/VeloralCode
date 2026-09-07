@@ -130,7 +130,7 @@ export const AdminWithdrawals: React.FC = () => {
             }`}
           >
             <Sliders className="w-4 h-4" />
-            <span>Min. Withdrawal Settings (মিনিমাম উইথড্র)</span>
+            <span>Min. Withdrawal Settings</span>
           </button>
 
           <button
@@ -142,7 +142,7 @@ export const AdminWithdrawals: React.FC = () => {
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Download & Copy Reports (ডাউনলোড ও কপি রিপোর্ট)</span>
+            <span>Download & Copy Reports</span>
           </button>
         </div>
       </div>

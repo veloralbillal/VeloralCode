@@ -38,7 +38,7 @@ export function formatDateOnly(timestamp: number): string {
 }
 
 /**
- * Returns information about the next upcoming Tuesday (মঙ্গলবার)
+ * Returns information about the next upcoming Tuesday (Tuesday)
  */
 export function getNextTuesdayInfo(): { dateStr: string; daysLeft: number; isTodayTuesday: boolean } {
   const now = new Date();

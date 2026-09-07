@@ -60,14 +60,14 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h3 className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
-                  বাকির খাতা অ্যাপ ইনস্টল
+                  Install Baki Khata App
                 </h3>
                 <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500 text-white">
                   PWA
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                মোবাইল বা কম্পিউটারে অ্যাপের মতো চালান
+                Run smoothly on mobile and desktop offline
               </p>
             </div>
           </div>
@@ -86,10 +86,10 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
           <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center space-y-2">
             <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto" />
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-              অ্যাপটি ইতিমধ্যে ইনস্টল করা আছে!
+              The app is already installed!
             </h4>
             <p className="text-xs text-slate-600 dark:text-slate-300">
-              আপনার হোমস্ক্রিন অথবা অ্যাপ ড্রয়ার থেকে সরাসরি বাকির খাতা ওপেন করতে পারেন।
+              You can launch Baki Khata directly from your home screen or app drawer.
             </p>
           </div>
         ) : (
@@ -99,10 +99,10 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
               <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-950 dark:text-emerald-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                    সরাসরি ইনস্টল প্রস্তুত
+                    Ready for Direct Install
                   </span>
                   <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                    ১ ক্লিকেই ইনস্টল
+                    1-Click Fast Install
                   </span>
                 </div>
                 <button
@@ -111,7 +111,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition active:scale-95"
                 >
                   <Download className="w-4 h-4" />
-                  <span>সরাসরি অ্যাপ ইনস্টল করুন</span>
+                  <span>Install Progressive Web App</span>
                 </button>
               </div>
             )}
@@ -123,10 +123,10 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <div className="text-xs space-y-1">
                     <p className="font-bold text-amber-950 dark:text-amber-300">
-                      প্রিভিউ মোডে সরাসরি ব্রাউজার ইনস্টল পপআপ বন্ধ থাকে
+                      Direct browser install popups are restricted in preview mode
                     </p>
                     <p className="text-[11px] text-amber-800/90 dark:text-amber-200/80 leading-relaxed">
-                      ব্রাউজারের সিকিউরিটি নিয়মে প্রিভিউ আইফ্রেমের ভেতরে ইনস্টল ডায়ালগ ব্লক থাকে। সম্পূর্ণ নতুন ট্যাবে খুললে সরাসরি হোমস্ক্রিনে ইনস্টল করতে পারবেন।
+                      Browser security prevents install dialogs inside preview iframes. Open in a standalone tab to install directly to your home screen.
                     </p>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-md shadow-amber-600/20 transition active:scale-95"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  <span>🌐 নতুন ট্যাবে ফুল স্ক্রিনে খুলুন</span>
+                  <span>🌐 Open Fullscreen in New Tab</span>
                 </button>
               </div>
             )}
@@ -145,7 +145,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
             {/* Platform Instructions */}
             <div className="space-y-2.5">
               <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                ম্যানুয়াল ইনস্টল নির্দেশিকা (সকল ব্রাউজার)
+                Manual Installation Guide (All Browsers)
               </span>
 
               {/* iOS / iPhone / iPad */}
@@ -154,21 +154,21 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Smartphone className="w-4 h-4 text-emerald-500" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      আইফোন / আইপ্যাড (Safari ব্রাউজার)
+                      iPhone / iPad (Safari Browser)
                     </span>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <Share2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>১. সাফারির নিচে <strong>Share (শেয়ার)</strong> আইকনে চাপুন।</span>
+                      <span>1. Tap the <strong>Share</strong> button at the bottom of Safari.</span>
                     </div>
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <PlusSquare className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>২. তালিকা থেকে <strong>Add to Home Screen</strong> সিলেক্ট করুন।</span>
+                      <span>2. Select <strong>Add to Home Screen</strong> from the sheet.</span>
                     </div>
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>৩. উপরে ডানে <strong>Add</strong> চাপুন। অ্যাপ তৈরি হয়ে যাবে!</span>
+                      <span>3. Tap <strong>Add</strong> in the top right. The app icon is added to your home screen!</span>
                     </div>
                   </div>
                 </div>
@@ -178,21 +178,21 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Smartphone className="w-4 h-4 text-emerald-500" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      অ্যান্ড্রয়েড ফোন (Chrome ব্রাউজার)
+                      Android Phone (Chrome Browser)
                     </span>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0">⋮</span>
-                      <span>১. ব্রাউজারের উপরের ডানে <strong>(⋮) ৩-ডট</strong> মেন্যুতে চাপুন।</span>
+                      <span>1. Tap the <strong>(⋮) 3-dot menu</strong> in the top right of Chrome.</span>
                     </div>
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <Download className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>২. মেন্যু থেকে <strong>"Install app"</strong> বা <strong>"Add to Home screen"</strong> চাপুন।</span>
+                      <span>2. Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</span>
                     </div>
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>৩. <strong>Install</strong> কনফার্ম করুন। অ্যাপ ফোনে সেভ হয়ে যাবে!</span>
+                      <span>3. Confirm <strong>Install</strong>. The app installs immediately!</span>
                     </div>
                   </div>
                 </div>
@@ -202,17 +202,17 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Monitor className="w-4 h-4 text-emerald-500" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      কম্পিউটার বা ল্যাপটপ (Chrome / Edge)
+                      Computer / Laptop (Chrome / Edge)
                     </span>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <Download className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>১. ব্রাউজারের অ্যাড্রেস বারের ডানে থাকা <strong>ইনস্টল (⊕) আইকন</strong> এ ক্লিক করুন।</span>
+                      <span>1. Click the <strong>Install (⊕)</strong> icon on the right side of the address bar.</span>
                     </div>
                     <div className="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0">⋮</span>
-                      <span>২. অথবা ৩-ডট মেন্যু থেকে <strong>"Install Bakir Khata"</strong> নির্বাচন করুন।</span>
+                      <span>2. Or open the 3-dot menu and select <strong>"Install Baki Khata"</strong>.</span>
                     </div>
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
             {/* Offline Features Pill */}
             <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-[11px] text-slate-600 dark:text-slate-300">
               <WifiOff className="w-4 h-4 text-teal-500 shrink-0" />
-              <span>ইন্টারনেট সংযোগ না থাকলেও যেকোনো সময় অ্যাপ ওপেন করে খতিয়ান দেখতে পারবেন।</span>
+              <span>You can launch and view your ledger offline at any time without an internet connection.</span>
             </div>
           </>
         )}
@@ -235,7 +235,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
               onClick={openInNewTab}
               className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition"
             >
-              ট্যাবে খুলুন ↗
+              Open in Tab ↗
             </button>
           )}
           <button
@@ -243,7 +243,7 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold transition"
           >
-            ঠিক আছে
+            Got it
           </button>
         </div>
       </div>

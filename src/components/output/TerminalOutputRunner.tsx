@@ -179,7 +179,7 @@ export const TerminalOutputRunner: React.FC<TerminalOutputRunnerProps> = ({
               type="button"
               onClick={onSwitchToPreview}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition border border-indigo-500/50 hover:scale-102"
-              title="HTML Preview UI দেখুন"
+              title="View HTML Preview UI"
             >
               <Globe className="w-3.5 h-3.5 text-indigo-200" />
               <span>HTML Preview UI</span>

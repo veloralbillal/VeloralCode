@@ -96,15 +96,15 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
               <BarChart3 className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-base text-slate-900 dark:text-white">
-              Clicks, Downloads & Copies Report (ক্লিক, ডাউনলোড ও কপি আর্নিং রিপোর্ট)
+              Clicks, Downloads & Copies Report
             </h3>
             {isFixedModel ? (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                Pay-Per-Download Active (৳৩ ফিক্সড রেট)
+                Pay-Per-Download Active (৳3 Fixed Rate)
               </span>
             ) : userProfile?.creatorPayoutModel === 'pool' ? (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800">
-                Subscription Pool Active (৪০% পুল শেয়ার)
+                Subscription Pool Active (40% Pool Share)
               </span>
             ) : (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
@@ -113,7 +113,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
             )}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            আপনার টুলের দৈনিক কোড কপি, ডাউনলোড অ্যাকশন এবং জমা হওয়া রয়্যালটির সরাসরি অডিট রিপোর্ট।
+            Real-time audit reports on daily code copies, downloads, and generated royalties.
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              আজকের দিন (Daily)
+              Today (Daily)
             </button>
             <button
               type="button"
@@ -140,7 +140,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              গত ৭ দিন (Weekly)
+              Last 7 Days (Weekly)
             </button>
             <button
               type="button"
@@ -151,7 +151,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              কাস্টম (Custom)
+              Custom Range
             </button>
           </div>
 
@@ -160,7 +160,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
             onClick={loadReport}
             disabled={loading}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition"
-            title={`সর্বশেষ রিফ্রেশ: ${lastRefreshed}`}
+            title={`Last refreshed: ${lastRefreshed}`}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-600' : ''}`} />
           </button>
@@ -241,7 +241,7 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
         {/* Total Period Earnings */}
         <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-semibold">Period Payout (আয়)</span>
+            <span className="text-xs font-semibold">Period Payout</span>
             <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <DollarSign className="w-4 h-4" />
             </div>
@@ -262,15 +262,15 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
             <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              টুল অনুযায়ী ক্লিক ও ডাউনলোড (Top Tools Breakdown)
+              Clicks & Downloads Breakdown by Tool
             </h4>
           </div>
 
           {loading ? (
-            <div className="py-8 text-center text-xs text-slate-400">হিসাব লোড হচ্ছে...</div>
+            <div className="py-8 text-center text-xs text-slate-400">Loading analytics...</div>
           ) : summary.topTools.length === 0 ? (
             <div className="py-8 text-center text-xs text-slate-400">
-              নির্বাচিত সময়ে আপনার টুলের কোনো কপি বা ডাউনলোড ক্লিক পাওয়া যায়নি।
+              No copy or download clicks recorded for the selected period.
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800 space-y-1">
@@ -303,16 +303,16 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
             <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              ক্লিক অডিট লগ ও অ্যান্টি-চিটিং স্ট্যাটাস (Audit Logs)
+              Click Audit Logs & Verification Status
             </h4>
-            <span className="text-[10px] text-slate-400">সর্বশেষ অ্যাকশনসমূহ</span>
+            <span className="text-[10px] text-slate-400">Latest Actions</span>
           </div>
 
           {loading ? (
-            <div className="py-8 text-center text-xs text-slate-400">লগ লোড হচ্ছে...</div>
+            <div className="py-8 text-center text-xs text-slate-400">Loading logs...</div>
           ) : summary.recentLogs.length === 0 ? (
             <div className="py-8 text-center text-xs text-slate-400">
-              এখনও কোনো ইন্টারঅ্যাকশন রেকর্ড জমা হয়নি।
+              No interaction records logged yet.
             </div>
           ) : (
             <div className="max-h-[280px] overflow-y-auto space-y-2 pr-1">
@@ -326,11 +326,11 @@ export const CreatorPayPerClickReport: React.FC<CreatorPayPerClickReportProps> =
                 if (!log.isEligibleForPayout) {
                   const reasonLabel = 
                     log.ineligibilityReason === 'own_code'
-                      ? 'নিজের কোড'
+                      ? 'Own Code'
                       : log.ineligibilityReason === 'free_user'
-                      ? 'ফ্রি ইউজার'
+                      ? 'Free User'
                       : log.ineligibilityReason === 'duplicate_user'
-                      ? 'পুনরাবৃত্তি (Duplicate)'
+                      ? 'Duplicate'
                       : 'Not eligible';
 
                   badge = (

@@ -115,7 +115,7 @@ export const TipCreatorModal: React.FC<TipCreatorModalProps> = ({
             {/* Quick BDT Amount Pills */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-300">Select Tip Amount (টাকা ৳ BDT)</label>
+                <label className="text-xs font-semibold text-slate-300">Select Tip Amount (BDT ৳)</label>
                 <span className="text-[11px] text-amber-400 font-semibold flex items-center gap-1">
                   <Coins className="w-3 h-3" /> Rate: 1 USD = 120 BDT
                 </span>

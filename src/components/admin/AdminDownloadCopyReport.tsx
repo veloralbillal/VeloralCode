@@ -72,7 +72,7 @@ export const AdminDownloadCopyReport: React.FC = () => {
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-bold text-base text-slate-900 dark:text-white">
-              Download & Copy Distribution Report (ডাউনলোড ও কপি রিপোর্ট)
+              Download & Copy Distribution Report
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -93,7 +93,7 @@ export const AdminDownloadCopyReport: React.FC = () => {
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
               >
-                {f === 'daily' ? 'Daily (আজকের)' : f === 'weekly' ? 'Weekly (সাপ্তাহিক)' : 'Custom (কাস্টম)'}
+                {f === 'daily' ? 'Daily' : f === 'weekly' ? 'Weekly' : 'Custom'}
               </button>
             ))}
           </div>
@@ -182,7 +182,7 @@ export const AdminDownloadCopyReport: React.FC = () => {
       {summary.topTools.length > 0 && (
         <div className="space-y-3 pt-2">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Top Downloaded & Copied Tools (সর্বোচ্চ ব্যবহৃত টুলসমূহ)
+            Top Downloaded & Copied Tools
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {summary.topTools.slice(0, 6).map((tool, idx) => (
@@ -216,7 +216,7 @@ export const AdminDownloadCopyReport: React.FC = () => {
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Recent Activity Logs (সরাসরি লগ ও অ্যান্টি-চিটিং স্ট্যাটাস)
+            Recent Activity Logs & Anti-Abuse Status
           </h4>
           <span className="text-[10px] text-slate-400">Refreshed: {lastRefreshed}</span>
         </div>

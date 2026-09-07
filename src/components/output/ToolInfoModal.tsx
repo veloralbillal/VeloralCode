@@ -159,10 +159,10 @@ export const ToolInfoModal: React.FC<ToolInfoModalProps> = ({
                   : 'text-rose-300'
               }`}>
                 {isSafeTool
-                  ? 'Tool Safety Status: Safe (সুরক্ষিত)'
+                  ? 'Tool Safety Status: Safe'
                   : safetyReport.riskLevel === 'medium'
-                  ? 'Tool Safety Status: Review Needed (সতর্কতা)'
-                  : 'Tool Safety Status: High Risk (ঝুঁকিপূর্ণ)'}
+                  ? 'Tool Safety Status: Review Needed'
+                  : 'Tool Safety Status: High Risk'}
               </span>
             </div>
 

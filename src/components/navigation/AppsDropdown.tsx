@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, BookOpen, Calendar, Terminal, Sparkles, ArrowRight } from 'lucide-react';
+import { ChevronDown, BookOpen, Calendar, Terminal, Sparkles, ArrowRight, Link2 } from 'lucide-react';
 
 interface AppsDropdownProps {
   currentRoute: string;
@@ -24,17 +24,26 @@ export const AppsDropdown: React.FC<AppsDropdownProps> = ({ currentRoute, onNavi
 
   const appItems = [
     {
-      title: 'বাকির খাতা (Baki Khata)',
-      subtitle: 'মুদির দোকান, চা-পান ও বিকাশ লেনদেনের ডিজিটাল খতিয়ান',
+      title: 'Baki Khata Ledger',
+      subtitle: 'Digital store credit ledger, accounts & daily transactions',
       route: '#/app/bakikhata',
       icon: BookOpen,
       iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800',
-      tag: 'নতুন / Featured',
+      tag: 'Featured',
       tagColor: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300',
     },
     {
+      title: 'URL Shortener & Ads',
+      subtitle: 'Fast short links, domain/random, QR codes & ad monetization',
+      route: '#/app/shortener',
+      icon: Link2,
+      iconColor: 'text-violet-500 bg-violet-50 dark:bg-violet-950/60 border-violet-200 dark:border-violet-800',
+      tag: 'New / Free',
+      tagColor: 'bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300',
+    },
+    {
       title: 'Events & Pricing Drops',
-      subtitle: 'বিশেষ ডিসকাউন্ট অফার, ফ্ল্যাশ সেল ও কমিউনিটি ইভেন্ট',
+      subtitle: 'Special developer workshops, discounts & flash events',
       route: '#/events',
       icon: Calendar,
       iconColor: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800',
@@ -54,7 +63,7 @@ export const AppsDropdown: React.FC<AppsDropdownProps> = ({ currentRoute, onNavi
         }`}
       >
         <Sparkles className="w-4 h-4 text-emerald-500" />
-        <span>অ্যাপস ও ইউটিলিটি</span>
+        <span>Apps & Tools</span>
         <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -65,7 +74,7 @@ export const AppsDropdown: React.FC<AppsDropdownProps> = ({ currentRoute, onNavi
               Apps & Utilities
             </span>
             <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-              ইন্টিগ্রেটেড টুলস
+              Integrated Tools
             </span>
           </div>
 

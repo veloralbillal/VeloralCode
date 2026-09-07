@@ -76,7 +76,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            সব গ্রাহক ({customers.length})
+            All Customers ({customers.length})
           </button>
 
           <button
@@ -87,7 +87,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            বাকি আছে ({customers.filter((c) => c.totalDue > 0).length})
+            Has Due ({customers.filter((c) => c.totalDue > 0).length})
           </button>
 
           <button
@@ -98,7 +98,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            🗓️ মঙ্গলবার পরিশোধ ({customers.filter((c) => c.settlesOnTuesday && c.totalDue > 0).length})
+            🗓️ Tuesday Settlement ({customers.filter((c) => c.settlesOnTuesday && c.totalDue > 0).length})
           </button>
 
           <button
@@ -109,7 +109,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            পরিশোধিত ({customers.filter((c) => c.totalDue <= 0).length})
+            Fully Cleared ({customers.filter((c) => c.totalDue <= 0).length})
           </button>
         </div>
 
@@ -121,9 +121,9 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
             onChange={(e) => setSortBy(e.target.value as SortOption)}
             className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl px-2.5 py-1.5 font-semibold focus:outline-none border-0"
           >
-            <option value="due_desc">সর্বোচ্চ বকেয়া আগে</option>
-            <option value="activity_desc">সাম্প্রতিক লেনদেন</option>
-            <option value="name_asc">নাম (A-Z)</option>
+            <option value="due_desc">Highest Due First</option>
+            <option value="activity_desc">Recent Activity</option>
+            <option value="name_asc">Name (A-Z)</option>
           </select>
         </div>
       </div>
@@ -147,19 +147,19 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
             <Users className="w-6 h-6" />
           </div>
           <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            কোন গ্রাহক পাওয়া যায়নি
+            No customers found
           </h4>
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
             {searchQuery
-              ? `"${searchQuery}" এর সাথে মিলে এমন কোনো নাম বা নম্বর নেই`
-              : 'নতুন গ্রাহক যোগ করতে বা লেনদেন শুরু করতে নিচের বাটনে চাপ দিন'}
+              ? `"${searchQuery}" No matching customer name or number found`
+              : 'Click the button below to add a customer and start recording transactions'}
           </p>
           <button
             onClick={onOpenAddCustomer}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs"
           >
             <Users className="w-3.5 h-3.5" />
-            <span>নতুন গ্রাহক যুক্ত করুন</span>
+            <span>Add New Customer</span>
           </button>
         </div>
       )}

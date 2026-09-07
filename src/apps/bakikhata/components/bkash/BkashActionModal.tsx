@@ -61,7 +61,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
     e.preventDefault();
     if (numAmount <= 0) return;
     if (isDue && !selectedCustomerId) {
-      alert('বাকি সিলেক্ট করলে অবশ্যই কাস্টমার নির্বাচন করতে হবে');
+      alert('Please select a customer when recording as due');
       return;
     }
 
@@ -95,9 +95,9 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                বিকাশ ও মোবাইল ব্যাংকিং লেনদেন
+                Bkash & Mobile Banking Transaction
               </h3>
-              <p className="text-[11px] text-slate-500">ফান্ড ব্যালেন্স: {formatTaka(currentFundBalance)}</p>
+              <p className="text-[11px] text-slate-500">Fund Balance: {formatTaka(currentFundBalance)}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white">
@@ -109,13 +109,13 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
           {/* Operation Selector */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              লেনদেনের ধরন নির্বাচন করুন
+              Select Transaction Type
             </label>
             <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
               {[
-                { id: 'send_money', label: 'সেন্ড মানি', icon: Send },
-                { id: 'cash_in', label: 'ক্যাশ ইন', icon: Smartphone },
-                { id: 'cash_out', label: 'ক্যাশ আউট', icon: ArrowDownRight },
+                { id: 'send_money', label: 'Send Money', icon: Send },
+                { id: 'cash_in', label: 'Cash In', icon: Smartphone },
+                { id: 'cash_out', label: 'Cash Out', icon: ArrowDownRight },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = opType === item.id;
@@ -142,7 +142,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                গ্রাহক / প্রাপক মোবাইল নম্বর
+                Customer / Recipient Phone Number
               </label>
               <input
                 type="tel"
@@ -160,7 +160,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
           {/* Amount */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              টাকার পরিমাণ (৳)
+              Amount (৳)
             </label>
             <input
               type="number"
@@ -197,11 +197,11 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
             <div className="flex items-center gap-2">
               {isLowFund && <AlertCircle className="w-4 h-4 shrink-0" />}
               <span>
-                {isFundDeduction ? `ফান্ড থেকে ${formatTaka(numAmount)} কমবে` : `ফান্ডে ${formatTaka(numAmount)} যোগ হবে`}
+                {isFundDeduction ? `Fund will decrease by ${formatTaka(numAmount)}` : `Fund will increase by ${formatTaka(numAmount)}`}
               </span>
             </div>
             <span className="font-extrabold">
-              পরবর্তী ফান্ড: {formatTaka(Math.max(0, newFundBalance))}
+              New Fund Balance: {formatTaka(Math.max(0, newFundBalance))}
             </span>
           </div>
 
@@ -209,7 +209,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-900 dark:text-white">
-                টাকা পরিশোধের অবস্থা
+                Payment Settlement Mode
               </span>
               <div className="flex items-center gap-2 text-xs">
                 <label className="flex items-center gap-1.5 cursor-pointer">
@@ -220,7 +220,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
                     onChange={() => setIsDue(false)}
                     className="text-pink-600 focus:ring-pink-500"
                   />
-                  <span>নগদ পরিশোধ</span>
+                  <span>Cash Paid</span>
                 </label>
                 <label className="flex items-center gap-1.5 cursor-pointer text-amber-600 dark:text-amber-400 font-bold">
                   <input
@@ -230,7 +230,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
                     onChange={() => setIsDue(true)}
                     className="text-amber-600 focus:ring-amber-500"
                   />
-                  <span>বাকি থাকবে</span>
+                  <span>Add to Due</span>
                 </label>
               </div>
             </div>
@@ -239,7 +239,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
             {isDue && (
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
                 <label className="block text-[11px] font-bold text-amber-700 dark:text-amber-400">
-                  কোন কাস্টমারের বাকির খাতায় যোগ হবে?
+                  Which customer ledger to add due to?
                 </label>
                 <select
                   value={selectedCustomerId}
@@ -247,15 +247,15 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
                   required={isDue}
                   className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-xs font-bold"
                 >
-                  <option value="">-- কাস্টমার নির্বাচন করুন --</option>
+                  <option value="">-- Select Customer --</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name} (বর্তমান বাকি: {formatTaka(c.totalDue)})
+                      {c.name} (Current Due: {formatTaka(c.totalDue)})
                     </option>
                   ))}
                 </select>
                 <p className="text-[10px] text-slate-500">
-                  * লেনদেন সম্পন্ন হওয়ার সাথে সাথে স্বয়ংক্রিয়ভাবে কাস্টমারের বাকির খাতায় যোগ হয়ে যাবে।
+                  * Due will be automatically recorded to the customer ledger upon execution.
                 </p>
               </div>
             )}
@@ -267,7 +267,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
             className="w-full py-3 rounded-2xl bg-pink-600 hover:bg-pink-500 text-white font-black text-xs shadow-lg shadow-pink-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
             <Check className="w-4 h-4" />
-            <span>{submitting ? 'প্রসেসিং হচ্ছে...' : 'লেনদেন নিশ্চিত করুন'}</span>
+            <span>{submitting ? 'Processing...' : 'Confirm Transaction'}</span>
           </button>
         </form>
       </div>

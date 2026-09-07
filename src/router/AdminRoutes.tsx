@@ -18,6 +18,7 @@ import { AdminEvents } from '../components/admin/AdminEvents';
 import { AdminSeoSettings } from '../components/admin/AdminSeoSettings';
 import { AdminConnectionPoolManager } from '../components/admin/AdminConnectionPoolManager';
 import { AdminPwaManager } from '../components/admin/pwa/AdminPwaManager';
+import { AdminShortenerManager } from '../components/admin/AdminShortenerManager';
 import { ShieldAlert, LogIn, BookOpen } from 'lucide-react';
 
 interface AdminRoutesProps {
@@ -157,6 +158,14 @@ export const AdminRoutes: React.FC<AdminRoutesProps> = ({
     return (
       <AdminLayout currentRoute={hash} onNavigate={navigate} title="Slider Banners Management" subtitle="Upload hero banners, set display order, and configure redirection links">
         <AdminBanners />
+      </AdminLayout>
+    );
+  }
+
+  if (hash === '#/admin/shortener') {
+    return (
+      <AdminLayout currentRoute={hash} onNavigate={navigate} title="URL Shortener & Ads Control Zone" subtitle="Manage short links, monitor real-time visitor clicks, and configure ad monetization zones">
+        <AdminShortenerManager onNavigate={navigate} />
       </AdminLayout>
     );
   }

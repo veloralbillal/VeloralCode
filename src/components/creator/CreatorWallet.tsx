@@ -154,7 +154,7 @@ export const CreatorWallet: React.FC = () => {
               onClick={() => setShowWithdrawModal(true)}
               className="w-full py-2.5 rounded-xl bg-white text-emerald-800 font-bold text-xs shadow-md hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
             >
-              <Send className="w-3.5 h-3.5" /> Request Payout (টাকা উত্তোলন)
+              <Send className="w-3.5 h-3.5" /> Request Payout
             </button>
           </div>
           <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
@@ -201,7 +201,7 @@ export const CreatorWallet: React.FC = () => {
           <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300 my-3">
             <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800">
               <span>Exchange Rate:</span>
-              <span className="font-bold text-amber-500">1 USD = {USD_TO_BDT_RATE} BDT (টাকা)</span>
+              <span className="font-bold text-amber-500">1 USD = {USD_TO_BDT_RATE} BDT</span>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800">
               <span>Supported:</span>
@@ -383,16 +383,16 @@ export const CreatorWallet: React.FC = () => {
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  Payment Method (পেমেন্ট মেথড)
+                  Payment Method
                 </label>
                 <select
                   value={withdrawalMethod}
                   onChange={(e) => setWithdrawalMethod(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 >
-                  <option value="bKash (Personal)">bKash (Personal) - বিকাশ</option>
-                  <option value="Nagad (Personal)">Nagad (Personal) - নগদ</option>
-                  <option value="Rocket (Personal)">Rocket - রকেট</option>
+                  <option value="bKash (Personal)">bKash (Personal)</option>
+                  <option value="Nagad (Personal)">Nagad (Personal)</option>
+                  <option value="Rocket (Personal)">Rocket (Personal)</option>
                   <option value="USDT (TRC20 / Binance Pay)">USDT (TRC20 / Binance Pay)</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Bank Transfer">Bank Transfer</option>
@@ -401,7 +401,7 @@ export const CreatorWallet: React.FC = () => {
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  Account / Phone Number (একাউন্ট বা ফোন নম্বর)
+                  Account / Phone Number
                 </label>
                 <input
                   type="text"

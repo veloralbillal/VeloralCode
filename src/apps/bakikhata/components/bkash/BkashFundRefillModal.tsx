@@ -53,9 +53,9 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                {mode === 'add' ? 'বিকাশ ফান্ডে টাকা যোগ করুন' : 'ফান্ড ব্যালেন্স সমন্বয় করুন'}
+                {mode === 'add' ? 'Add Money to Bkash Fund' : 'Adjust Fund Balance'}
               </h3>
-              <p className="text-[11px] text-slate-500">বর্তমান ব্যালেন্স: {formatTaka(currentBalance)}</p>
+              <p className="text-[11px] text-slate-500">Current Balance: {formatTaka(currentBalance)}</p>
             </div>
           </div>
           <button
@@ -79,7 +79,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
               }`}
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>ফান্ড লোড (+টাকা যোগ)</span>
+              <span>Refill Fund (+Add Cash)</span>
             </button>
             <button
               type="button"
@@ -91,7 +91,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
               }`}
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>সরাসরি ব্যালেন্স সেট</span>
+              <span>Set Exact Balance</span>
             </button>
           </div>
         </div>
@@ -99,7 +99,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              {mode === 'add' ? 'কত টাকা ফান্ডে লোড করবেন? (৳)' : 'নতুন মোট ফান্ড ব্যালেন্স কত? (৳)'}
+              {mode === 'add' ? 'Amount to Add to Fund? (৳)' : 'New Total Fund Balance? (৳)'}
             </label>
             <input
               type="number"
@@ -107,7 +107,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
               required
               value={amountStr}
               onChange={(e) => setAmountStr(e.target.value)}
-              placeholder="টাকার পরিমাণ লিখুন..."
+              placeholder="Enter amount in Taka..."
               className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-lg font-black focus:ring-2 focus:ring-pink-500"
               autoFocus
             />
@@ -129,7 +129,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
 
           {/* Preview impact */}
           <div className="p-3.5 rounded-2xl bg-pink-50 dark:bg-pink-950/30 border border-pink-100 dark:border-pink-900/40 flex items-center justify-between text-xs">
-            <span className="text-pink-800 dark:text-pink-300 font-medium">নতুন ফান্ড ব্যালেন্স হবে:</span>
+            <span className="text-pink-800 dark:text-pink-300 font-medium">New Fund Balance will be:</span>
             <span className="text-base font-black text-pink-700 dark:text-pink-400">
               {formatTaka(newBalancePreview)}
             </span>
@@ -137,13 +137,13 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              উৎস বা নোট (ঐচ্ছিক)
+              Source or Note (Optional)
             </label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="যেমন: ব্যাংক থেকে বা ডিস্ট্রিবিউটর ক্যাশ লোড..."
+              placeholder="e.g. Bank withdrawal or distributor cash load..."
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
             />
           </div>
@@ -154,7 +154,7 @@ export const BkashFundRefillModal: React.FC<BkashFundRefillModalProps> = ({
             className="w-full py-3 rounded-2xl bg-pink-600 hover:bg-pink-500 text-white font-black text-xs shadow-lg shadow-pink-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
             <Check className="w-4 h-4" />
-            <span>{submitting ? 'সংরক্ষণ হচ্ছে...' : 'ফান্ড নিশ্চিত করুন'}</span>
+            <span>{submitting ? 'Saving...' : 'Confirm Fund Update'}</span>
           </button>
         </form>
       </div>

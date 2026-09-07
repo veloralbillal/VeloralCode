@@ -54,7 +54,7 @@ export const AdminMinWithdrawalCard: React.FC = () => {
           </div>
           <div>
             <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
-              Minimum Withdrawal & Distribution Settings (মিনিমাম উইথড্র কনফিগারেশন)
+              Minimum Withdrawal & Distribution Settings
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Set the minimum threshold creators must reach before requesting payouts via bKash/Nagad.
@@ -74,7 +74,7 @@ export const AdminMinWithdrawalCard: React.FC = () => {
           {/* Minimum Withdrawal in BDT */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Minimum Withdrawal (টাকা BDT)
+              Minimum Withdrawal (BDT ৳)
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">৳</span>
@@ -157,7 +157,7 @@ export const AdminMinWithdrawalCard: React.FC = () => {
             className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md shadow-amber-600/20 transition flex items-center gap-2 disabled:opacity-50"
           >
             {saving ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            <span>Save Settings (সেভ করুন)</span>
+            <span>Save Settings</span>
           </button>
         </div>
       </form>

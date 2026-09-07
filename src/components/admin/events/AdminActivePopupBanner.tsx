@@ -26,7 +26,7 @@ export const AdminActivePopupBanner: React.FC<AdminActivePopupBannerProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-              Active User Warning Popup (লাইভ পপআপ)
+              Active User Warning Popup (Live)
             </span>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">
               Target: {roles}

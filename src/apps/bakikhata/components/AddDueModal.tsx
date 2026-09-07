@@ -92,7 +92,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
         category,
         bkashType: category === 'bkash' ? bkashType : undefined,
         mfsNumber: category === 'bkash' ? mfsNumber : undefined,
-        itemsSummary: itemsSummary.trim() || 'বাকি সওদা',
+        itemsSummary: itemsSummary.trim() || 'General Credit',
         amount: numAmount,
         timestamp,
         note: note.trim(),
@@ -110,9 +110,9 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              খাতায় বাকি যোগ করুন
+              Record Credit to Ledger
             </h3>
-            <p className="text-[11px] text-slate-500">মুদি, চা-পান অথবা বিকাশ লেনদেন</p>
+            <p className="text-[11px] text-slate-500">Grocery, Tea & Betel, or Bkash MFS</p>
           </div>
           <button
             onClick={onClose}
@@ -127,7 +127,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
           {/* Customer select */}
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-              গ্রাহক নির্বাচন করুন *
+              Select Customer *
             </label>
             <select
               value={selectedCustId}
@@ -140,7 +140,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
             >
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name} {c.phone ? `(${c.phone})` : ''} — বর্তমান বাকি: ৳{c.totalDue}
+                  {c.name} {c.phone ? `(${c.phone})` : ''} — Current Due: ৳{c.totalDue}
                 </option>
               ))}
             </select>
@@ -149,7 +149,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
           {/* Category tabs */}
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              বাকি ক্যাটাগরি
+              Credit Category
             </label>
             <div className="grid grid-cols-4 gap-1.5">
               <button
@@ -162,7 +162,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 }`}
               >
                 <Coffee className="w-4 h-4 mb-1" />
-                <span className="text-[11px]">চা ও পান</span>
+                <span className="text-[11px]">Tea & Betel</span>
               </button>
 
               <button
@@ -175,7 +175,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 }`}
               >
                 <ShoppingBag className="w-4 h-4 mb-1" />
-                <span className="text-[11px]">মুদি সওদা</span>
+                <span className="text-[11px]">Grocery</span>
               </button>
 
               <button
@@ -188,7 +188,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 }`}
               >
                 <Smartphone className="w-4 h-4 mb-1" />
-                <span className="text-[11px]">বিকাশ / রিচার্জ</span>
+                <span className="text-[11px]">Bkash / Recharge</span>
               </button>
 
               <button
@@ -201,7 +201,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 }`}
               >
                 <FileText className="w-4 h-4 mb-1" />
-                <span className="text-[11px]">অন্যান্য</span>
+                <span className="text-[11px]">Other</span>
               </button>
             </div>
           </div>
@@ -211,23 +211,23 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
             <div className="p-3.5 rounded-2xl bg-pink-500/10 border border-pink-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-pink-900 dark:text-pink-200 text-xs">
-                  বিকাশ লেনদেনের ধরন:
+                  Bkash MFS Type:
                 </span>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                 {[
-                  { id: 'recharge', label: 'রিচার্জ' },
-                  { id: 'cash_out', label: 'ক্যাশ আউট' },
-                  { id: 'cash_in', label: 'ক্যাশ ইন' },
-                  { id: 'send_money', label: 'সেন্ড মানি' },
-                  { id: 'payment', label: 'পেমেন্ট' },
+                  { id: 'recharge', label: 'Recharge' },
+                  { id: 'cash_out', label: 'Cash Out' },
+                  { id: 'cash_in', label: 'Cash In' },
+                  { id: 'send_money', label: 'Send Money' },
+                  { id: 'payment', label: 'Payment' },
                 ].map((t) => (
                   <button
                     key={t.id}
                     type="button"
                     onClick={() => {
                       setBkashType(t.id as BkashType);
-                      setItemsSummary(`বিকাশ ${t.label}`);
+                      setItemsSummary(`Bkash ${t.label}`);
                     }}
                     className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition ${
                       bkashType === t.id
@@ -242,7 +242,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  বিকাশ / মোবাইল নম্বর
+                  Bkash / Mobile Number
                 </label>
                 <input
                   type="tel"
@@ -259,17 +259,17 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
           {category === 'cha_pan' && (
             <div>
               <span className="text-[11px] font-bold text-slate-500 mb-1.5 block">
-                চা ও পান শর্টকাট (ক্লিক করলেই যোগ হবে):
+                Tea & Betel Shortcuts (Click to Add):
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  { label: 'দুধ চা', cost: 10 },
-                  { label: 'রং চা', cost: 6 },
-                  { label: 'লেবু চা', cost: 7 },
-                  { label: 'মিষ্টি পান', cost: 10 },
-                  { label: 'জর্দা পান', cost: 10 },
-                  { label: 'সিগারেট', cost: 15 },
-                  { label: 'বিস্কুট', cost: 10 },
+                  { label: 'Milk Tea', cost: 10 },
+                  { label: 'Black Tea', cost: 6 },
+                  { label: 'Lemon Tea', cost: 7 },
+                  { label: 'Sweet Paan', cost: 10 },
+                  { label: 'Zarda Paan', cost: 10 },
+                  { label: 'Snacks/Smokes', cost: 15 },
+                  { label: 'Biscuits', cost: 10 },
                 ].map((tag) => (
                   <button
                     key={tag.label}
@@ -287,18 +287,18 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
           {category === 'mudi' && (
             <div>
               <span className="text-[11px] font-bold text-slate-500 mb-1.5 block">
-                মুদির সাধারণ পণ্য শর্টকাট:
+                Common Grocery Shortcuts:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  'চাল',
-                  'সয়াবিন তেল',
-                  'চিনি ১ কেজি',
-                  'ডাল ১ কেজি',
-                  'ডিম ১ হালি',
-                  'লবণ ১ প্যাকেট',
-                  'আটা ২ কেজি',
-                  'সাবান',
+                  'Rice',
+                  'Soybean Oil',
+                  'Sugar 1kg',
+                  'Lentils 1kg',
+                  'Eggs 4pcs',
+                  'Salt 1 pack',
+                  'Flour 2kg',
+                  'Soap',
                 ].map((item) => (
                   <button
                     key={item}
@@ -317,7 +317,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                বাকি টাকার পরিমাণ (৳) *
+                Credit Amount (৳) *
               </label>
               <input
                 type="number"
@@ -326,20 +326,20 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 step="any"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="যেমন: ৫০"
+                placeholder="e.g. 50"
                 className="w-full px-3.5 py-2.5 text-base font-extrabold rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                পণ্য / বিবরণ
+                Items / Description
               </label>
               <input
                 type="text"
                 value={itemsSummary}
                 onChange={(e) => setItemsSummary(e.target.value)}
-                placeholder="যেমন: ২ কাপ চা, ১টি পান"
+                placeholder="e.g. 2 cups tea, 1 sweet paan"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -351,7 +351,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
                 <span className="font-bold text-slate-700 dark:text-slate-300">
-                  টাইমস্ট্যাম্প (লেনদেনের সঠিক সময়)
+                  Timestamp (Exact transaction time)
                 </span>
               </div>
               <label className="flex items-center gap-1.5 cursor-pointer text-emerald-600 dark:text-emerald-400 font-bold">
@@ -361,7 +361,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                   onChange={(e) => setUseCurrentTime(e.target.checked)}
                   className="rounded accent-emerald-600"
                 />
-                <span>বর্তমান সময়</span>
+                <span>Current Time</span>
               </label>
             </div>
 
@@ -379,13 +379,13 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
 
           <div>
             <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-              অতিরিক্ত নোট (ঐচ্ছিক)
+              Additional Note (Optional)
             </label>
             <input
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="যেমন: বিকেলে ভাই এসে নিয়ে গেছেন"
+              placeholder="e.g. Taken in the afternoon"
               className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
@@ -397,14 +397,14 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
             >
-              বাতিল
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !Number(amount)}
               className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 disabled:opacity-50"
             >
-              {saving ? 'সংরক্ষণ হচ্ছে...' : 'বাকি জমা করুন'}
+              {saving ? 'Saving...' : 'Add Credit Record'}
             </button>
           </div>
         </form>

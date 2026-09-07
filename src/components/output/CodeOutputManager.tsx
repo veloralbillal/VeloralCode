@@ -54,7 +54,7 @@ export const CodeOutputManager: React.FC<CodeOutputManagerProps> = ({ code, lang
             }`}
           >
             <Play className="w-3.5 h-3.5 fill-current text-emerald-300" />
-            <span>Live Output (ফলাফল)</span>
+            <span>Live Output</span>
           </button>
 
           <button

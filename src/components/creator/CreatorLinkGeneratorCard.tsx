@@ -60,7 +60,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
         document.body.removeChild(textArea);
       }
       setCopied(true);
-      showToast('পাবলিক ক্রিয়েটর প্রোফাইল লিংক কপি করা হয়েছে!', 'success');
+      showToast('Public creator profile link copied!', 'success');
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       showToast('Failed to copy link', 'error');
@@ -73,7 +73,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
     if (!currentUser) return;
     const clean = slugifyCreatorHandle(inputHandle);
     if (!clean || clean.length < 3) {
-      showToast('ইউজারনেম কমপক্ষে ৩ অক্ষরের হতে হবে (ইংরেজি অক্ষর, সংখ্যা ও আন্ডারস্কোর)', 'warning');
+      showToast('Username must be at least 3 alphanumeric characters or underscore', 'warning');
       return;
     }
 
@@ -83,9 +83,9 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
       await refreshUserProfile();
       setIsEditingHandle(false);
       setInputHandle(savedHandle);
-      showToast(`আপনার কাস্টম লিংক হ্যান্ডেল @${savedHandle} সফলভাবে সেট করা হয়েছে!`, 'success');
+      showToast(`Custom link handle @${savedHandle} set successfully!`, 'success');
     } catch (err: any) {
-      showToast(err.message || 'হ্যান্ডেল আপডেট করতে সমস্যা হয়েছে', 'error');
+      showToast(err.message || 'Failed to update handle', 'error');
     } finally {
       setSavingHandle(false);
     }
@@ -93,7 +93,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
 
   // Share handlers
   const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`আমার তৈরি সকল ওয়েব টুলস ও কোড দেখুন এখানে: ${fullUrl}`);
+    const text = encodeURIComponent(`Explore all my web tools and codes here: ${fullUrl}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
@@ -122,7 +122,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
               </span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              আপনার আলাদা ক্রিয়েটর পাবলিক পেজের ইউনিক লিংক জেনারেট ও শেয়ার করুন
+              Generate and share your custom creator public link
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
       {/* Generated Link Display Box */}
       <div className="space-y-2">
         <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-          <span>আপনার পার্সোনালাইজড পাবলিক লিংক (Shareable URL):</span>
+          <span>Your Personalized Public Link (Shareable URL):</span>
           {!isEditingHandle && (
             <button
               type="button"
@@ -150,7 +150,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
               className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
             >
               <Edit3 className="w-3 h-3" />
-              <span>ইউজারনেম পরিবর্তন করুন</span>
+              <span>Change Username Handle</span>
             </button>
           )}
         </label>
@@ -176,14 +176,14 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
                 className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow-xs transition"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>{savingHandle ? 'সেভ হচ্ছে...' : 'সেভ করুন'}</span>
+                <span>{savingHandle ? 'Saving...' : 'Save Handle'}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsEditingHandle(false)}
                 className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
               >
-                বাতিল
+                Cancel
               </button>
             </div>
           </form>
@@ -208,7 +208,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
                 }`}
               >
                 {copied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? 'কপি হয়েছে!' : 'Copy Link'}</span>
+                <span>{copied ? 'Copied!' : 'Copy Link'}</span>
               </button>
 
               <button
@@ -224,7 +224,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
                 title="View your public profile page"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span>ভিজিট করুন</span>
+                <span>Visit Profile</span>
               </button>
 
               <button
@@ -243,13 +243,13 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
       {/* Sharing & Explanatory Notice */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs border-t border-slate-100 dark:border-slate-800">
         <div className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-          💡 <strong className="text-slate-700 dark:text-slate-300">অ্যাক্সেস নিয়ম:</strong> যেকোনো ভিজিটর আপনার নির্দিষ্ট লিংক (<span className="font-mono text-emerald-600 dark:text-emerald-400">/creator/{currentHandle}</span>) ব্যবহার করে সরাসরি আপনার পাবলিক পোর্টফোলিও দেখতে পারবেন। কিন্তু সরাসরি <span className="font-mono text-red-500">/creator</span> ব্রাউজ করতে গেলে সাধারণ ভিজিটরদের জন্য অ্যাক্সেস ডিনাইড/ব্লক স্ক্রিন শো করবে।
+          💡 <strong className="text-slate-700 dark:text-slate-300">Access Rule:</strong> Visitors can view your public portfolio using your dedicated link (<span className="font-mono text-emerald-600 dark:text-emerald-400">/creator/{currentHandle}</span>). Direct browsing to root <span className="font-mono text-red-500">/creator</span> without login will show an access restricted notice.
         </div>
 
         {/* Social Share Buttons */}
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="text-[11px] text-slate-400 mr-1 flex items-center gap-1">
-            <Share2 className="w-3 h-3" /> শেয়ার:
+            <Share2 className="w-3 h-3" /> Share:
           </span>
           <button
             type="button"
@@ -281,7 +281,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                ক্রিয়েটর প্রোফাইল QR কোড
+                Creator Profile QR Code
               </h4>
               <button
                 onClick={() => setShowQrModal(false)}
@@ -309,7 +309,7 @@ export const CreatorLinkGeneratorCard: React.FC<CreatorLinkGeneratorCardProps> =
               className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
             >
               <Copy className="w-4 h-4" />
-              <span>লিংক কপি করুন</span>
+              <span>Copy Link</span>
             </button>
           </div>
         </div>
