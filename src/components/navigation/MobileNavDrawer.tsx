@@ -92,13 +92,22 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
                 <p className="text-[11px] text-slate-400">Developer Library & Hub</p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
-              aria-label="Close menu"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={onToggleTheme}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* User Account Pill if logged in */}

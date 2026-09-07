@@ -63,15 +63,17 @@ export const UserNavMenu: React.FC<UserNavMenuProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      {/* PWA Install */}
-      <PWAInstallButton />
+    <div className="flex items-center gap-1.5">
+      {/* PWA Install - Desktop only */}
+      <div className="hidden sm:block">
+        <PWAInstallButton />
+      </div>
 
-      {/* Theme Toggle Button */}
+      {/* Theme Toggle Button - Desktop only (accessible in mobile drawer) */}
       <button
         onClick={onToggleTheme}
         aria-label="Toggle theme"
-        className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        className="hidden sm:flex p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
         {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
       </button>
