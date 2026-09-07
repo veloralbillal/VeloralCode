@@ -11,6 +11,7 @@ import {
   BkashFund,
   BkashTransactionRecord,
   BkashOpType,
+  RechargeTransaction,
 } from './types';
 import {
   subscribeBakirKhata,
@@ -22,10 +23,15 @@ import {
   executeBkashOperation,
   updateBkashFundBalance,
 } from './services/bkashStorageService';
+import {
+  subscribeRechargeData,
+  addRechargeTransactionToDb,
+} from './services/rechargeStorageService';
 import { BakiHeader } from './components/BakiHeader';
 import { BakiSidebarDrawer } from './components/BakiSidebarDrawer';
 import { BakiNavTabs } from './components/BakiNavTabs';
 import { BkashSectionView, BkashActionModal, BkashFundRefillModal } from './components/bkash';
+import { RechargeSectionView } from './components/recharge/RechargeSectionView';
 import { DailyReportModal } from './components/DailyReportModal';
 import { exportCustomersToCsv } from './utils/bakiExportUtils';
 import { BakiStatsCards } from './components/BakiStatsCards';
@@ -36,6 +42,8 @@ import { AddCustomerModal } from './components/AddCustomerModal';
 import { AddDueModal } from './components/AddDueModal';
 import { CollectPaymentModal } from './components/CollectPaymentModal';
 import { CustomerDetailModal } from './components/CustomerDetailModal';
+import { usePWAInstall } from '../../utils/pwa/usePWAInstall';
+import { PwaInstallModal } from './components/PwaInstallModal';
 
 interface BakirKhataAppProps {
   onBackToApp?: () => void;
@@ -46,7 +54,18 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'khata' | 'bkash'>('khata');
+  const {
+    isInstallable,
+    isInstalled,
+    isIOS,
+    isAndroid,
+    isInIframe,
+    showInstallGuide,
+    setShowInstallGuide,
+    install: triggerPwaInstall,
+  } = usePWAInstall();
+
+  const [activeTab, setActiveTab] = useState<'khata' | 'bkash' | 'recharge'>('khata');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<BakiTransaction[]>([]);
@@ -64,6 +83,9 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   });
   const [bkashTransactions, setBkashTransactions] = useState<BkashTransactionRecord[]>([]);
 
+  // Mobile Recharge State
+  const [rechargeTransactions, setRechargeTransactions] = useState<RechargeTransaction[]>([]);
+
   // Modals & Drawer state
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dailyReportOpen, setDailyReportOpen] = useState(false);
@@ -75,7 +97,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   // Global Bkash Modals
   const [bkashActionModalOpen, setBkashActionModalOpen] = useState(false);
   const [bkashRefillModalOpen, setBkashRefillModalOpen] = useState(false);
-  const [bkashActionInitialType, setBkashActionInitialType] = useState<BkashOpType>('recharge');
+  const [bkashActionInitialType, setBkashActionInitialType] = useState<BkashOpType>('send_money');
 
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
 
@@ -106,6 +128,29 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       unsubscribeBkash();
     };
   }, [currentUser?.uid]);
+
+  // Real-time synchronization for Mobile Recharge
+  useEffect(() => {
+    const unsubscribeRecharge = subscribeRechargeData(currentUser?.uid, (recharges) => {
+      setRechargeTransactions(recharges);
+    });
+    return () => {
+      unsubscribeRecharge();
+    };
+  }, [currentUser?.uid]);
+
+  const handleExecuteRecharge = async (payload: any) => {
+    try {
+      await addRechargeTransactionToDb(currentUser?.uid, payload);
+      showToast('মোবাইল রিচার্জ সফলভাবে সম্পন্ন হয়েছে!', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'রিচার্জ সম্পন্ন করতে সমস্যা হয়েছে', 'error');
+    }
+  };
+
+  const totalRechargeProfit = useMemo(() => {
+    return rechargeTransactions.reduce((sum, t) => sum + (t.profitAmount || 0), 0);
+  }, [rechargeTransactions]);
 
   // Derived Stats
   const stats: BakiStats = useMemo(() => {
@@ -202,9 +247,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       // If category is bkash, also reflect in Bkash Fund
       if (data.category === 'bkash') {
         const opType: BkashOpType =
-          data.bkashType === 'recharge'
-            ? 'recharge'
-            : data.bkashType === 'cash_out'
+          data.bkashType === 'cash_out'
             ? 'cash_out'
             : data.bkashType === 'cash_in'
             ? 'cash_in'
@@ -234,7 +277,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     try {
       const result = await executeBkashOperation(currentUser?.uid, payload, customer);
       const isDeduction =
-        payload.type === 'recharge' || payload.type === 'send_money' || payload.type === 'cash_in';
+        payload.type === 'send_money' || payload.type === 'cash_in';
       showToast(
         `বিকাশ লেনদেন সফল! ফান্ড ${isDeduction ? 'কমেছে' : 'বেড়েছে'}। বর্তমান ব্যালেন্স: ৳${result.fund.currentBalance}`,
         'success'
@@ -331,6 +374,8 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           setAddDueOpen(true);
         }}
         onBackToApp={onBackToApp}
+        onOpenInstall={() => triggerPwaInstall()}
+        isInstalled={isInstalled}
       />
 
       {/* Sidebar Drawer */}
@@ -412,6 +457,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
             onTabChange={(tab) => setActiveTab(tab)}
             totalCustomers={customers.length}
             bkashFundBalance={bkashFund.currentBalance || 0}
+            totalRechargeProfit={totalRechargeProfit}
           />
         </div>
 
@@ -442,13 +488,19 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
               onOpenAddCustomer={() => setAddCustomerOpen(true)}
             />
           </>
-        ) : (
+        ) : activeTab === 'bkash' ? (
           <BkashSectionView
             fund={bkashFund}
             transactions={bkashTransactions}
             customers={customers}
             onExecuteOperation={handleExecuteBkashOperation}
             onUpdateFund={handleUpdateBkashFund}
+          />
+        ) : (
+          <RechargeSectionView
+            transactions={rechargeTransactions}
+            customers={customers}
+            onExecuteRecharge={handleExecuteRecharge}
           />
         )}
       </main>
@@ -524,6 +576,18 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         onSave={async (amount, mode, note) => {
           await handleUpdateBkashFund(amount, mode, note);
         }}
+      />
+
+      {/* PWA App Install Modal */}
+      <PwaInstallModal
+        isOpen={showInstallGuide}
+        onClose={() => setShowInstallGuide(false)}
+        isInstallable={isInstallable}
+        isInstalled={isInstalled}
+        isIOS={isIOS}
+        isAndroid={isAndroid}
+        isInIframe={isInIframe}
+        onNativeInstall={triggerPwaInstall}
       />
     </div>
   );

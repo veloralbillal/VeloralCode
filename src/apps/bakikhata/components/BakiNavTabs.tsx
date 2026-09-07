@@ -1,12 +1,13 @@
 import React from 'react';
-import { BookOpen, Smartphone } from 'lucide-react';
+import { BookOpen, Smartphone, Zap } from 'lucide-react';
 import { formatTaka } from '../utils/bakiUtils';
 
 interface BakiNavTabsProps {
-  activeTab: 'khata' | 'bkash';
-  onTabChange: (tab: 'khata' | 'bkash') => void;
+  activeTab: 'khata' | 'bkash' | 'recharge';
+  onTabChange: (tab: 'khata' | 'bkash' | 'recharge') => void;
   totalCustomers: number;
   bkashFundBalance: number;
+  totalRechargeProfit?: number;
 }
 
 export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
@@ -14,12 +15,13 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
   onTabChange,
   totalCustomers,
   bkashFundBalance,
+  totalRechargeProfit = 0,
 }) => {
   return (
-    <div className="flex items-center gap-2 p-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl w-full sm:w-auto max-w-md">
+    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl w-full">
       <button
         onClick={() => onTabChange('khata')}
-        className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition ${
+        className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition ${
           activeTab === 'khata'
             ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm'
             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -40,14 +42,14 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
 
       <button
         onClick={() => onTabChange('bkash')}
-        className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition ${
+        className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition ${
           activeTab === 'bkash'
             ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
             : 'text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400'
         }`}
       >
         <Smartphone className="w-4 h-4" />
-        <span>বিকাশ ও রিচার্জ</span>
+        <span>বিকাশ ব্যবসা</span>
         <span
           className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
             activeTab === 'bkash'
@@ -56,6 +58,27 @@ export const BakiNavTabs: React.FC<BakiNavTabsProps> = ({
           }`}
         >
           ফান্ড {formatTaka(bkashFundBalance)}
+        </span>
+      </button>
+
+      <button
+        onClick={() => onTabChange('recharge')}
+        className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition ${
+          activeTab === 'recharge'
+            ? 'bg-amber-600 text-white shadow-md shadow-amber-600/30'
+            : 'text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400'
+        }`}
+      >
+        <Zap className="w-4 h-4 text-amber-300" />
+        <span>মোবাইল রিচার্জ</span>
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+            activeTab === 'recharge'
+              ? 'bg-white text-amber-700'
+              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
+          }`}
+        >
+          লাভ {formatTaka(totalRechargeProfit)}
         </span>
       </button>
     </div>

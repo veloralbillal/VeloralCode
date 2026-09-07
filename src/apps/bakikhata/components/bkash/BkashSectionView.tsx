@@ -22,10 +22,10 @@ export const BkashSectionView: React.FC<BkashSectionViewProps> = ({
 }) => {
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [refillModalOpen, setRefillModalOpen] = useState(false);
-  const [actionType, setActionType] = useState<BkashOpType>('recharge');
+  const [actionType, setActionType] = useState<BkashOpType>('send_money');
   const [refillMode, setRefillMode] = useState<'add' | 'set'>('add');
 
-  const handleOpenAction = (type: BkashOpType = 'recharge') => {
+  const handleOpenAction = (type: BkashOpType = 'send_money') => {
     setActionType(type);
     setActionModalOpen(true);
   };
@@ -56,7 +56,7 @@ export const BkashSectionView: React.FC<BkashSectionViewProps> = ({
             </p>
           </div>
           <button
-            onClick={() => handleOpenAction('recharge')}
+            onClick={() => handleOpenAction('send_money')}
             className="px-3.5 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-extrabold text-xs shadow-xs"
           >
             + নতুন লেনদেন

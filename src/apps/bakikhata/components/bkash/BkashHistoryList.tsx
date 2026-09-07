@@ -25,8 +25,6 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
 
   const getOpBadge = (type: BkashOpType) => {
     switch (type) {
-      case 'recharge':
-        return { label: 'রিচার্জ', color: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300', icon: Zap };
       case 'send_money':
         return { label: 'সেন্ড মানি', color: 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300', icon: Send };
       case 'cash_in':
@@ -59,7 +57,6 @@ export const BkashHistoryList: React.FC<BkashHistoryListProps> = ({ transactions
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 text-[11px] font-bold">
           {[
             { id: 'all', label: 'সকল লেনদেন' },
-            { id: 'recharge', label: 'রিচার্জ' },
             { id: 'send_money', label: 'সেন্ড মানি' },
             { id: 'cash_in', label: 'ক্যাশ ইন' },
             { id: 'cash_out', label: 'ক্যাশ আউট' },

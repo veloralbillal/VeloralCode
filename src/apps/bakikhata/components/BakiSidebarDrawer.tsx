@@ -26,6 +26,7 @@ import {
 import { BakiStats } from '../types';
 import { formatTaka } from '../utils/bakiUtils';
 import { usePWAInstall } from '../../../utils/pwa/usePWAInstall';
+import { PwaInstallModal } from './PwaInstallModal';
 
 interface BakiSidebarDrawerProps {
   isOpen: boolean;
@@ -78,7 +79,16 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
   onNavigate,
   onLogout,
 }) => {
-  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const {
+    isInstallable,
+    isInstalled,
+    isIOS,
+    isAndroid,
+    isInIframe,
+    showInstallGuide,
+    setShowInstallGuide,
+    install,
+  } = usePWAInstall();
 
   if (!isOpen) return null;
 
@@ -141,7 +151,7 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
 
           {/* PWA Install App Card */}
           {!isInstalled && (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-200 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-200 space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-4 h-4 text-emerald-400" />
@@ -154,13 +164,26 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
               <p className="text-[11px] text-emerald-300/90 leading-tight">
                 হোমস্ক্রিনে অ্যাপ হিসেবে ইন্সটল করুন এবং যেকোনো সময় অফলাইনে ব্যবহার করুন।
               </p>
-              <button
-                onClick={install}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition active:scale-95"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>📱 বাকির খাতা ইন্সটল করুন</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  id="pwa-drawer-install-action"
+                  onClick={async () => {
+                    await install();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition active:scale-95 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>📱 বাকির খাতা ইন্সটল করুন</span>
+                </button>
+                <button
+                  id="pwa-drawer-guide-action"
+                  onClick={() => setShowInstallGuide(true)}
+                  className="px-2.5 py-2 rounded-xl bg-emerald-900/60 border border-emerald-500/40 hover:bg-emerald-800/60 text-emerald-200 text-xs font-semibold transition"
+                  title="ইনস্টল নিয়মাবলী"
+                >
+                  সাহায্য
+                </button>
+              </div>
             </div>
           )}
 

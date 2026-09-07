@@ -25,7 +25,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
   onClose,
   currentFundBalance,
   customers,
-  initialType = 'recharge',
+  initialType = 'send_money',
   onExecute,
 }) => {
   const [opType, setOpType] = useState<BkashOpType>(initialType);
@@ -40,14 +40,14 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
   if (!isOpen) return null;
 
   const numAmount = parseFloat(amountStr) || 0;
-  const isFundDeduction = opType === 'recharge' || opType === 'send_money' || opType === 'cash_in';
+  const isFundDeduction = opType === 'send_money' || opType === 'cash_in';
   const newFundBalance = isFundDeduction
     ? currentFundBalance - numAmount
     : currentFundBalance + numAmount;
 
   const isLowFund = isFundDeduction && newFundBalance < 0;
 
-  const quickAmounts = opType === 'recharge' ? [20, 30, 50, 100, 200, 500] : [500, 1000, 2000, 5000];
+  const quickAmounts = [500, 1000, 2000, 5000];
 
   const handleCustomerSelect = (custId: string) => {
     setSelectedCustomerId(custId);
@@ -71,7 +71,6 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
         type: opType,
         amount: numAmount,
         targetNumber: phone.trim(),
-        simOperator: opType === 'recharge' ? operator : undefined,
         customerId: isDue ? selectedCustomerId : undefined,
         isDue,
         note: note.trim() || undefined,
@@ -112,9 +111,8 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               লেনদেনের ধরন নির্বাচন করুন
             </label>
-            <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
               {[
-                { id: 'recharge', label: 'রিচার্জ', icon: Zap },
                 { id: 'send_money', label: 'সেন্ড মানি', icon: Send },
                 { id: 'cash_in', label: 'ক্যাশ ইন', icon: Smartphone },
                 { id: 'cash_out', label: 'ক্যাশ আউট', icon: ArrowDownRight },
@@ -156,24 +154,7 @@ export const BkashActionModal: React.FC<BkashActionModalProps> = ({
               />
             </div>
 
-            {opType === 'recharge' && (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  সিম অপারেটর
-                </label>
-                <select
-                  value={operator}
-                  onChange={(e) => setOperator(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold"
-                >
-                  <option value="Grameenphone">গ্রামীণফোন (GP)</option>
-                  <option value="Robi">রবি (Robi)</option>
-                  <option value="Banglalink">বাংলালিংক (BL)</option>
-                  <option value="Airtel">এয়ারটেল (Airtel)</option>
-                  <option value="Teletalk">টেলিটক (Teletalk)</option>
-                </select>
-              </div>
-            )}
+
           </div>
 
           {/* Amount */}

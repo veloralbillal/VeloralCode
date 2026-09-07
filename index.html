@@ -16,7 +16,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="CodeToolkit" />
+    <meta name="apple-mobile-web-app-title" content="Bakir Khata" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -41,7 +42,7 @@
           @keyframes spin { to { transform: rotate(360deg); } }
         </style>
         <script>
-          // Emergency reset function
+          // Emergency reset function (only when explicitly clicked)
           window.emergencyClearAndReload = function() {
             if ('serviceWorker' in navigator) {
               navigator.serviceWorker.getRegistrations().then(function(regs) {
@@ -57,15 +58,6 @@
               window.location.href = window.location.pathname + '?_t=' + Date.now() + (window.location.hash || '');
             }, 200);
           };
-
-          // Clean up any stale service workers in development mode automatically
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              for (var i = 0; i < regs.length; i++) {
-                regs[i].unregister();
-              }
-            }).catch(function() {});
-          }
 
           // Show reload helper only if connection takes longer than 10 seconds (reasonable for slow mobile connections)
           setTimeout(function() {

@@ -59,7 +59,7 @@ export interface BkashFund {
   lastUpdated: number;
 }
 
-export type BkashOpType = 'recharge' | 'send_money' | 'cash_in' | 'cash_out' | 'fund_load' | 'fund_adjust';
+export type BkashOpType = 'send_money' | 'cash_in' | 'cash_out' | 'fund_load' | 'fund_adjust';
 
 export interface BkashTransactionRecord {
   id: string;
@@ -73,6 +73,23 @@ export interface BkashTransactionRecord {
   commission?: number;
   balanceBefore: number;
   balanceAfter: number;
+  note?: string;
+  timestamp: number;
+}
+
+export type RechargeOperator = 'gp' | 'bl' | 'robi' | 'airtel' | 'teletalk';
+
+export interface RechargeTransaction {
+  id: string;
+  operator: RechargeOperator;
+  mobileNumber: string;
+  rechargeType: 'prepaid' | 'postpaid' | 'skitto';
+  amount: number;
+  commissionRate: number; // e.g. 3.2%
+  profitAmount: number; // amount * commissionRate / 100
+  isDue: boolean;
+  customerId?: string;
+  customerName?: string;
   note?: string;
   timestamp: number;
 }
