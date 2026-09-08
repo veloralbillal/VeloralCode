@@ -22,6 +22,7 @@ import {
   Calendar,
   Clock,
   Zap,
+  Code,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import {
@@ -46,7 +47,6 @@ interface AdminShortenerManagerProps {
 
 export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ onNavigate }) => {
   const { showToast } = useToast();
-
   const [activeTab, setActiveTab] = useState<'links' | 'ads' | 'create'>('links');
   const [urls, setUrls] = useState<ShortUrl[]>([]);
   const [adsConfig, setAdsConfig] = useState<ShortenerAdsConfig>(DEFAULT_ADS_CONFIG);
@@ -55,11 +55,47 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [selectedQrUrl, setSelectedQrUrl] = useState<ShortUrl | null>(null);
 
+  // Link ad script editing modal state
+  const [selectedEditUrl, setSelectedEditUrl] = useState<ShortUrl | null>(null);
+  const [editHeaderHtml, setEditHeaderHtml] = useState('');
+  const [editBodyStartHtml, setEditBodyStartHtml] = useState('');
+  const [editFooterHtml, setEditFooterHtml] = useState('');
+  const [editAdMode, setEditAdMode] = useState<'default' | 'enabled' | 'direct'>('default');
+  const [savingEditUrl, setSavingEditUrl] = useState(false);
+
   // Admin link creator inputs
   const [adminTargetUrl, setAdminTargetUrl] = useState('');
   const [adminSlug, setAdminSlug] = useState('');
   const [adminTitle, setAdminTitle] = useState('');
   const [adminCreating, setAdminCreating] = useState(false);
+
+  const openEditModal = (item: ShortUrl) => {
+    setSelectedEditUrl(item);
+    setEditHeaderHtml(item.customHeaderHtml || '');
+    setEditBodyStartHtml(item.customBodyStartHtml || '');
+    setEditFooterHtml(item.customFooterHtml || '');
+    setEditAdMode(item.adMode || 'default');
+  };
+
+  const handleSaveEditUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEditUrl) return;
+    setSavingEditUrl(true);
+    try {
+      await updateShortUrl(selectedEditUrl.slug, {
+        customHeaderHtml: editHeaderHtml,
+        customBodyStartHtml: editBodyStartHtml,
+        customFooterHtml: editFooterHtml,
+        adMode: editAdMode,
+      });
+      showToast('Link custom ad scripts updated successfully!', 'success');
+      setSelectedEditUrl(null);
+    } catch (err) {
+      showToast('Failed to update link ad scripts', 'error');
+    } finally {
+      setSavingEditUrl(false);
+    }
+  };
 
   // Realtime subscription for all short URLs
   useEffect(() => {
@@ -371,6 +407,15 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                         title="QR Code"
                       >
                         <QrCode className="w-4 h-4 text-violet-500" />
+                      </button>
+
+                      <button
+                        onClick={() => openEditModal(item)}
+                        className="px-2.5 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-900 transition flex items-center gap-1 text-xs font-bold"
+                        title="Edit Custom Ad Scripts for this Link"
+                      >
+                        <Code className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Ads</span>
                       </button>
 
                       <a
@@ -727,6 +772,25 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Ad Type:
+                    </label>
+                    <select
+                      value={adsConfig.middleAd.type}
+                      onChange={(e: any) =>
+                        setAdsConfig({
+                          ...adsConfig,
+                          middleAd: { ...adsConfig.middleAd, type: e.target.value },
+                        })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-200"
+                    >
+                      <option value="banner">Banner Image + Click Target</option>
+                      <option value="html">Custom HTML / Ad Network Script</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Sponsor Title:
                     </label>
                     <input
@@ -742,63 +806,85 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                       className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
                     />
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Short Description:
-                    </label>
-                    <input
-                      type="text"
-                      value={adsConfig.middleAd.description || ''}
-                      onChange={(e) =>
-                        setAdsConfig({
-                          ...adsConfig,
-                          middleAd: { ...adsConfig.middleAd, description: e.target.value },
-                        })
-                      }
-                      placeholder="Claim this exclusive limited-time offer now"
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
-                    />
-                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Thumbnail Image URL:
-                    </label>
-                    <input
-                      type="text"
-                      value={adsConfig.middleAd.imageUrl}
-                      onChange={(e) =>
-                        setAdsConfig({
-                          ...adsConfig,
-                          middleAd: { ...adsConfig.middleAd, imageUrl: e.target.value },
-                        })
-                      }
-                      placeholder="https://images.unsplash.com/photo-..."
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white"
-                    />
-                  </div>
+                {adsConfig.middleAd.type === 'banner' ? (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Short Description:
+                      </label>
+                      <input
+                        type="text"
+                        value={adsConfig.middleAd.description || ''}
+                        onChange={(e) =>
+                          setAdsConfig({
+                            ...adsConfig,
+                            middleAd: { ...adsConfig.middleAd, description: e.target.value },
+                          })
+                        }
+                        placeholder="Claim this exclusive limited-time offer now"
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
+                      />
+                    </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Thumbnail Image URL:
+                        </label>
+                        <input
+                          type="text"
+                          value={adsConfig.middleAd.imageUrl}
+                          onChange={(e) =>
+                            setAdsConfig({
+                              ...adsConfig,
+                              middleAd: { ...adsConfig.middleAd, imageUrl: e.target.value },
+                            })
+                          }
+                          placeholder="https://images.unsplash.com/photo-..."
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Destination Target URL:
+                        </label>
+                        <input
+                          type="text"
+                          value={adsConfig.middleAd.clickUrl}
+                          onChange={(e) =>
+                            setAdsConfig({
+                              ...adsConfig,
+                              middleAd: { ...adsConfig.middleAd, clickUrl: e.target.value },
+                            })
+                          }
+                          placeholder="https://veloralbillal.top"
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Destination Target URL:
+                      Custom HTML/Script Code:
                     </label>
-                    <input
-                      type="text"
-                      value={adsConfig.middleAd.clickUrl}
+                    <textarea
+                      rows={3}
+                      value={adsConfig.middleAd.htmlCode || ''}
                       onChange={(e) =>
                         setAdsConfig({
                           ...adsConfig,
-                          middleAd: { ...adsConfig.middleAd, clickUrl: e.target.value },
+                          middleAd: { ...adsConfig.middleAd, htmlCode: e.target.value },
                         })
                       }
-                      placeholder="https://veloralbillal.top"
-                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white"
+                      placeholder="<script async src='...'>...</script>"
+                      className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400"
                     />
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
@@ -838,6 +924,25 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Ad Type:
+                    </label>
+                    <select
+                      value={adsConfig.footerBanner.type}
+                      onChange={(e: any) =>
+                        setAdsConfig({
+                          ...adsConfig,
+                          footerBanner: { ...adsConfig.footerBanner, type: e.target.value },
+                        })
+                      }
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-200"
+                    >
+                      <option value="banner">Banner Image / Simple Link</option>
+                      <option value="html">Custom HTML / Ad Network Script</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Banner Title:
                     </label>
                     <input
@@ -853,7 +958,9 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                       className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
                     />
                   </div>
+                </div>
 
+                {adsConfig.footerBanner.type === 'banner' ? (
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Footer Target Link:
@@ -871,9 +978,83 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
                       className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white"
                     />
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Custom HTML/Script Code:
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={adsConfig.footerBanner.htmlCode || ''}
+                      onChange={(e) =>
+                        setAdsConfig({
+                          ...adsConfig,
+                          footerBanner: { ...adsConfig.footerBanner, htmlCode: e.target.value },
+                        })
+                      }
+                      placeholder="<script async src='...'>...</script>"
+                      className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400"
+                    />
+                  </div>
+                )}
               </div>
             )}
+          </div>
+
+          {/* Global Script Injection Points */}
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+                Global Injection
+              </span>
+              <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                Global Script & Ad Network Tags (Header, Body-Start, Footer)
+              </h4>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Paste Adsterra, Google AdSense, or analytics scripts here to inject them globally across all short link redirect pages.
+            </p>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Global Header Injection (<code className="text-violet-500">&lt;head&gt;</code>):
+                </label>
+                <textarea
+                  rows={3}
+                  value={adsConfig.headerInjectHtml || ''}
+                  onChange={(e) => setAdsConfig({ ...adsConfig, headerInjectHtml: e.target.value })}
+                  placeholder="<script async src='https://pagead2.googlesyndication.com/...'>...</script>"
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Global Body-Start Injection (<code className="text-violet-500">&lt;body&gt; top</code> - Popunder / Social Bar):
+                </label>
+                <textarea
+                  rows={3}
+                  value={adsConfig.bodyStartInjectHtml || ''}
+                  onChange={(e) => setAdsConfig({ ...adsConfig, bodyStartInjectHtml: e.target.value })}
+                  placeholder="<script type='text/javascript' src='//pl123456.highcpmgate.com/...'></script>"
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Global Footer Injection (<code className="text-violet-500">&lt;body&gt; bottom</code>):
+                </label>
+                <textarea
+                  rows={3}
+                  value={adsConfig.footerInjectHtml || ''}
+                  onChange={(e) => setAdsConfig({ ...adsConfig, footerInjectHtml: e.target.value })}
+                  placeholder="<!-- Footer tracking or banner tags -->"
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="pt-2 flex justify-end">
@@ -973,6 +1154,102 @@ export const AdminShortenerManager: React.FC<AdminShortenerManagerProps> = ({ on
           shortUrl={selectedQrUrl}
           onClose={() => setSelectedQrUrl(null)}
         />
+      )}
+
+      {/* Edit Link Custom Ads & Scripts Modal */}
+      {selectedEditUrl && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 text-white space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-black flex items-center gap-2">
+                  <Code className="w-4 h-4 text-violet-400" />
+                  <span>Configure Ads for /{selectedEditUrl.slug}</span>
+                </h3>
+                <p className="text-xs text-slate-400 truncate max-w-md">{selectedEditUrl.targetUrl}</p>
+              </div>
+              <button
+                onClick={() => setSelectedEditUrl(null)}
+                className="text-slate-400 hover:text-white text-sm font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditUrl} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Link Redirection Policy:
+                </label>
+                <select
+                  value={editAdMode}
+                  onChange={(e: any) => setEditAdMode(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-white"
+                >
+                  <option value="default">Use Global Default Policy</option>
+                  <option value="enabled">Force Ad Interstitial + Countdown</option>
+                  <option value="direct">Force Direct Redirect (Skip Ads)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Custom Header HTML / Script (<code className="text-violet-400">&lt;head&gt;</code>):
+                </label>
+                <textarea
+                  rows={3}
+                  value={editHeaderHtml}
+                  onChange={(e) => setEditHeaderHtml(e.target.value)}
+                  placeholder="<script>...</script>"
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Custom Body-Start HTML / Script (<code className="text-violet-400">&lt;body&gt; top</code> - Popunder):
+                </label>
+                <textarea
+                  rows={3}
+                  value={editBodyStartHtml}
+                  onChange={(e) => setEditBodyStartHtml(e.target.value)}
+                  placeholder="<script type='text/javascript' src='...'></script>"
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">
+                  Custom Footer HTML / Script (<code className="text-violet-400">&lt;body&gt; bottom</code>):
+                </label>
+                <textarea
+                  rows={3}
+                  value={editFooterHtml}
+                  onChange={(e) => setEditFooterHtml(e.target.value)}
+                  placeholder="<!-- Footer ad tags -->"
+                  className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-400"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setSelectedEditUrl(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEditUrl}
+                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-violet-600/30 cursor-pointer"
+                >
+                  {savingEditUrl ? <span>Saving...</span> : <span>Save Link Ad Scripts</span>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

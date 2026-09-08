@@ -3,6 +3,7 @@ import {
   Link2,
   ExternalLink,
   ShieldCheck,
+  ShieldAlert,
   AlertCircle,
   Clock,
   Sparkles,
@@ -29,6 +30,7 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
   const [shortUrl, setShortUrl] = useState<ShortUrl | null>(null);
   const [adsConfig, setAdsConfig] = useState<ShortenerAdsConfig>(DEFAULT_ADS_CONFIG);
   const [errorStatus, setErrorStatus] = useState<'not_found' | 'disabled' | 'expired' | null>(null);
+  const [adBlockerDetected, setAdBlockerDetected] = useState(false);
 
   // Password state
   const [passwordInput, setPasswordInput] = useState('');
@@ -39,6 +41,40 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
   const [countdown, setCountdown] = useState<number>(5);
   const [isReady, setIsReady] = useState(false);
   const clickLoggedRef = useRef(false);
+
+  // Ad blocker detector
+  useEffect(() => {
+    async function checkAdBlocker() {
+      try {
+        const bait = document.createElement('div');
+        bait.className = 'adsbox ad-banner advertise ad-slot pub_300x250 text-ad banner-ad';
+        bait.style.position = 'absolute';
+        bait.style.left = '-9999px';
+        bait.style.top = '-9999px';
+        bait.style.width = '10px';
+        bait.style.height = '10px';
+        document.body.appendChild(bait);
+
+        await new Promise((res) => setTimeout(res, 150));
+
+        const isHidden =
+          bait.offsetParent === null ||
+          bait.offsetHeight === 0 ||
+          bait.offsetWidth === 0 ||
+          window.getComputedStyle(bait).display === 'none' ||
+          window.getComputedStyle(bait).visibility === 'hidden';
+
+        document.body.removeChild(bait);
+
+        if (isHidden) {
+          setAdBlockerDetected(true);
+        }
+      } catch {
+        // Ignore errors
+      }
+    }
+    checkAdBlocker();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -74,6 +110,43 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
         }
 
         setShortUrl(urlData);
+
+        // Inject custom scripts and HTML for Header, Body-Start, Footer (Global + Per-Link)
+        const injectedElements: HTMLElement[] = [];
+        const injectHtml = (html?: string, target: HTMLElement = document.head) => {
+          if (!html || !html.trim()) return;
+          const container = document.createElement('div');
+          container.innerHTML = html;
+
+          const scripts = container.getElementsByTagName('script');
+          for (let i = 0; i < scripts.length; i++) {
+            const script = scripts[i];
+            const newScript = document.createElement('script');
+            if (script.src) {
+              newScript.src = script.src;
+              newScript.async = true;
+            } else {
+              newScript.textContent = script.textContent;
+            }
+            target.appendChild(newScript);
+            injectedElements.push(newScript);
+          }
+
+          const others = Array.from(container.children).filter(el => el.tagName !== 'SCRIPT');
+          others.forEach(el => {
+            target.appendChild(el);
+            injectedElements.push(el as HTMLElement);
+          });
+        };
+
+        if (configData.headerInjectHtml) injectHtml(configData.headerInjectHtml, document.head);
+        if (urlData.customHeaderHtml) injectHtml(urlData.customHeaderHtml, document.head);
+
+        if (configData.bodyStartInjectHtml) injectHtml(configData.bodyStartInjectHtml, document.body);
+        if (urlData.customBodyStartHtml) injectHtml(urlData.customBodyStartHtml, document.body);
+
+        if (configData.footerInjectHtml) injectHtml(configData.footerInjectHtml, document.body);
+        if (urlData.customFooterHtml) injectHtml(urlData.customFooterHtml, document.body);
 
         // Check if direct redirect mode
         const shouldDirectRedirect =
@@ -154,6 +227,39 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
       return url;
     }
   };
+
+  // Ad blocker detected overlay
+  if (adBlockerDetected) {
+    return (
+      <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-lg flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-2xl text-white">
+          <div className="w-20 h-20 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30 animate-pulse">
+            <ShieldAlert className="w-10 h-10" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl sm:text-2xl font-black">Ad-Blocker Detected!</h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              We rely on advertisements to keep our link shortener free and secure for everyone. Please disable your ad blocker for this site to access your destination URL.
+            </p>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-400 space-y-1 text-left">
+            <p className="font-bold text-slate-200">How to disable:</p>
+            <p>Click your ad blocker extension icon in your browser toolbar and select <span className="text-amber-400 font-semibold">"Pause on this site"</span> or <span className="text-amber-400 font-semibold">"Disable for this domain"</span>, then refresh the page.</p>
+          </div>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>I've Disabled Ad Blocker - Refresh Page</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (loading) {

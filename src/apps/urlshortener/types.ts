@@ -12,6 +12,9 @@ export interface ShortUrl {
   password?: string | null;
   enabled: boolean;
   adMode?: 'default' | 'enabled' | 'direct';
+  customHeaderHtml?: string;
+  customBodyStartHtml?: string;
+  customFooterHtml?: string;
 }
 
 export interface AdZoneItem {
@@ -32,6 +35,9 @@ export interface ShortenerAdsConfig {
   headerBanner: AdZoneItem;
   middleAd: AdZoneItem;
   footerBanner: AdZoneItem;
+  headerInjectHtml?: string;
+  bodyStartInjectHtml?: string;
+  footerInjectHtml?: string;
   lastUpdated: number;
 }
 
@@ -63,5 +69,8 @@ export const DEFAULT_ADS_CONFIG: ShortenerAdsConfig = {
     clickUrl: '',
     title: '',
   },
+  headerInjectHtml: '',
+  bodyStartInjectHtml: '',
+  footerInjectHtml: '',
   lastUpdated: Date.now(),
 };
