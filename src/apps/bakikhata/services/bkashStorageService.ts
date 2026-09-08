@@ -36,8 +36,11 @@ export function saveLocalBkashData(fund: BkashFund, transactions: BkashTransacti
   }
 }
 
+import { getStoreAddress } from './bakiStorageService';
+
 function getBkashPath(userId?: string): string {
-  return userId ? `apps/bakikhata/${userId}/bkash` : `apps/bakikhata/general/bkash`;
+  const address = getStoreAddress(userId);
+  return `apps/bakikhata/stores/${address}/bkash`;
 }
 
 export function subscribeBkashData(

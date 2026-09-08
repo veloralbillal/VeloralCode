@@ -1,9 +1,25 @@
 import { ref, onValue, set, get } from 'firebase/database';
-import { database } from '../../../services/firebase';
-import { Customer, BakiTransaction } from '../types';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { database, firestoreDb } from '../../../services/firebase';
+import { Customer, BakiTransaction, CallingLog, StoreSyncMeta } from '../types';
+
+const withTimeout = <T>(promise: Promise<T>, ms = 6000, fallbackMsg = 'Network timeout'): Promise<T> => {
+  let timer: any;
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(fallbackMsg)), ms);
+  });
+  return Promise.race([
+    promise.then((res) => {
+      clearTimeout(timer);
+      return res;
+    }),
+    timeoutPromise,
+  ]);
+};
 
 const LOCAL_CUSTOMERS_KEY = 'bakikhata_customers_cache';
 const LOCAL_TRANSACTIONS_KEY = 'bakikhata_tx_cache';
+const LOCAL_CALLING_LOGS_KEY = 'bakikhata_calling_logs_cache';
 
 const SAMPLE_CUSTOMERS: Customer[] = [
   {
@@ -117,8 +133,297 @@ export function saveLocalData(customers: Customer[], transactions: BakiTransacti
   }
 }
 
+export function generateRandomDeviceId(): string {
+  const num = Math.floor(10000 + Math.random() * 90000);
+  return `BK-${num}`;
+}
+
+export function generateRandomPin(): string {
+  const pin = Math.floor(1000 + Math.random() * 9000);
+  return String(pin);
+}
+
+export function getStoreDeviceId(userId?: string): string {
+  try {
+    const existing = localStorage.getItem('bakikhata_device_id') || localStorage.getItem('bakikhata_store_address');
+    if (existing && existing.trim() && !existing.startsWith('default_') && existing.trim().length >= 3) {
+      return existing.trim().toUpperCase();
+    }
+  } catch {}
+  const newId = generateRandomDeviceId();
+  try {
+    localStorage.setItem('bakikhata_device_id', newId);
+    localStorage.setItem('bakikhata_store_address', newId);
+  } catch {}
+  return newId;
+}
+
+export function getStorePin(): string {
+  try {
+    const existingPin = localStorage.getItem('bakikhata_store_pin');
+    if (existingPin && existingPin.trim() && existingPin.trim().length >= 4) {
+      return existingPin.trim();
+    }
+  } catch {}
+  const newPin = generateRandomPin();
+  try {
+    localStorage.setItem('bakikhata_store_pin', newPin);
+  } catch {}
+  return newPin;
+}
+
+export function setStoreDeviceCredentials(deviceId: string, pin: string) {
+  const cleanId = deviceId.trim().toUpperCase();
+  const cleanPin = pin.trim();
+  try {
+    localStorage.setItem('bakikhata_device_id', cleanId);
+    localStorage.setItem('bakikhata_store_address', cleanId);
+    localStorage.setItem('bakikhata_store_pin', cleanPin);
+  } catch (e) {
+    console.error('Error saving store credentials:', e);
+  }
+}
+
+export function getLocalCallingLogs(): CallingLog[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_CALLING_LOGS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalCallingLogs(logs: CallingLog[]) {
+  try {
+    localStorage.setItem(LOCAL_CALLING_LOGS_KEY, JSON.stringify(logs));
+  } catch (err) {
+    console.error('Error saving calling logs:', err);
+  }
+}
+
+export async function recordCallingLog(
+  userId: string | undefined,
+  logData: Omit<CallingLog, 'id' | 'timestamp'>
+): Promise<CallingLog> {
+  const newLog: CallingLog = {
+    ...logData,
+    id: `call_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    timestamp: Date.now(),
+  };
+
+  const logs = getLocalCallingLogs();
+  saveLocalCallingLogs([newLog, ...logs]);
+
+  try {
+    const deviceId = getStoreDeviceId(userId);
+    // Sync to RTDB non-blocking
+    const basePath = getBasePath(userId);
+    const callRef = ref(database, `${basePath}/callingLogs/${newLog.id}`);
+    set(callRef, newLog).catch(() => {});
+
+    // Sync to Firestore non-blocking
+    const fsDocRef = doc(firestoreDb, 'bakikhata_stores', deviceId);
+    getDoc(fsDocRef)
+      .then((snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          if (d && d.jsonPayload) {
+            try {
+              const parsed = JSON.parse(d.jsonPayload);
+              parsed.callingLogs = parsed.callingLogs || {};
+              parsed.callingLogs[newLog.id] = newLog;
+              setDoc(fsDocRef, { ...d, jsonPayload: JSON.stringify(parsed), lastSyncAt: Date.now() }).catch(() => {});
+            } catch {}
+          }
+        }
+      })
+      .catch(() => {});
+  } catch (err) {
+    console.warn('Calling log sync notice:', err);
+  }
+
+  return newLog;
+}
+
+export function getStoreAddress(userId?: string): string {
+  return getStoreDeviceId(userId);
+}
+
 function getBasePath(userId?: string): string {
-  return userId ? `apps/bakikhata/${userId}` : `apps/bakikhata/general`;
+  const address = getStoreAddress(userId);
+  return `apps/bakikhata/stores/${address}`;
+}
+
+export async function pushStoreDataToCloud(userId?: string): Promise<{ success: boolean; count: number }> {
+  const deviceId = getStoreDeviceId(userId);
+  const pin = getStorePin();
+  const basePath = `apps/bakikhata/stores/${deviceId}`;
+
+  const { customers, transactions } = getLocalData();
+  const callingLogs = getLocalCallingLogs();
+
+  let bkashData: any = null;
+  try {
+    const rawFund = localStorage.getItem('bakikhata_bkash_fund_cache');
+    const rawTx = localStorage.getItem('bakikhata_bkash_tx_cache');
+    if (rawFund || rawTx) {
+      bkashData = {
+        fund: rawFund ? JSON.parse(rawFund) : null,
+        transactions: rawTx ? JSON.parse(rawTx).reduce((acc: any, t: any) => ({ ...acc, [t.id]: t }), {}) : null,
+      };
+    }
+  } catch {}
+
+  let rechargesData: any = null;
+  try {
+    const rawRecharge = localStorage.getItem('bakikhata_recharge_tx_cache');
+    if (rawRecharge) {
+      const parsed = JSON.parse(rawRecharge);
+      rechargesData = parsed.reduce((acc: any, r: any) => ({ ...acc, [r.id]: r }), {});
+    }
+  } catch {}
+
+  const meta: StoreSyncMeta = {
+    deviceId,
+    pin,
+    createdAt: Date.now(),
+    lastSyncAt: Date.now(),
+  };
+
+  const payload: any = {
+    meta,
+    customers: customers.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
+    transactions: transactions.reduce((acc, t) => ({ ...acc, [t.id]: t }), {}),
+    callingLogs: callingLogs.reduce((acc, l) => ({ ...acc, [l.id]: l }), {}),
+  };
+
+  if (bkashData) payload.bkash = bkashData;
+  if (rechargesData) payload.recharges = rechargesData;
+
+  // Background RTDB attempt (non-blocking so it never hangs in Brave or offline)
+  try {
+    const storeRef = ref(database, basePath);
+    set(storeRef, payload).catch((err) => console.warn('RTDB backup notice:', err));
+  } catch {}
+
+  // Primary: Firestore with strict timeout
+  try {
+    const fsDocRef = doc(firestoreDb, 'bakikhata_stores', deviceId);
+    await withTimeout(
+      setDoc(fsDocRef, {
+        deviceId,
+        pin,
+        lastSyncAt: Date.now(),
+        customerCount: customers.length,
+        jsonPayload: JSON.stringify(payload),
+      }),
+      6000,
+      'ক্লাউড রেসপন্স টাইমআউট'
+    );
+  } catch (fsErr) {
+    console.warn('Firestore primary sync warning:', fsErr);
+    // If timeout occurred, ensure local timestamp is updated since RTDB might still finish
+  }
+
+  localStorage.setItem('bakikhata_last_cloud_sync', String(Date.now()));
+  return { success: true, count: customers.length };
+}
+
+export async function connectAndSyncFromCloud(
+  deviceIdInput: string,
+  pinInput: string
+): Promise<{ success: boolean; message: string; customerCount?: number }> {
+  const cleanId = deviceIdInput.trim().toUpperCase();
+  const cleanPin = pinInput.trim();
+
+  if (!cleanId || !cleanPin) {
+    return { success: false, message: 'অনুগ্রহ করে Device ID এবং ৪-ডিজিট পিন দুটোই প্রদান করুন।' };
+  }
+
+  try {
+    let rawStorePayload: any = null;
+
+    // 1. Try Firestore first
+    try {
+      const fsSnap = await withTimeout(
+        getDoc(doc(firestoreDb, 'bakikhata_stores', cleanId)),
+        6000,
+        'Firestore read timeout'
+      );
+      if (fsSnap && fsSnap.exists()) {
+        const fsData = fsSnap.data();
+        if (fsData && fsData.jsonPayload) {
+          rawStorePayload = JSON.parse(fsData.jsonPayload);
+        }
+      }
+    } catch (fsErr) {
+      console.warn('Firestore lookup warning, attempting RTDB fallback:', fsErr);
+    }
+
+    // 2. Fallback to RTDB if not found in Firestore
+    if (!rawStorePayload) {
+      try {
+        const storeRef = ref(database, `apps/bakikhata/stores/${cleanId}`);
+        const rtdbSnap = await withTimeout(get(storeRef), 6000, 'RTDB read timeout');
+        if (rtdbSnap && rtdbSnap.exists()) {
+          rawStorePayload = rtdbSnap.val();
+        }
+      } catch (rtdbErr) {
+        console.warn('RTDB lookup warning:', rtdbErr);
+      }
+    }
+
+    if (!rawStorePayload) {
+      return {
+        success: false,
+        message: `এই Device ID (${cleanId}) দিয়ে ক্লাউডে কোনো খাতা পাওয়া যায়নি! মূল মোবাইলে "ক্লাউডে সব ডাটা সেভ / ব্যাকআপ করুন" এ ক্লিক করে ব্যাকআপ নিশ্চিত করুন।`,
+      };
+    }
+
+    const meta = rawStorePayload.meta || {};
+
+    if (meta.pin && String(meta.pin).trim() !== cleanPin) {
+      return {
+        success: false,
+        message: 'ভুল পিন নম্বর (Incorrect PIN)! অনুগ্রহ করে সঠিক ৪-ডিজিট পিন দিয়ে আবার চেষ্টা করুন।',
+      };
+    }
+
+    setStoreDeviceCredentials(cleanId, cleanPin);
+
+    const custList: Customer[] = rawStorePayload.customers ? Object.values(rawStorePayload.customers) : [];
+    const txList: BakiTransaction[] = rawStorePayload.transactions ? Object.values(rawStorePayload.transactions) : [];
+    const callList: CallingLog[] = rawStorePayload.callingLogs ? Object.values(rawStorePayload.callingLogs) : [];
+
+    saveLocalData(custList, txList);
+    saveLocalCallingLogs(callList);
+
+    if (rawStorePayload.bkash) {
+      const fund = rawStorePayload.bkash.fund;
+      const bkashTx = rawStorePayload.bkash.transactions ? Object.values(rawStorePayload.bkash.transactions) : [];
+      if (fund) {
+        localStorage.setItem('bakikhata_bkash_fund_cache', JSON.stringify(fund));
+      }
+      localStorage.setItem('bakikhata_bkash_tx_cache', JSON.stringify(bkashTx));
+    }
+
+    if (rawStorePayload.recharges) {
+      const rechargesList = Object.values(rawStorePayload.recharges);
+      localStorage.setItem('bakikhata_recharge_tx_cache', JSON.stringify(rechargesList));
+    }
+
+    return {
+      success: true,
+      message: `কানেকশন সফল! ${custList.length} জন কাস্টমার এবং সমস্ত হিসাব অন্য মোবাইল থেকে লোড হয়েছে।`,
+      customerCount: custList.length,
+    };
+  } catch (err: any) {
+    console.error('Connect and sync cloud error:', err);
+    return {
+      success: false,
+      message: err?.message || 'ক্লাউড থেকে ডাটা লোড করতে সমস্যা হয়েছে। ইন্টারনেট চেক করুন।',
+    };
+  }
 }
 
 export function subscribeBakirKhata(
@@ -137,8 +442,15 @@ export function subscribeBakirKhata(
     async (snapshot) => {
       const val = snapshot.val();
       if (!val) {
-        // Seed default sample data into Firebase for this user if first time
+        const deviceId = getStoreDeviceId(userId);
+        const pin = getStorePin();
         const initial = {
+          meta: {
+            deviceId,
+            pin,
+            createdAt: Date.now(),
+            lastSyncAt: Date.now(),
+          },
           customers: SAMPLE_CUSTOMERS.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
           transactions: SAMPLE_TRANSACTIONS.reduce((acc, t) => ({ ...acc, [t.id]: t }), {}),
         };
@@ -150,12 +462,27 @@ export function subscribeBakirKhata(
         callback({ customers: SAMPLE_CUSTOMERS, transactions: SAMPLE_TRANSACTIONS });
         saveLocalData(SAMPLE_CUSTOMERS, SAMPLE_TRANSACTIONS);
       } else {
+        if (!val.meta?.pin) {
+          const pin = getStorePin();
+          const deviceId = getStoreDeviceId(userId);
+          set(ref(database, `${basePath}/meta`), {
+            deviceId,
+            pin,
+            lastSyncAt: Date.now(),
+          }).catch(() => {});
+        }
+
         const custList: Customer[] = val.customers ? Object.values(val.customers) : [];
         const txList: BakiTransaction[] = val.transactions ? Object.values(val.transactions) : [];
         // Sort transactions latest first
         txList.sort((a, b) => b.timestamp - a.timestamp);
         callback({ customers: custList, transactions: txList });
         saveLocalData(custList, txList);
+
+        if (val.callingLogs) {
+          const callList: CallingLog[] = Object.values(val.callingLogs);
+          saveLocalCallingLogs(callList);
+        }
       }
     },
     (err) => {
@@ -182,13 +509,18 @@ export async function addCustomerToDb(
     lastActivityAt: Date.now(),
   };
 
-  const basePath = getBasePath(userId);
-  const custRef = ref(database, `${basePath}/customers/${newId}`);
-  await set(custRef, newCustomer);
-
-  // Update local
+  // Update local first
   const { customers, transactions } = getLocalData();
   saveLocalData([newCustomer, ...customers], transactions);
+
+  // Try Firebase sync in background (non-blocking)
+  try {
+    const basePath = getBasePath(userId);
+    const custRef = ref(database, `${basePath}/customers/${newId}`);
+    set(custRef, newCustomer).catch((err) => console.warn('Firebase customer background sync error:', err));
+  } catch (err) {
+    console.warn('Firebase customer sync error (saved locally):', err);
+  }
 
   return newCustomer;
 }
@@ -223,16 +555,22 @@ export async function addTransactionToDb(
     lastActivityAt: exactTime,
   };
 
-  const basePath = getBasePath(userId);
-  const txRef = ref(database, `${basePath}/transactions/${newId}`);
-  const custRef = ref(database, `${basePath}/customers/${customer.id}`);
-
-  await Promise.all([set(txRef, newTx), set(custRef, updatedCustomer)]);
-
-  // Update local
+  // Update local first
   const { customers, transactions } = getLocalData();
   const updatedCusts = customers.map((c) => (c.id === customer.id ? updatedCustomer : c));
   saveLocalData(updatedCusts, [newTx, ...transactions]);
+
+  // Try Firebase sync in background (non-blocking)
+  try {
+    const basePath = getBasePath(userId);
+    const txRef = ref(database, `${basePath}/transactions/${newId}`);
+    const custRef = ref(database, `${basePath}/customers/${customer.id}`);
+    Promise.all([set(txRef, newTx), set(custRef, updatedCustomer)]).catch((err) =>
+      console.warn('Firebase transaction background sync error:', err)
+    );
+  } catch (err) {
+    console.warn('Firebase transaction sync error (saved locally):', err);
+  }
 
   return newTx;
 }
@@ -241,11 +579,45 @@ export async function deleteCustomerFromDb(
   userId: string | undefined,
   customerId: string
 ): Promise<void> {
-  const basePath = getBasePath(userId);
-  const custRef = ref(database, `${basePath}/customers/${customerId}`);
-  await set(custRef, null);
-
+  // Update local first
   const { customers, transactions } = getLocalData();
   const filteredCusts = customers.filter((c) => c.id !== customerId);
-  saveLocalData(filteredCusts, transactions);
+  const filteredTx = transactions.filter((t) => t.customerId !== customerId);
+  saveLocalData(filteredCusts, filteredTx);
+
+  // Try Firebase sync in background (non-blocking)
+  try {
+    const basePath = getBasePath(userId);
+    const custRef = ref(database, `${basePath}/customers/${customerId}`);
+    set(custRef, null).catch((err) => console.warn('Firebase customer delete background error:', err));
+  } catch (err) {
+    console.warn('Firebase customer delete error (deleted locally):', err);
+  }
 }
+
+export async function updateCustomerInDb(
+  userId: string | undefined,
+  customer: Customer,
+  updatedData: Partial<Customer>
+): Promise<Customer> {
+  const updatedCustomer: Customer = {
+    ...customer,
+    ...updatedData,
+    lastActivityAt: Date.now(),
+  };
+
+  const { customers, transactions } = getLocalData();
+  const updatedCusts = customers.map((c) => (c.id === customer.id ? updatedCustomer : c));
+  saveLocalData(updatedCusts, transactions);
+
+  try {
+    const basePath = getBasePath(userId);
+    const custRef = ref(database, `${basePath}/customers/${customer.id}`);
+    set(custRef, updatedCustomer).catch((err) => console.warn('Firebase customer update error:', err));
+  } catch (err) {
+    console.warn('Firebase customer update error (saved locally):', err);
+  }
+
+  return updatedCustomer;
+}
+

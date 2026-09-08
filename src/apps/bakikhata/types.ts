@@ -93,3 +93,21 @@ export interface RechargeTransaction {
   note?: string;
   timestamp: number;
 }
+
+export interface CallingLog {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  actionType: 'whatsapp_inquiry' | 'sms_inquiry' | 'direct_call';
+  message?: string;
+  timestamp: number;
+}
+
+export interface StoreSyncMeta {
+  deviceId: string;
+  pin: string;
+  storeName?: string;
+  createdAt: number;
+  lastSyncAt: number;
+}

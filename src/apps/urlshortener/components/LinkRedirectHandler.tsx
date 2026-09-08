@@ -19,6 +19,7 @@ import {
   recordLinkClick,
   getShortenerAdsConfig,
 } from '../services/shortenerService';
+import { HtmlAdRenderer } from './HtmlAdRenderer';
 
 interface LinkRedirectHandlerProps {
   slug: string;
@@ -395,10 +396,7 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
               <span>Ad Zone 1</span>
             </div>
             {adsConfig.headerBanner.type === 'html' && adsConfig.headerBanner.htmlCode ? (
-              <div
-                className="p-3 overflow-x-auto"
-                dangerouslySetInnerHTML={{ __html: adsConfig.headerBanner.htmlCode }}
-              />
+              <HtmlAdRenderer html={adsConfig.headerBanner.htmlCode} className="p-3 overflow-x-auto" />
             ) : (
               <a
                 href={adsConfig.headerBanner.clickUrl || '#'}
@@ -438,21 +436,24 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
           </p>
         )}
 
-        {/* Destination preview */}
+        {/* Destination preview - Hidden until ready */}
         <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-left">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Destination:
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block flex items-center justify-between">
+            <span>Destination:</span>
+            <span className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-800/60 font-mono">
+              {isReady ? '✓ Unlocked' : '🔒 Hidden & Protected'}
+            </span>
           </span>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-violet-500/20 text-violet-400 flex items-center justify-center shrink-0">
               <ExternalLink className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-white truncate">
-                {shortUrl.title || getDomainName(shortUrl.targetUrl)}
+              <p className="text-sm font-bold text-white tracking-wide">
+                {isReady ? (shortUrl.title || getDomainName(shortUrl.targetUrl)) : 'Protected Destination Link'}
               </p>
-              <p className="text-xs text-slate-400 font-mono truncate">
-                {getDomainName(shortUrl.targetUrl)}
+              <p className="text-xs text-slate-400 font-mono">
+                {isReady ? getDomainName(shortUrl.targetUrl) : 'https://••••••••••••••••••••••••'}
               </p>
             </div>
           </div>
@@ -537,7 +538,7 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
               Sponsored Offer
             </div>
             {adsConfig.middleAd.type === 'html' && adsConfig.middleAd.htmlCode ? (
-              <div dangerouslySetInnerHTML={{ __html: adsConfig.middleAd.htmlCode }} />
+              <HtmlAdRenderer html={adsConfig.middleAd.htmlCode} />
             ) : (
               <a
                 href={adsConfig.middleAd.clickUrl || '#'}
@@ -573,7 +574,7 @@ export const LinkRedirectHandler: React.FC<LinkRedirectHandlerProps> = ({ slug, 
         {adsConfig.footerBanner?.enabled && (
           <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-sm">
             {adsConfig.footerBanner.type === 'html' && adsConfig.footerBanner.htmlCode ? (
-              <div dangerouslySetInnerHTML={{ __html: adsConfig.footerBanner.htmlCode }} />
+              <HtmlAdRenderer html={adsConfig.footerBanner.htmlCode} />
             ) : (
               <a
                 href={adsConfig.footerBanner.clickUrl || '#'}

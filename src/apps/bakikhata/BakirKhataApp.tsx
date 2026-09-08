@@ -17,6 +17,8 @@ import {
   subscribeBakirKhata,
   addCustomerToDb,
   addTransactionToDb,
+  updateCustomerInDb,
+  deleteCustomerFromDb,
 } from './services/bakiStorageService';
 import {
   subscribeBkashData,
@@ -39,11 +41,12 @@ import { TuesdaySettlementBanner } from './components/TuesdaySettlementBanner';
 import { QuickAddBar } from './components/QuickAddBar';
 import { CustomerListView } from './components/CustomerListView';
 import { AddCustomerModal } from './components/AddCustomerModal';
+import { EditCustomerModal } from './components/EditCustomerModal';
 import { AddDueModal } from './components/AddDueModal';
 import { CollectPaymentModal } from './components/CollectPaymentModal';
 import { CustomerDetailModal } from './components/CustomerDetailModal';
-import { usePWAInstall } from '../../utils/pwa/usePWAInstall';
-import { PwaInstallModal } from './components/PwaInstallModal';
+import { ConfirmDeleteModal } from './components/ConfirmDeleteModal';
+import { StoreSyncModal } from './components/StoreSyncModal';
 
 interface BakirKhataAppProps {
   onBackToApp?: () => void;
@@ -53,17 +56,6 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const { currentUser, userProfile, isAdmin, isSeller, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
-
-  const {
-    isInstallable,
-    isInstalled,
-    isIOS,
-    isAndroid,
-    isInIframe,
-    showInstallGuide,
-    setShowInstallGuide,
-    install: triggerPwaInstall,
-  } = usePWAInstall();
 
   const [activeTab, setActiveTab] = useState<'khata' | 'bkash' | 'recharge'>('khata');
 
@@ -90,9 +82,13 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dailyReportOpen, setDailyReportOpen] = useState(false);
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
+  const [editCustomerOpen, setEditCustomerOpen] = useState(false);
+  const [customerToEdit, setCustomerToEdit] = useState<Customer | null>(null);
   const [addDueOpen, setAddDueOpen] = useState(false);
   const [collectPaymentOpen, setCollectPaymentOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [storeSyncModalOpen, setStoreSyncModalOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
   // Global Bkash Modals
   const [bkashActionModalOpen, setBkashActionModalOpen] = useState(false);
@@ -117,6 +113,14 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     }
 
     if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const storeParam = params.get('store');
+      if (storeParam) {
+        try {
+          localStorage.setItem('bakikhata_store_address', storeParam.trim());
+        } catch {}
+      }
+
       const search = window.location.search || '';
       if (search.includes('tab=bkash')) {
         setActiveTab('bkash');
@@ -234,6 +238,41 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       showToast(`${created.name}'s ledger created successfully`, 'success');
     } catch {
       showToast('Error saving customer', 'error');
+    }
+  };
+
+  const handleUpdateCustomer = async (customer: Customer, data: Partial<Customer>) => {
+    try {
+      await updateCustomerInDb(currentUser?.uid, customer, data);
+      showToast('Customer updated successfully', 'success');
+    } catch {
+      showToast('Error updating customer', 'error');
+    }
+  };
+
+  const handleRequestDeleteCustomer = (customer: Customer) => {
+    setCustomerToDelete(customer);
+  };
+
+  const handleConfirmDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+    const customerId = customerToDelete.id;
+    try {
+      await deleteCustomerFromDb(currentUser?.uid, customerId);
+      setCustomers((prev) => prev.filter((c) => c.id !== customerId));
+      setTransactions((prev) => prev.filter((t) => t.customerId !== customerId));
+      if (activeCustomer?.id === customerId) {
+        setActiveCustomer(null);
+        setDetailModalOpen(false);
+      }
+      if (customerToEdit?.id === customerId) {
+        setCustomerToEdit(null);
+        setEditCustomerOpen(false);
+      }
+      setCustomerToDelete(null);
+      showToast('Customer deleted successfully', 'success');
+    } catch {
+      showToast('Error deleting customer', 'error');
     }
   };
 
@@ -394,8 +433,6 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           setAddDueOpen(true);
         }}
         onBackToApp={onBackToApp}
-        onOpenInstall={() => triggerPwaInstall()}
-        isInstalled={isInstalled}
       />
 
       {/* Sidebar Drawer */}
@@ -410,6 +447,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         theme={theme}
         bkashFundBalance={bkashFund.currentBalance || 0}
         onToggleTheme={toggleTheme}
+        onOpenStoreSync={() => setStoreSyncModalOpen(true)}
         onSelectTuesdayFilter={() => {
           setActiveTab('khata');
           setIsTuesdayFilterActive(true);
@@ -506,6 +544,11 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
               onOpenPayment={handleOpenPaymentForCust}
               onViewDetails={handleViewDetailsForCust}
               onOpenAddCustomer={() => setAddCustomerOpen(true)}
+              onEditCustomer={(cust) => {
+                setCustomerToEdit(cust);
+                setEditCustomerOpen(true);
+              }}
+              onDeleteCustomer={handleRequestDeleteCustomer}
             />
           </>
         ) : activeTab === 'bkash' ? (
@@ -561,12 +604,30 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         isOpen={detailModalOpen}
         customer={activeCustomer}
         transactions={transactions}
+        currentUser={currentUser}
         onClose={() => {
           setDetailModalOpen(false);
           setActiveCustomer(null);
         }}
         onOpenAddDue={handleOpenAddDueForCust}
         onOpenPayment={handleOpenPaymentForCust}
+        onEditCustomer={(cust) => {
+          setDetailModalOpen(false);
+          setCustomerToEdit(cust);
+          setEditCustomerOpen(true);
+        }}
+        onDeleteCustomer={handleRequestDeleteCustomer}
+      />
+
+      <EditCustomerModal
+        isOpen={editCustomerOpen}
+        customer={customerToEdit}
+        onClose={() => {
+          setEditCustomerOpen(false);
+          setCustomerToEdit(null);
+        }}
+        onUpdateCustomer={handleUpdateCustomer}
+        onDeleteCustomer={handleRequestDeleteCustomer}
       />
 
       <DailyReportModal
@@ -598,16 +659,18 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         }}
       />
 
-      {/* PWA App Install Modal */}
-      <PwaInstallModal
-        isOpen={showInstallGuide}
-        onClose={() => setShowInstallGuide(false)}
-        isInstallable={isInstallable}
-        isInstalled={isInstalled}
-        isIOS={isIOS}
-        isAndroid={isAndroid}
-        isInIframe={isInIframe}
-        onNativeInstall={triggerPwaInstall}
+      <StoreSyncModal
+        isOpen={storeSyncModalOpen}
+        onClose={() => setStoreSyncModalOpen(false)}
+        currentUser={currentUser}
+      />
+
+      {/* Confirmation Modal for deleting customer */}
+      <ConfirmDeleteModal
+        isOpen={!!customerToDelete}
+        customer={customerToDelete}
+        onClose={() => setCustomerToDelete(null)}
+        onConfirm={handleConfirmDeleteCustomer}
       />
     </div>
   );

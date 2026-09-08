@@ -1,13 +1,16 @@
 import React from 'react';
-import { Phone, Calendar, Clock, PlusCircle, CheckCircle, ChevronRight, MessageSquare } from 'lucide-react';
+import { Phone, Calendar, Clock, PlusCircle, CheckCircle, ChevronRight, MessageSquare, Edit3, X } from 'lucide-react';
 import { Customer } from '../types';
 import { formatTaka, formatDateTime } from '../utils/bakiUtils';
+import { useToast } from '../../../context/ToastContext';
 
 interface CustomerCardProps {
   customer: Customer;
   onOpenAddDue: (customer: Customer) => void;
   onOpenPayment: (customer: Customer) => void;
   onViewDetails: (customer: Customer) => void;
+  onEditCustomer: (customer: Customer) => void;
+  onDeleteCustomer: (customer: Customer) => void;
 }
 
 export const CustomerCard: React.FC<CustomerCardProps> = ({
@@ -15,8 +18,21 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onOpenAddDue,
   onOpenPayment,
   onViewDetails,
+  onEditCustomer,
+  onDeleteCustomer,
 }) => {
+  const { showToast } = useToast();
   const hasDue = customer.totalDue > 0;
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEditCustomer(customer);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDeleteCustomer(customer);
+  };
 
   const handleWhatsAppReminder = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -27,6 +43,31 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
       `Hello ${customer.name}, your current outstanding credit balance at our shop is ${formatTaka(customer.totalDue)}. Please settle it at your earliest convenience. Thank you!`
     );
     window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
+  };
+
+  const handleDailyMealInquiry = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!customer.phone) {
+      showToast('এই কাস্টমারের কোনো ফোন নম্বর সেভ করা নেই!', 'warning');
+      return;
+    }
+    const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
+    const intlPhone = cleanPhone.startsWith('0') ? '88' + cleanPhone : cleanPhone;
+    const message = encodeURIComponent(
+      `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার আজকের খাবার ও বাকি হিসাবটি চেক করে নিন। ধন্যবাদ!`
+    );
+    window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
+  };
+
+  const handleDirectSms = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!customer.phone) {
+      showToast('এই কাস্টমারের কোনো ফোন নম্বর সেভ করা নেই!', 'warning');
+      return;
+    }
+    const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
+    const message = `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার আজকের খাবার ও বাকি হিসাবটি চেক করে নিন। ধন্যবাদ!`;
+    window.location.href = `sms:${cleanPhone}?body=${encodeURIComponent(message)}`;
   };
 
   return (
@@ -85,45 +126,93 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => onOpenAddDue(customer)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition border border-rose-200/60 dark:border-rose-800"
-        >
-          <PlusCircle className="w-3.5 h-3.5" />
-          <span>+ Due</span>
-        </button>
-
-        <button
-          onClick={() => onOpenPayment(customer)}
-          disabled={!hasDue}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition border ${
-            hasDue
-              ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border-emerald-200/60 dark:border-emerald-800'
-              : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-transparent cursor-not-allowed opacity-50'
-          }`}
-        >
-          <CheckCircle className="w-3.5 h-3.5" />
-          <span>Collect</span>
-        </button>
-
-        {hasDue && customer.phone && (
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2" onClick={(e) => e.stopPropagation()}>
+        {/* Primary Row: Add Due & Collect Payment */}
+        <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={handleWhatsAppReminder}
-            title="Send friendly reminder on WhatsApp"
-            className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition border border-emerald-200 dark:border-emerald-800"
+            onClick={() => onOpenAddDue(customer)}
+            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition border border-rose-200/60 dark:border-rose-800"
           >
-            <MessageSquare className="w-3.5 h-3.5" />
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>+ Due</span>
           </button>
-        )}
 
-        <button
-          onClick={() => onViewDetails(customer)}
-          title="View Full Statement"
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
+          <button
+            onClick={() => onOpenPayment(customer)}
+            disabled={!hasDue}
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition border ${
+              hasDue
+                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border-emerald-200/60 dark:border-emerald-800'
+                : 'text-slate-400 bg-slate-100 dark:bg-slate-800 border-transparent cursor-not-allowed opacity-50'
+            }`}
+          >
+            <CheckCircle className="w-3.5 h-3.5" />
+            <span>Collect</span>
+          </button>
+        </div>
+
+        {/* Secondary Row: Quick Communication & Management */}
+        <div className="flex items-center justify-between gap-1.5 pt-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+            {hasDue && customer.phone && (
+              <button
+                onClick={handleWhatsAppReminder}
+                title="Send reminder on WhatsApp"
+                className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 transition border border-emerald-200 dark:border-emerald-800"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {customer.phone && (
+              <button
+                onClick={handleDailyMealInquiry}
+                title="আজ কি খেলেন?"
+                className="flex items-center gap-1 py-1.5 px-2.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 transition border border-amber-200/60 dark:border-amber-800"
+              >
+                <span>🍽️</span>
+                <span>ওয়াটসঅ্যাপ</span>
+              </button>
+            )}
+
+            {customer.phone && (
+              <button
+                onClick={handleDirectSms}
+                title="SMS"
+                className="flex items-center gap-1 py-1.5 px-2 rounded-xl text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 transition border border-sky-200/60 dark:border-sky-800"
+              >
+                <span>📱</span>
+                <span>SMS</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleEditClick}
+              title="Edit Customer"
+              className="p-2 rounded-xl text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 transition border border-amber-200 dark:border-amber-800"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              onClick={handleDeleteClick}
+              title="Delete Customer"
+              className="p-2 rounded-xl text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 transition border border-rose-200 dark:border-rose-800"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              onClick={() => onViewDetails(customer)}
+              title="View Statement"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 transition"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

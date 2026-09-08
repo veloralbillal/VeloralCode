@@ -48,6 +48,8 @@ export function saveLocalRecharges(recharges: RechargeTransaction[]) {
   }
 }
 
+import { getStoreAddress } from './bakiStorageService';
+
 export function subscribeRechargeData(
   userId: string | undefined,
   callback: (recharges: RechargeTransaction[]) => void
@@ -55,11 +57,8 @@ export function subscribeRechargeData(
   const local = getLocalRecharges();
   callback(local);
 
-  if (!userId) {
-    return () => {};
-  }
-
-  const dbRef = ref(database, `bakikhata_recharges/${userId}`);
+  const address = getStoreAddress(userId);
+  const dbRef = ref(database, `apps/bakikhata/stores/${address}/recharges`);
   const unsubscribe = onValue(
     dbRef,
     (snapshot) => {
@@ -103,13 +102,12 @@ export async function addRechargeTransactionToDb(
   const updated = [newTx, ...current];
   saveLocalRecharges(updated);
 
-  if (userId) {
-    try {
-      const dbRef = ref(database, `bakikhata_recharges/${userId}/${newTx.id}`);
-      await set(dbRef, newTx);
-    } catch (err) {
-      console.warn('Firebase recharge save error:', err);
-    }
+  try {
+    const address = getStoreAddress(userId);
+    const dbRef = ref(database, `apps/bakikhata/stores/${address}/recharges/${newTx.id}`);
+    await set(dbRef, newTx);
+  } catch (err) {
+    console.warn('Firebase recharge save error:', err);
   }
 
   return newTx;

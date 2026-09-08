@@ -21,12 +21,10 @@ import {
   Moon,
   LogOut,
   ChevronRight,
-  Download,
+  Store,
 } from 'lucide-react';
 import { BakiStats } from '../types';
 import { formatTaka } from '../utils/bakiUtils';
-import { usePWAInstall } from '../../../utils/pwa/usePWAInstall';
-import { PwaInstallModal } from './PwaInstallModal';
 
 interface BakiSidebarDrawerProps {
   isOpen: boolean;
@@ -52,6 +50,7 @@ interface BakiSidebarDrawerProps {
   onPrintLedger: () => void;
   onNavigate: (route: string) => void;
   onLogout: () => void;
+  onOpenStoreSync: () => void;
 }
 
 export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
@@ -78,18 +77,8 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
   onPrintLedger,
   onNavigate,
   onLogout,
+  onOpenStoreSync,
 }) => {
-  const {
-    isInstallable,
-    isInstalled,
-    isIOS,
-    isAndroid,
-    isInIframe,
-    showInstallGuide,
-    setShowInstallGuide,
-    install,
-  } = usePWAInstall();
-
   if (!isOpen) return null;
 
   const isCreator = userProfile?.role === 'creator' || isAdmin;
@@ -149,44 +138,6 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
             </div>
           </div>
 
-          {/* PWA Install App Card */}
-          {!isInstalled && (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-200 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-black text-white">Baki Khata PWA App</span>
-                </div>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500 text-white">
-                  Offline Ready
-                </span>
-              </div>
-              <p className="text-[11px] text-emerald-300/90 leading-tight">
-                Install as an app to your home screen and use offline anytime.
-              </p>
-              <div className="flex gap-2">
-                <button
-                  id="pwa-drawer-install-action"
-                  onClick={async () => {
-                    await install();
-                  }}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition active:scale-95 cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>📱 Install Baki Khata App</span>
-                </button>
-                <button
-                  id="pwa-drawer-guide-action"
-                  onClick={() => setShowInstallGuide(true)}
-                  className="px-2.5 py-2 rounded-xl bg-emerald-900/60 border border-emerald-500/40 hover:bg-emerald-800/60 text-emerald-200 text-xs font-semibold transition"
-                  title="Installation Instructions"
-                >
-                  Help
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Section 1: Ledger & Filters */}
           <div className="space-y-1">
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -202,6 +153,19 @@ export const BakiSidebarDrawer: React.FC<BakiSidebarDrawerProps> = ({
                 <span>All Customer Ledgers</span>
               </div>
               <span className="text-[10px] text-slate-400">{stats.totalCustomers}</span>
+            </button>
+
+            <button
+              onClick={() => handleAction(onOpenStoreSync)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-emerald-200 hover:from-emerald-500/30 hover:to-teal-500/30 transition shadow-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <Store className="w-4 h-4 text-emerald-400" />
+                <span>📱 ডিভাইস আইডি ও সিঙ্ক (Device ID & Sync)</span>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500 text-slate-950 font-black">
+                Firebase
+              </span>
             </button>
 
             <button

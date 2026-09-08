@@ -65,6 +65,10 @@
       ".read": true,
       ".indexOn": ["active", "updatedAt"],
       ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "apps": {
+      ".read": true,
+      ".write": true
     }
   }
 }

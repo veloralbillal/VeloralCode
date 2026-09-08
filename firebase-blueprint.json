@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "StoreData": {
+      "title": "BakirKhata Store Data",
+      "description": "Store metadata, customers, transactions, and calling logs indexed by device ID",
+      "type": "object",
+      "properties": {
+        "deviceId": { "type": "string" },
+        "pin": { "type": "string" },
+        "customers": { "type": "string" },
+        "transactions": { "type": "string" },
+        "callingLogs": { "type": "string" },
+        "lastSyncAt": { "type": "number" }
+      },
+      "required": ["deviceId", "pin"]
+    }
+  },
+  "firestore": {
+    "/bakikhata_stores/{deviceId}": {
+      "schema": "StoreData",
+      "description": "Store backup and sync collection by device ID"
+    }
+  }
+}
