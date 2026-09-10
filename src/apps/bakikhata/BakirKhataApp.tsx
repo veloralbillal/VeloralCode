@@ -19,6 +19,7 @@ import {
   addTransactionToDb,
   updateCustomerInDb,
   deleteCustomerFromDb,
+  getLocalData,
 } from './services/bakiStorageService';
 import {
   subscribeBkashData,
@@ -48,6 +49,10 @@ import { CustomerDetailModal } from './components/CustomerDetailModal';
 import { ConfirmDeleteModal } from './components/ConfirmDeleteModal';
 import { StoreSyncModal } from './components/StoreSyncModal';
 import { BakiMessageModal } from './components/BakiMessageModal';
+import { HomeDashboardView } from './components/HomeDashboardView';
+import { ShopExpense } from './types';
+import { subscribeShopExpenses, addShopExpenseToDb, deleteShopExpenseFromDb, getLocalExpenses } from './services/expenseStorageService';
+import { IncomeExpenseSectionView } from './components/IncomeExpenseSectionView';
 
 interface BakirKhataAppProps {
   onBackToApp?: () => void;
@@ -58,10 +63,11 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'khata' | 'bkash' | 'recharge'>('khata');
+  const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'khata' | 'bkash' | 'recharge' | 'income_expense'>('home');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<BakiTransaction[]>([]);
+  const [expenses, setExpenses] = useState<ShopExpense[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isTuesdayFilterActive, setIsTuesdayFilterActive] = useState(false);
 
@@ -173,6 +179,38 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     };
   }, [currentUser?.uid]);
 
+  // Real-time synchronization for Shop Expenses
+  useEffect(() => {
+    const unsubscribeExpenses = subscribeShopExpenses(currentUser?.uid, (exps) => {
+      setExpenses(exps);
+    });
+    return () => {
+      unsubscribeExpenses();
+    };
+  }, [currentUser?.uid]);
+
+  const handleAddExpense = async (expenseData: Omit<ShopExpense, 'id' | 'timestamp'>) => {
+    try {
+      const newExp = await addShopExpenseToDb(currentUser?.uid, expenseData);
+      setExpenses((prev) => [newExp, ...prev.filter((e) => e.id !== newExp.id)]);
+      showToast('নতুন খরচ যোগ করা হয়েছে', 'success');
+    } catch {
+      showToast('Failed to add expense', 'error');
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    try {
+      // Immediate optimistic update
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      const updated = await deleteShopExpenseFromDb(currentUser?.uid, id);
+      setExpenses([...updated]);
+      showToast('খরচের হিসাব মুছে ফেলা হয়েছে', 'success');
+    } catch {
+      showToast('Failed to delete expense', 'error');
+    }
+  };
+
   const handleExecuteRecharge = async (payload: any) => {
     try {
       await addRechargeTransactionToDb(currentUser?.uid, payload);
@@ -239,6 +277,12 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   }, [customers, transactions]);
 
   // Handlers
+  const refreshState = () => {
+    const { customers: cl, transactions: tl } = getLocalData();
+    setCustomers([...cl]);
+    setTransactions([...tl]);
+  };
+
   const handleSaveCustomer = async (
     custData: Omit<Customer, 'id' | 'createdAt' | 'lastActivityAt' | 'totalDue' | 'totalPaid'> & {
       initialDue?: number;
@@ -258,6 +302,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           timestamp: Date.now(),
         });
       }
+      refreshState();
       showToast(`${created.name}'s ledger created successfully`, 'success');
     } catch {
       showToast('Error saving customer', 'error');
@@ -267,6 +312,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const handleUpdateCustomer = async (customer: Customer, data: Partial<Customer>) => {
     try {
       await updateCustomerInDb(currentUser?.uid, customer, data);
+      refreshState();
       showToast('Customer updated successfully', 'success');
     } catch {
       showToast('Error updating customer', 'error');
@@ -282,8 +328,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     const customerId = customerToDelete.id;
     try {
       await deleteCustomerFromDb(currentUser?.uid, customerId);
-      setCustomers((prev) => prev.filter((c) => c.id !== customerId));
-      setTransactions((prev) => prev.filter((t) => t.customerId !== customerId));
+      refreshState();
       if (activeCustomer?.id === customerId) {
         setActiveCustomer(null);
         setDetailModalOpen(false);
@@ -349,6 +394,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         );
       }
 
+      refreshState();
       showToast(`৳${data.amount} credit added successfully`, 'success');
     } catch {
       showToast('Error saving credit record', 'error');
@@ -405,6 +451,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         isTuesdaySettlement: data.isTuesdaySettlement,
         timestamp: data.timestamp,
       });
+      refreshState();
       showToast(`৳${data.amount} payment collected and ledger updated`, 'success');
     } catch {
       showToast('Error saving payment record', 'error');
@@ -542,7 +589,52 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           />
         </div>
 
-        {activeTab === 'khata' ? (
+        {activeTab === 'home' ? (
+          <HomeDashboardView
+            stats={stats}
+            bkashFundBalance={bkashFund.currentBalance || 0}
+            totalRechargeProfit={totalRechargeProfit}
+            customers={customers}
+            transactions={transactions}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onOpenAddCustomer={() => setAddCustomerOpen(true)}
+            onOpenAddDue={() => {
+              setActiveCustomer(null);
+              setInitialCategory('cha_pan');
+              setInitialAmount(0);
+              setInitialSummary('');
+              setInitialBkashType('none');
+              setAddDueOpen(true);
+            }}
+            onOpenPayment={() => {
+              setActiveCustomer(null);
+              setCollectPaymentOpen(true);
+            }}
+            onOpenDailyReport={() => setDailyReportOpen(true)}
+            onViewCustomerDetails={handleViewDetailsForCust}
+            onOpenIncomeExpense={() => setActiveTab('income_expense')}
+          />
+        ) : activeTab === 'customers' ? (
+          <CustomerListView
+            customers={customers}
+            searchQuery={searchQuery}
+            isTuesdayFilterActive={isTuesdayFilterActive}
+            onOpenAddDue={handleOpenAddDueForCust}
+            onOpenPayment={handleOpenPaymentForCust}
+            onViewDetails={handleViewDetailsForCust}
+            onOpenAddCustomer={() => setAddCustomerOpen(true)}
+            onEditCustomer={(cust) => {
+              setCustomerToEdit(cust);
+              setEditCustomerOpen(true);
+            }}
+            onDeleteCustomer={handleRequestDeleteCustomer}
+            onOpenMessage={(cust, type) => {
+              setMessageCustomer(cust);
+              setMessageInitialType(type || 'whatsapp');
+              setMessageModalOpen(true);
+            }}
+          />
+        ) : activeTab === 'khata' ? (
           <>
             {/* Tuesday Settlement Banner */}
             <TuesdaySettlementBanner
@@ -587,11 +679,21 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
             onExecuteOperation={handleExecuteBkashOperation}
             onUpdateFund={handleUpdateBkashFund}
           />
-        ) : (
+        ) : activeTab === 'recharge' ? (
           <RechargeSectionView
             transactions={rechargeTransactions}
             customers={customers}
             onExecuteRecharge={handleExecuteRecharge}
+          />
+        ) : (
+          <IncomeExpenseSectionView
+            expenses={expenses}
+            customers={customers}
+            rechargeTransactions={rechargeTransactions}
+            bkashFundBalance={bkashFund.currentBalance || 0}
+            totalRechargeProfit={totalRechargeProfit}
+            onAddExpense={handleAddExpense}
+            onDeleteExpense={handleDeleteExpense}
           />
         )}
       </main>
@@ -601,31 +703,6 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         isOpen={addCustomerOpen}
         onClose={() => setAddCustomerOpen(false)}
         onSaveCustomer={handleSaveCustomer}
-      />
-
-      <AddDueModal
-        isOpen={addDueOpen}
-        customers={customers}
-        preSelectedCustomer={resolvedActiveCustomer}
-        initialCategory={initialCategory}
-        initialAmount={initialAmount}
-        initialSummary={initialSummary}
-        initialBkashType={initialBkashType}
-        onClose={() => {
-          setAddDueOpen(false);
-          setActiveCustomer(null);
-        }}
-        onSaveDue={handleSaveDue}
-      />
-
-      <CollectPaymentModal
-        isOpen={collectPaymentOpen}
-        customer={resolvedActiveCustomer}
-        onClose={() => {
-          setCollectPaymentOpen(false);
-          setActiveCustomer(null);
-        }}
-        onSavePayment={handleSavePayment}
       />
 
       <CustomerDetailModal
@@ -645,6 +722,35 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           setEditCustomerOpen(true);
         }}
         onDeleteCustomer={handleRequestDeleteCustomer}
+      />
+
+      <AddDueModal
+        isOpen={addDueOpen}
+        customers={customers}
+        preSelectedCustomer={resolvedActiveCustomer}
+        initialCategory={initialCategory}
+        initialAmount={initialAmount}
+        initialSummary={initialSummary}
+        initialBkashType={initialBkashType}
+        onClose={() => {
+          setAddDueOpen(false);
+          if (!detailModalOpen) {
+            setActiveCustomer(null);
+          }
+        }}
+        onSaveDue={handleSaveDue}
+      />
+
+      <CollectPaymentModal
+        isOpen={collectPaymentOpen}
+        customer={resolvedActiveCustomer}
+        onClose={() => {
+          setCollectPaymentOpen(false);
+          if (!detailModalOpen) {
+            setActiveCustomer(null);
+          }
+        }}
+        onSavePayment={handleSavePayment}
       />
 
       <EditCustomerModal
@@ -713,6 +819,8 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
           setMessageCustomer(null);
         }}
       />
+
+
     </div>
   );
 };

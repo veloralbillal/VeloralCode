@@ -111,3 +111,14 @@ export interface StoreSyncMeta {
   createdAt: number;
   lastSyncAt: number;
 }
+
+export type ExpenseCategory = 'rent' | 'electricity' | 'goods_purchase' | 'salary' | 'transport' | 'other';
+
+export interface ShopExpense {
+  id: string;
+  category: ExpenseCategory;
+  title: string;
+  amount: number;
+  note?: string;
+  timestamp: number;
+}
