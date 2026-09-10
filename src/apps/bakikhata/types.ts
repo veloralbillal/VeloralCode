@@ -122,3 +122,15 @@ export interface ShopExpense {
   note?: string;
   timestamp: number;
 }
+
+export type SaleCategory = 'cash_sale' | 'grocery' | 'tea_snack' | 'retail' | 'other';
+
+export interface ShopSale {
+  id: string;
+  category: SaleCategory;
+  title: string;
+  amount: number;
+  note?: string;
+  timestamp: number;
+}
+

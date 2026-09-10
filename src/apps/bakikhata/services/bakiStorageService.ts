@@ -409,6 +409,15 @@ export async function pushStoreDataToCloud(userId?: string): Promise<{ success: 
     }
   } catch {}
 
+  let salesData: any = null;
+  try {
+    const rawSales = localStorage.getItem('bakikhata_sales_cache');
+    if (rawSales) {
+      const parsed = JSON.parse(rawSales);
+      salesData = parsed.reduce((acc: any, s: any) => ({ ...acc, [s.id]: s }), {});
+    }
+  } catch {}
+
   const meta: StoreSyncMeta = {
     deviceId,
     pin,
@@ -426,6 +435,7 @@ export async function pushStoreDataToCloud(userId?: string): Promise<{ success: 
   if (bkashData) payload.bkash = bkashData;
   if (rechargesData) payload.recharges = rechargesData;
   if (expensesData) payload.expenses = expensesData;
+  if (salesData) payload.sales = salesData;
 
   // Background RTDB attempt (non-blocking so it never hangs in Brave or offline)
   try {
@@ -542,6 +552,11 @@ export async function connectAndSyncFromCloud(
     if (rawStorePayload.expenses) {
       const expensesList = Object.values(rawStorePayload.expenses);
       localStorage.setItem('bakikhata_expenses_cache', JSON.stringify(expensesList));
+    }
+
+    if (rawStorePayload.sales) {
+      const salesList = Object.values(rawStorePayload.sales);
+      localStorage.setItem('bakikhata_sales_cache', JSON.stringify(salesList));
     }
 
     return {

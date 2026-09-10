@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Users, AlertCircle, ArrowUpDown } from 'lucide-react';
+import { Users, AlertCircle, ArrowUpDown, Search, X } from 'lucide-react';
 import { Customer } from '../types';
 import { CustomerCard } from './CustomerCard';
 
 interface CustomerListViewProps {
   customers: Customer[];
   searchQuery: string;
+  onSearchChange?: (q: string) => void;
   isTuesdayFilterActive: boolean;
   onOpenAddDue: (customer: Customer) => void;
   onOpenPayment: (customer: Customer) => void;
@@ -71,6 +72,27 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Search Bar added where marked in image */}
+      <div className="relative w-full">
+        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+          placeholder="Search customer name or phone..."
+          className="w-full pl-10 pr-10 py-2.5 text-xs rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => onSearchChange && onSearchChange('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
       {/* Tab Filters and Sort Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">

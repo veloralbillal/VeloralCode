@@ -50,8 +50,9 @@ import { ConfirmDeleteModal } from './components/ConfirmDeleteModal';
 import { StoreSyncModal } from './components/StoreSyncModal';
 import { BakiMessageModal } from './components/BakiMessageModal';
 import { HomeDashboardView } from './components/HomeDashboardView';
-import { ShopExpense } from './types';
+import { ShopExpense, ShopSale } from './types';
 import { subscribeShopExpenses, addShopExpenseToDb, deleteShopExpenseFromDb, getLocalExpenses } from './services/expenseStorageService';
+import { subscribeShopSales, addShopSaleToDb, deleteShopSaleFromDb } from './services/saleStorageService';
 import { IncomeExpenseSectionView } from './components/IncomeExpenseSectionView';
 
 interface BakirKhataAppProps {
@@ -68,6 +69,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<BakiTransaction[]>([]);
   const [expenses, setExpenses] = useState<ShopExpense[]>([]);
+  const [sales, setSales] = useState<ShopSale[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isTuesdayFilterActive, setIsTuesdayFilterActive] = useState(false);
 
@@ -189,6 +191,16 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     };
   }, [currentUser?.uid]);
 
+  // Real-time synchronization for Shop Sales
+  useEffect(() => {
+    const unsubscribeSales = subscribeShopSales(currentUser?.uid, (sls) => {
+      setSales(sls);
+    });
+    return () => {
+      unsubscribeSales();
+    };
+  }, [currentUser?.uid]);
+
   const handleAddExpense = async (expenseData: Omit<ShopExpense, 'id' | 'timestamp'>) => {
     try {
       const newExp = await addShopExpenseToDb(currentUser?.uid, expenseData);
@@ -208,6 +220,28 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       showToast('খরচের হিসাব মুছে ফেলা হয়েছে', 'success');
     } catch {
       showToast('Failed to delete expense', 'error');
+    }
+  };
+
+  const handleAddSale = async (saleData: Omit<ShopSale, 'id' | 'timestamp'>) => {
+    try {
+      const newSale = await addShopSaleToDb(currentUser?.uid, saleData);
+      setSales((prev) => [newSale, ...prev.filter((s) => s.id !== newSale.id)]);
+      showToast('নতুন বিক্রি / সেলস যোগ করা হয়েছে', 'success');
+    } catch {
+      showToast('Failed to add sale', 'error');
+    }
+  };
+
+  const handleDeleteSale = async (id: string) => {
+    try {
+      // Immediate optimistic update
+      setSales((prev) => prev.filter((s) => s.id !== id));
+      const updated = await deleteShopSaleFromDb(currentUser?.uid, id);
+      setSales([...updated]);
+      showToast('বিক্রির হিসাব মুছে ফেলা হয়েছে', 'success');
+    } catch {
+      showToast('Failed to delete sale', 'error');
     }
   };
 
@@ -688,12 +722,15 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         ) : (
           <IncomeExpenseSectionView
             expenses={expenses}
+            sales={sales}
             customers={customers}
             rechargeTransactions={rechargeTransactions}
             bkashFundBalance={bkashFund.currentBalance || 0}
             totalRechargeProfit={totalRechargeProfit}
             onAddExpense={handleAddExpense}
             onDeleteExpense={handleDeleteExpense}
+            onAddSale={handleAddSale}
+            onDeleteSale={handleDeleteSale}
           />
         )}
       </main>
