@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Calendar, Clock, PlusCircle, CheckCircle, ChevronRight, MessageSquare, Edit3, X } from 'lucide-react';
+import { Phone, Calendar, Clock, PlusCircle, CheckCircle, ChevronRight, MessageSquare, Edit3, Trash2 } from 'lucide-react';
 import { Customer } from '../types';
 import { formatTaka, formatDateTime } from '../utils/bakiUtils';
 import { useToast } from '../../../context/ToastContext';
@@ -11,6 +11,7 @@ interface CustomerCardProps {
   onViewDetails: (customer: Customer) => void;
   onEditCustomer: (customer: Customer) => void;
   onDeleteCustomer: (customer: Customer) => void;
+  onOpenMessage?: (customer: Customer, initialType?: 'whatsapp' | 'sms') => void;
 }
 
 export const CustomerCard: React.FC<CustomerCardProps> = ({
@@ -20,6 +21,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onViewDetails,
   onEditCustomer,
   onDeleteCustomer,
+  onOpenMessage,
 }) => {
   const { showToast } = useToast();
   const hasDue = customer.totalDue > 0;
@@ -36,17 +38,25 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
 
   const handleWhatsAppReminder = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (onOpenMessage) {
+      onOpenMessage(customer, 'whatsapp');
+      return;
+    }
     if (!customer.phone) return;
     const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
     const intlPhone = cleanPhone.startsWith('0') ? '88' + cleanPhone : cleanPhone;
     const message = encodeURIComponent(
-      `Hello ${customer.name}, your current outstanding credit balance at our shop is ${formatTaka(customer.totalDue)}. Please settle it at your earliest convenience. Thank you!`
+      `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার বর্তমান বাকি ${formatTaka(customer.totalDue)}। চেক করে নিন। ধন্যবাদ!`
     );
     window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
   };
 
   const handleDailyMealInquiry = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (onOpenMessage) {
+      onOpenMessage(customer, 'whatsapp');
+      return;
+    }
     if (!customer.phone) {
       showToast('এই কাস্টমারের কোনো ফোন নম্বর সেভ করা নেই!', 'warning');
       return;
@@ -54,19 +64,23 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
     const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
     const intlPhone = cleanPhone.startsWith('0') ? '88' + cleanPhone : cleanPhone;
     const message = encodeURIComponent(
-      `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার আজকের খাবার ও বাকি হিসাবটি চেক করে নিন। ধন্যবাদ!`
+      `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার বর্তমান বাকি ${formatTaka(customer.totalDue)}। চেক করে নিন। ধন্যবাদ!`
     );
     window.open(`https://wa.me/${intlPhone}?text=${message}`, '_blank');
   };
 
   const handleDirectSms = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (onOpenMessage) {
+      onOpenMessage(customer, 'sms');
+      return;
+    }
     if (!customer.phone) {
       showToast('এই কাস্টমারের কোনো ফোন নম্বর সেভ করা নেই!', 'warning');
       return;
     }
     const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
-    const message = `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার আজকের খাবার ও বাকি হিসাবটি চেক করে নিন। ধন্যবাদ!`;
+    const message = `আসসালামু আলাইকুম / নমস্কার ${customer.name}, আজকে দোকানে কি কি খেয়েছেন? আপনার বর্তমান বাকি ${formatTaka(customer.totalDue)}। চেক করে নিন। ধন্যবাদ!`;
     window.location.href = `sms:${cleanPhone}?body=${encodeURIComponent(message)}`;
   };
 
@@ -198,10 +212,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
 
             <button
               onClick={handleDeleteClick}
-              title="Delete Customer"
-              className="p-2 rounded-xl text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 transition border border-rose-200 dark:border-rose-800"
+              title="Delete Customer (কাস্টমার মুছুন)"
+              className="p-2 rounded-xl text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition border border-rose-200 dark:border-rose-800"
             >
-              <X className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
 
             <button

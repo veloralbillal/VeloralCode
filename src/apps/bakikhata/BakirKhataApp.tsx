@@ -47,6 +47,7 @@ import { CollectPaymentModal } from './components/CollectPaymentModal';
 import { CustomerDetailModal } from './components/CustomerDetailModal';
 import { ConfirmDeleteModal } from './components/ConfirmDeleteModal';
 import { StoreSyncModal } from './components/StoreSyncModal';
+import { BakiMessageModal } from './components/BakiMessageModal';
 
 interface BakirKhataAppProps {
   onBackToApp?: () => void;
@@ -89,6 +90,9 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [storeSyncModalOpen, setStoreSyncModalOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [messageCustomer, setMessageCustomer] = useState<Customer | null>(null);
+  const [messageInitialType, setMessageInitialType] = useState<'whatsapp' | 'sms'>('whatsapp');
 
   // Global Bkash Modals
   const [bkashActionModalOpen, setBkashActionModalOpen] = useState(false);
@@ -96,6 +100,12 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const [bkashActionInitialType, setBkashActionInitialType] = useState<BkashOpType>('send_money');
 
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
+
+  // Automatically keep active customer synchronized with latest calculated state
+  const resolvedActiveCustomer = useMemo(() => {
+    if (!activeCustomer) return null;
+    return customers.find((c) => c.id === activeCustomer.id) || activeCustomer;
+  }, [activeCustomer, customers]);
 
   // Quick preset data for AddDueModal
   const [initialCategory, setInitialCategory] = useState<BakiCategory>('cha_pan');
@@ -187,19 +197,32 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     let mudiDue = 0;
 
     customers.forEach((c) => {
-      totalDue += c.totalDue || 0;
-      totalPaid += c.totalPaid || 0;
-      if (c.settlesOnTuesday && c.totalDue > 0) {
-        tuesdayDue += c.totalDue;
+      const currentDue = Number(c.totalDue) || 0;
+      totalDue += currentDue;
+      totalPaid += Number(c.totalPaid) || 0;
+      if (c.settlesOnTuesday && currentDue > 0) {
+        tuesdayDue += currentDue;
         tuesdayCustCount += 1;
       }
-    });
 
-    transactions.forEach((t) => {
-      if (t.type === 'due') {
-        if (t.category === 'bkash') bkashDue += t.amount || 0;
-        else if (t.category === 'cha_pan') chaPanDue += t.amount || 0;
-        else if (t.category === 'mudi') mudiDue += t.amount || 0;
+      // Allocate outstanding dues to categories from customer's latest due transactions
+      if (currentDue > 0) {
+        const custDueTx = transactions
+          .filter((t) => t.customerId === c.id && t.type === 'due')
+          .sort((a, b) => b.timestamp - a.timestamp);
+
+        let unallocated = currentDue;
+        for (const t of custDueTx) {
+          if (unallocated <= 0) break;
+          const amt = Math.min(unallocated, Number(t.amount) || 0);
+          if (t.category === 'bkash') bkashDue += amt;
+          else if (t.category === 'cha_pan') chaPanDue += amt;
+          else if (t.category === 'mudi') mudiDue += amt;
+          unallocated -= amt;
+        }
+        if (unallocated > 0) {
+          mudiDue += unallocated; // remaining balance from initial grocery/general ledger
+        }
       }
     });
 
@@ -320,7 +343,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
             targetNumber: data.mfsNumber,
             customerId: customer.id,
             customerName: customer.name,
-            isDue: true,
+            isDue: false, // Due is already recorded in the Khata via addTransactionToDb above
             note: data.note || data.itemsSummary,
           }
         );
@@ -549,6 +572,11 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
                 setEditCustomerOpen(true);
               }}
               onDeleteCustomer={handleRequestDeleteCustomer}
+              onOpenMessage={(cust, type) => {
+                setMessageCustomer(cust);
+                setMessageInitialType(type || 'whatsapp');
+                setMessageModalOpen(true);
+              }}
             />
           </>
         ) : activeTab === 'bkash' ? (
@@ -578,7 +606,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       <AddDueModal
         isOpen={addDueOpen}
         customers={customers}
-        preSelectedCustomer={activeCustomer}
+        preSelectedCustomer={resolvedActiveCustomer}
         initialCategory={initialCategory}
         initialAmount={initialAmount}
         initialSummary={initialSummary}
@@ -592,7 +620,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
 
       <CollectPaymentModal
         isOpen={collectPaymentOpen}
-        customer={activeCustomer}
+        customer={resolvedActiveCustomer}
         onClose={() => {
           setCollectPaymentOpen(false);
           setActiveCustomer(null);
@@ -602,7 +630,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
 
       <CustomerDetailModal
         isOpen={detailModalOpen}
-        customer={activeCustomer}
+        customer={resolvedActiveCustomer}
         transactions={transactions}
         currentUser={currentUser}
         onClose={() => {
@@ -671,6 +699,19 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         customer={customerToDelete}
         onClose={() => setCustomerToDelete(null)}
         onConfirm={handleConfirmDeleteCustomer}
+      />
+
+      {/* Customer Reminder & Meal Inquiry SMS / WhatsApp Modal */}
+      <BakiMessageModal
+        isOpen={messageModalOpen}
+        customer={messageCustomer}
+        transactions={transactions}
+        currentUser={currentUser}
+        initialType={messageInitialType}
+        onClose={() => {
+          setMessageModalOpen(false);
+          setMessageCustomer(null);
+        }}
       />
     </div>
   );

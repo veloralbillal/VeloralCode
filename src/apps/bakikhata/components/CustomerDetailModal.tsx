@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   X,
   Calendar,
@@ -12,6 +12,7 @@ import {
   FileText,
   Printer,
   Edit3,
+  Trash2,
   PhoneCall,
   MessageSquare,
   History,
@@ -59,9 +60,47 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     }
   }, [isOpen, customer]);
 
-  if (!isOpen || !customer) return null;
+  const custTransactions = useMemo(() => {
+    if (!customer) return [];
+    return transactions.filter((t) => t.customerId === customer.id);
+  }, [transactions, customer]);
 
-  const custTransactions = transactions.filter((t) => t.customerId === customer.id);
+  // Live real-time accurate calculation directly from transactions
+  const calculatedDue = useMemo(() => {
+    if (!customer) return 0;
+    if (custTransactions.length > 0) {
+      let due = 0;
+      custTransactions.forEach((t) => {
+        const amt = Number(t.amount) || 0;
+        if (t.type === 'due') due += amt;
+        else if (t.type === 'payment') due -= amt;
+      });
+      return Math.max(0, due);
+    }
+    return customer.totalDue || 0;
+  }, [custTransactions, customer]);
+
+  const calculatedPaid = useMemo(() => {
+    if (!customer) return 0;
+    if (custTransactions.length > 0) {
+      return custTransactions.reduce(
+        (sum, t) => (t.type === 'payment' ? sum + (Number(t.amount) || 0) : sum),
+        0
+      );
+    }
+    return customer.totalPaid || 0;
+  }, [custTransactions, customer]);
+
+  const liveCustomer = useMemo(() => {
+    if (!customer) return null;
+    return {
+      ...customer,
+      totalDue: calculatedDue,
+      totalPaid: calculatedPaid,
+    };
+  }, [customer, calculatedDue, calculatedPaid]);
+
+  if (!isOpen || !customer || !liveCustomer) return null;
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -206,11 +245,11 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
               <button
                 onClick={() => onDeleteCustomer(customer)}
-                title="Delete"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
+                title="Delete Customer (কাস্টমার মুছুন)"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
-                <span>Delete</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>কাস্টমার মুছুন</span>
               </button>
 
               <button
@@ -231,27 +270,27 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             <div>
               <span className="text-[11px] text-slate-500 block font-bold">Total Current Due</span>
               <span className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400">
-                {formatTaka(customer.totalDue)}
+                {formatTaka(liveCustomer.totalDue)}
               </span>
             </div>
             <div className="border-l border-slate-200 dark:border-slate-700 pl-6">
               <span className="text-[11px] text-slate-500 block font-bold">Total Paid Balance</span>
               <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                {formatTaka(customer.totalPaid)}
+                {formatTaka(liveCustomer.totalPaid)}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => onOpenAddDue(customer)}
+              onClick={() => onOpenAddDue(liveCustomer)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Add Due</span>
             </button>
             <button
-              onClick={() => onOpenPayment(customer)}
+              onClick={() => onOpenPayment(liveCustomer)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition border border-emerald-200/60 dark:border-emerald-800 cursor-pointer"
             >
               <CheckCircle className="w-3.5 h-3.5" />
@@ -423,7 +462,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
       <BakiMessageModal
         isOpen={messageModalOpen}
-        customer={customer}
+        customer={liveCustomer}
         transactions={custTransactions}
         currentUser={currentUser}
         initialType={messageModalType}

@@ -48,7 +48,8 @@ export const BakiMessageModal: React.FC<BakiMessageModalProps> = ({
     if (!customer) return [];
     return transactions
       .filter((t) => t.customerId === customer.id && t.type === 'due')
-      .slice(0, 3)
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+      .slice(0, 4)
       .map((t) => ({
         summary: t.itemsSummary || 'খাবার ও পণ্য',
         amount: t.amount,
@@ -69,14 +70,14 @@ export const BakiMessageModal: React.FC<BakiMessageModalProps> = ({
   const templates = useMemo(() => {
     if (!customer) return { meal: '', polite: '', tuesday: '' };
 
-    const mealTemplate = `আসসালামু আলাইকুম / নমস্কার ${customer.name} ভাই,
-
-🍽️ আজকে দোকানে যা যা খেয়েছেন / নিয়েছেন:
+    const mealTemplate = `আসসালামু আলাইকুম / নমস্কার ${customer.name},
+আজকে দোকানে কি কি খেয়েছেন?
+🍽️ আজকের খাবার ও কেনাকাটা:
 ${itemsText}
 
-💰 আপনার বর্তমান মোট বাকি: ${formatTaka(customer.totalDue)}
+💰 আপনার বর্তমান মোট বকেয়া বাকি: ${formatTaka(customer.totalDue)}
 
-অনুগ্রহ করে হিসাবটি মিলিয়ে নিবেন। আপনার সুবিধামতো সময়ে পরিশোধের অনুরোধ রইল। ধন্যবাদ!`;
+চেক করে হিসাবটি মিলিয়ে নিন। আপনার সুবিধামতো সময়ে পরিশোধের অনুরোধ রইল। ধন্যবাদ!`;
 
     const politeTemplate = `সম্মানিত ${customer.name} ভাই,
 দোকানের বাকির খাতা অনুযায়ী আপনার বর্তমান বকেয়া বাকি ${formatTaka(customer.totalDue)}।

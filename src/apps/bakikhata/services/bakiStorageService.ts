@@ -20,6 +20,24 @@ const withTimeout = <T>(promise: Promise<T>, ms = 6000, fallbackMsg = 'Network t
 const LOCAL_CUSTOMERS_KEY = 'bakikhata_customers_cache';
 const LOCAL_TRANSACTIONS_KEY = 'bakikhata_tx_cache';
 const LOCAL_CALLING_LOGS_KEY = 'bakikhata_calling_logs_cache';
+const LOCAL_DELETED_CUSTOMERS_KEY = 'bakikhata_deleted_cust_ids';
+
+export function getDeletedCustomerIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LOCAL_DELETED_CUSTOMERS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+export function recordDeletedCustomerId(id: string) {
+  try {
+    const set = getDeletedCustomerIds();
+    set.add(id);
+    localStorage.setItem(LOCAL_DELETED_CUSTOMERS_KEY, JSON.stringify(Array.from(set)));
+  } catch {}
+}
 
 const SAMPLE_CUSTOMERS: Customer[] = [
   {
@@ -64,6 +82,18 @@ const SAMPLE_CUSTOMERS: Customer[] = [
 ];
 
 const SAMPLE_TRANSACTIONS: BakiTransaction[] = [
+  // Rafiqul Islam (310 + 50 + 120 = 480)
+  {
+    id: 'tx_1_init',
+    customerId: 'cust_1',
+    customerName: 'Rafiqul Islam (Tailor)',
+    customerPhone: '01711223344',
+    type: 'due',
+    category: 'mudi',
+    itemsSummary: 'পূর্বের বকেয়া বাকি (Previous Balance)',
+    amount: 310,
+    timestamp: Date.now() - 1000 * 60 * 60 * 48,
+  },
   {
     id: 'tx_1',
     customerId: 'cust_1',
@@ -88,6 +118,18 @@ const SAMPLE_TRANSACTIONS: BakiTransaction[] = [
     amount: 120,
     timestamp: Date.now() - 1000 * 60 * 180,
   },
+  // Karim Bhai (160 + 20 = 180)
+  {
+    id: 'tx_2_init',
+    customerId: 'cust_2',
+    customerName: 'Karim Bhai (Transport)',
+    customerPhone: '01822334455',
+    type: 'due',
+    category: 'cha_pan',
+    itemsSummary: 'পূর্বের বকেয়া বাকি (Previous Balance)',
+    amount: 160,
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3,
+  },
   {
     id: 'tx_3',
     customerId: 'cust_2',
@@ -98,6 +140,18 @@ const SAMPLE_TRANSACTIONS: BakiTransaction[] = [
     itemsSummary: '1 cup black tea, 1 paan',
     amount: 20,
     timestamp: Date.now() - 1000 * 60 * 120,
+  },
+  // Master Anwar Hossain (870 + 380 = 1250)
+  {
+    id: 'tx_3_init',
+    customerId: 'cust_3',
+    customerName: 'Master Anwar Hossain',
+    customerPhone: '01933445566',
+    type: 'due',
+    category: 'mudi',
+    itemsSummary: 'পূর্বের মুদি বকেয়া বাকি (Previous Balance)',
+    amount: 870,
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 5,
   },
   {
     id: 'tx_4',
@@ -112,22 +166,85 @@ const SAMPLE_TRANSACTIONS: BakiTransaction[] = [
   },
 ];
 
+export function reconcileCustomersWithTransactions(
+  customers: Customer[],
+  transactions: BakiTransaction[]
+): Customer[] {
+  const deletedIds = getDeletedCustomerIds();
+  const nonDeletedCustomers = customers.filter((c) => !deletedIds.has(c.id));
+  const nonDeletedTransactions = transactions.filter((t) => !deletedIds.has(t.customerId));
+
+  // Map customer balances calculated directly from all transactions
+  const txByCust = new Map<
+    string,
+    { dueSum: number; paidSum: number; hasTx: boolean; lastActivity: number }
+  >();
+
+  nonDeletedTransactions.forEach((t) => {
+    if (!t.customerId) return;
+    const existing = txByCust.get(t.customerId) || {
+      dueSum: 0,
+      paidSum: 0,
+      hasTx: false,
+      lastActivity: 0,
+    };
+    existing.hasTx = true;
+    const amt = Number(t.amount) || 0;
+    if (t.type === 'due') {
+      existing.dueSum += amt;
+    } else if (t.type === 'payment') {
+      existing.paidSum += amt;
+    }
+    if (t.timestamp && t.timestamp > existing.lastActivity) {
+      existing.lastActivity = t.timestamp;
+    }
+    txByCust.set(t.customerId, existing);
+  });
+
+  return nonDeletedCustomers.map((c) => {
+    const txInfo = txByCust.get(c.id);
+    if (txInfo && txInfo.hasTx) {
+      const netDue = Math.max(0, txInfo.dueSum - txInfo.paidSum);
+      // Retain customer's recorded totalPaid if greater (e.g. from previous accounting cycles)
+      const netPaid = Math.max(c.totalPaid || 0, txInfo.paidSum);
+      return {
+        ...c,
+        totalDue: netDue,
+        totalPaid: netPaid,
+        lastActivityAt: Math.max(c.lastActivityAt || 0, txInfo.lastActivity || 0),
+      };
+    }
+    return c;
+  });
+}
+
 export function getLocalData(): { customers: Customer[]; transactions: BakiTransaction[] } {
   try {
+    const deletedIds = getDeletedCustomerIds();
     const rawCust = localStorage.getItem(LOCAL_CUSTOMERS_KEY);
     const rawTx = localStorage.getItem(LOCAL_TRANSACTIONS_KEY);
-    const customers = rawCust ? JSON.parse(rawCust) : SAMPLE_CUSTOMERS;
-    const transactions = rawTx ? JSON.parse(rawTx) : SAMPLE_TRANSACTIONS;
-    return { customers, transactions };
+    const rawCustList: Customer[] = rawCust ? JSON.parse(rawCust) : SAMPLE_CUSTOMERS;
+    const rawTxList: BakiTransaction[] = rawTx ? JSON.parse(rawTx) : SAMPLE_TRANSACTIONS;
+    
+    const customers = rawCustList.filter((c) => !deletedIds.has(c.id));
+    const transactions = rawTxList.filter((t) => !deletedIds.has(t.customerId));
+    const reconciledCusts = reconcileCustomersWithTransactions(customers, transactions);
+    return { customers: reconciledCusts, transactions };
   } catch {
-    return { customers: SAMPLE_CUSTOMERS, transactions: SAMPLE_TRANSACTIONS };
+    const deletedIds = getDeletedCustomerIds();
+    const custs = SAMPLE_CUSTOMERS.filter((c) => !deletedIds.has(c.id));
+    const txs = SAMPLE_TRANSACTIONS.filter((t) => !deletedIds.has(t.customerId));
+    return { customers: custs, transactions: txs };
   }
 }
 
 export function saveLocalData(customers: Customer[], transactions: BakiTransaction[]) {
   try {
-    localStorage.setItem(LOCAL_CUSTOMERS_KEY, JSON.stringify(customers));
-    localStorage.setItem(LOCAL_TRANSACTIONS_KEY, JSON.stringify(transactions));
+    const deletedIds = getDeletedCustomerIds();
+    const filteredCusts = customers.filter((c) => !deletedIds.has(c.id));
+    const filteredTx = transactions.filter((t) => !deletedIds.has(t.customerId));
+    localStorage.setItem(LOCAL_CUSTOMERS_KEY, JSON.stringify(filteredCusts));
+    localStorage.setItem(LOCAL_TRANSACTIONS_KEY, JSON.stringify(filteredTx));
   } catch (err) {
     console.error('Local save error:', err);
   }
@@ -472,10 +589,11 @@ export function subscribeBakirKhata(
           }).catch(() => {});
         }
 
-        const custList: Customer[] = val.customers ? Object.values(val.customers) : [];
+        const rawCustList: Customer[] = val.customers ? Object.values(val.customers) : [];
         const txList: BakiTransaction[] = val.transactions ? Object.values(val.transactions) : [];
         // Sort transactions latest first
         txList.sort((a, b) => b.timestamp - a.timestamp);
+        const custList = reconcileCustomersWithTransactions(rawCustList, txList);
         callback({ customers: custList, transactions: txList });
         saveLocalData(custList, txList);
 
@@ -539,26 +657,18 @@ export async function addTransactionToDb(
     timestamp: exactTime,
   };
 
-  const isDue = newTx.type === 'due';
-  const updatedTotalDue = isDue
-    ? Math.max(0, (customer.totalDue || 0) + newTx.amount)
-    : Math.max(0, (customer.totalDue || 0) - newTx.amount);
+  // Update local with reconciled accurate balances
+  const { customers, transactions } = getLocalData();
+  const allTransactions = [newTx, ...transactions];
+  const reconciledCusts = reconcileCustomersWithTransactions(customers, allTransactions);
+  saveLocalData(reconciledCusts, allTransactions);
 
-  const updatedTotalPaid = !isDue
-    ? (customer.totalPaid || 0) + newTx.amount
-    : (customer.totalPaid || 0);
-
-  const updatedCustomer: Customer = {
+  const updatedCustomer = reconciledCusts.find((c) => c.id === customer.id) || {
     ...customer,
-    totalDue: updatedTotalDue,
-    totalPaid: updatedTotalPaid,
+    totalDue: newTx.type === 'due' ? (customer.totalDue || 0) + newTx.amount : Math.max(0, (customer.totalDue || 0) - newTx.amount),
+    totalPaid: newTx.type === 'payment' ? (customer.totalPaid || 0) + newTx.amount : (customer.totalPaid || 0),
     lastActivityAt: exactTime,
   };
-
-  // Update local first
-  const { customers, transactions } = getLocalData();
-  const updatedCusts = customers.map((c) => (c.id === customer.id ? updatedCustomer : c));
-  saveLocalData(updatedCusts, [newTx, ...transactions]);
 
   // Try Firebase sync in background (non-blocking)
   try {
@@ -579,8 +689,12 @@ export async function deleteCustomerFromDb(
   userId: string | undefined,
   customerId: string
 ): Promise<void> {
+  // Mark as permanently deleted so it will never resurrect
+  recordDeletedCustomerId(customerId);
+
   // Update local first
   const { customers, transactions } = getLocalData();
+  const custTxToDelete = transactions.filter((t) => t.customerId === customerId);
   const filteredCusts = customers.filter((c) => c.id !== customerId);
   const filteredTx = transactions.filter((t) => t.customerId !== customerId);
   saveLocalData(filteredCusts, filteredTx);
@@ -589,10 +703,19 @@ export async function deleteCustomerFromDb(
   try {
     const basePath = getBasePath(userId);
     const custRef = ref(database, `${basePath}/customers/${customerId}`);
-    set(custRef, null).catch((err) => console.warn('Firebase customer delete background error:', err));
+    const deletePromises: Promise<any>[] = [set(custRef, null)];
+    custTxToDelete.forEach((t) => {
+      deletePromises.push(set(ref(database, `${basePath}/transactions/${t.id}`), null));
+    });
+    Promise.all(deletePromises).catch((err) => console.warn('Firebase customer delete background error:', err));
   } catch (err) {
     console.warn('Firebase customer delete error (deleted locally):', err);
   }
+
+  // Also trigger cloud push in background to keep Firestore in sync
+  try {
+    pushStoreDataToCloud(userId).catch(() => {});
+  } catch {}
 }
 
 export async function updateCustomerInDb(

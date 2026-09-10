@@ -13,6 +13,7 @@ interface CustomerListViewProps {
   onOpenAddCustomer: () => void;
   onEditCustomer: (customer: Customer) => void;
   onDeleteCustomer: (customer: Customer) => void;
+  onOpenMessage?: (customer: Customer, initialType?: 'whatsapp' | 'sms') => void;
 }
 
 type TabFilter = 'all' | 'due_only' | 'tuesday' | 'settled';
@@ -28,6 +29,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
   onOpenAddCustomer,
   onEditCustomer,
   onDeleteCustomer,
+  onOpenMessage,
 }) => {
   const [activeTab, setActiveTab] = useState<TabFilter>(
     isTuesdayFilterActive ? 'tuesday' : 'all'
@@ -144,6 +146,7 @@ export const CustomerListView: React.FC<CustomerListViewProps> = ({
               onViewDetails={onViewDetails}
               onEditCustomer={onEditCustomer}
               onDeleteCustomer={onDeleteCustomer}
+              onOpenMessage={onOpenMessage}
             />
           ))}
         </div>
