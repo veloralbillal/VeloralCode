@@ -688,6 +688,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
             <CustomerListView
               customers={customers}
               searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
               isTuesdayFilterActive={isTuesdayFilterActive}
               onOpenAddDue={handleOpenAddDueForCust}
               onOpenPayment={handleOpenPaymentForCust}

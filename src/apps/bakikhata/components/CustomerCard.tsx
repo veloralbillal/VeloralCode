@@ -6,6 +6,7 @@ import { useToast } from '../../../context/ToastContext';
 
 interface CustomerCardProps {
   customer: Customer;
+  searchQuery?: string;
   onOpenAddDue: (customer: Customer) => void;
   onOpenPayment: (customer: Customer) => void;
   onViewDetails: (customer: Customer) => void;
@@ -16,6 +17,7 @@ interface CustomerCardProps {
 
 export const CustomerCard: React.FC<CustomerCardProps> = ({
   customer,
+  searchQuery = '',
   onOpenAddDue,
   onOpenPayment,
   onViewDetails,
@@ -25,6 +27,33 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
 }) => {
   const { showToast } = useToast();
   const hasDue = customer.totalDue > 0;
+
+  // Helper to highlight matching text
+  const renderHighlightedText = (text?: string, query?: string) => {
+    if (!text) return '';
+    if (!query || !query.trim()) return text;
+    const trimmed = query.trim();
+    // Escape special regex characters so punctuation/symbols won't crash regex
+    const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    try {
+      const regex = new RegExp(`(${escaped})`, 'gi');
+      const parts = text.split(regex);
+      return parts.map((part, i) =>
+        part.toLowerCase() === trimmed.toLowerCase() ? (
+          <span
+            key={i}
+            className="bg-emerald-200 dark:bg-emerald-900/80 text-emerald-950 dark:text-emerald-100 font-bold px-0.5 rounded"
+          >
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      );
+    } catch {
+      return text;
+    }
+  };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -94,12 +123,12 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="text-base font-extrabold text-slate-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">
-              {customer.name}
+              {renderHighlightedText(customer.name, searchQuery)}
             </h3>
             {customer.phone && (
               <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 <Phone className="w-3.5 h-3.5 text-slate-400" />
-                <span>{customer.phone}</span>
+                <span>{renderHighlightedText(customer.phone, searchQuery)}</span>
               </div>
             )}
             {customer.address && (
