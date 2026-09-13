@@ -203,8 +203,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">আয় ও খরচ হিসাব (Income, Expenses & Sales)</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">দোকানে কত সেলস হলো আর কত খরচ হলো একনজরে দেখুন</p>
+            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">আয়, খরচ ও বেচাকেনা হিসাব (Income, Expenses & Sales)</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">দৈনিক কত খরচ হলো, কত টাকার মাল কেনা হলো ও কত বিক্রি হলো একনজরে দেখুন</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

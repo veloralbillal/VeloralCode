@@ -95,7 +95,7 @@ export default defineConfig(() => {
           ],
         },
         devOptions: {
-          enabled: true,
+          enabled: process.env.DISABLE_HMR !== 'true' && process.env.NODE_ENV === 'development',
           type: 'module',
         },
       }),

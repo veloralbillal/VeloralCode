@@ -6,9 +6,13 @@ import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  registerSW({
-    immediate: true,
-  });
+  try {
+    registerSW({
+      immediate: true,
+    });
+  } catch (e) {
+    console.debug('Service Worker registration skipped or failed:', e);
+  }
 }
 
 const rootEl = document.getElementById('root')!;

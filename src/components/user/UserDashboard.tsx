@@ -267,6 +267,57 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
         <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none hidden md:block bg-[radial-gradient(#818cf8_1px,transparent_1px)] [background-size:16px_16px]" />
       </div>
 
+      {/* Featured Apps Quick Ribbon */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          onClick={() => onNavigate('#/app/bakikhata')}
+          className="group relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-emerald-500/30 flex items-center justify-between"
+        >
+          <div className="space-y-1 relative z-10">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-emerald-200">
+              Featured Web App
+            </span>
+            <h3 className="text-lg font-black tracking-tight">বাকি খাতা ও হিসাব</h3>
+            <p className="text-xs text-emerald-100/90">দোকানের বাকি, ইনকাম ও ক্যাশ ম্যানেজার</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+            <TrendingUp className="w-6 h-6 text-emerald-200" />
+          </div>
+        </div>
+
+        <div
+          onClick={() => onNavigate('#/app/shortener')}
+          className="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-indigo-500/30 flex items-center justify-between"
+        >
+          <div className="space-y-1 relative z-10">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-indigo-200">
+              Monetization Tool
+            </span>
+            <h3 className="text-lg font-black tracking-tight">URL Shortener & Links</h3>
+            <p className="text-xs text-indigo-100/90">Shorten URLs and track engagement</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+            <Sparkles className="w-6 h-6 text-indigo-200" />
+          </div>
+        </div>
+
+        <div
+          onClick={() => onNavigate('#/events')}
+          className="group relative overflow-hidden bg-gradient-to-br from-amber-600 to-orange-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-amber-500/30 flex items-center justify-between sm:col-span-2 lg:col-span-1"
+        >
+          <div className="space-y-1 relative z-10">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-amber-200">
+              Community & Events
+            </span>
+            <h3 className="text-lg font-black tracking-tight">Workshops & Events</h3>
+            <p className="text-xs text-amber-100/90">Join live developer sessions & webinars</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+            <Terminal className="w-6 h-6 text-amber-200" />
+          </div>
+        </div>
+      </div>
+
       {/* Search & Filter Controls */}
       <div className="space-y-4">
         {/* Search Bar + Sort */}
