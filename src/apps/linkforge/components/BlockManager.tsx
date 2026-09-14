@@ -114,6 +114,20 @@ export const BlockManager: React.FC<BlockManagerProps> = ({ profile, onUpdate })
       desc: 'Urgency countdown timer for product drops & events',
       color: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
     },
+    {
+      type: 'PORTFOLIO_GRID',
+      label: 'Portfolio / Project Grid',
+      icon: Layers,
+      desc: 'Showcase work samples with image thumbnails & links',
+      color: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    },
+    {
+      type: 'TIP_JAR',
+      label: 'Buy Me a Coffee / Tip Jar',
+      icon: ShoppingBag,
+      desc: 'Interactive tipping widget with quick preset amounts',
+      color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    },
   ];
 
   const handleAddBlock = (e: React.FormEvent) => {

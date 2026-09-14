@@ -209,9 +209,45 @@ class LinkForgeService {
   private profiles: Profile[] = [];
   private domains: CustomDomainRecord[] = [];
   private users: UserAccount[] = [];
+  private channel: BroadcastChannel | null = null;
+  private listeners: (() => void)[] = [];
 
   constructor() {
     this.init();
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        this.channel = new BroadcastChannel('linkforge_realtime_sync_v1');
+        this.channel.onmessage = (event) => {
+          if (event.data && event.data.type === 'SYNC_DATA') {
+            this.init();
+            this.listeners.forEach((cb) => cb());
+          }
+        };
+      } catch {}
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key && e.key.startsWith('linkforge_')) {
+          this.init();
+          this.listeners.forEach((cb) => cb());
+        }
+      });
+    }
+  }
+
+  public subscribe(cb: () => void) {
+    this.listeners.push(cb);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== cb);
+    };
+  }
+
+  private broadcastChange() {
+    try {
+      if (this.channel) {
+        this.channel.postMessage({ type: 'SYNC_DATA', timestamp: Date.now() });
+      }
+    } catch {}
   }
 
   private init() {
@@ -250,18 +286,21 @@ class LinkForgeService {
   private saveProfiles() {
     try {
       localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(this.profiles));
+      this.broadcastChange();
     } catch {}
   }
 
   private saveDomains() {
     try {
       localStorage.setItem(STORAGE_KEY_DOMAINS, JSON.stringify(this.domains));
+      this.broadcastChange();
     } catch {}
   }
 
   private saveUsers() {
     try {
       localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(this.users));
+      this.broadcastChange();
     } catch {}
   }
 

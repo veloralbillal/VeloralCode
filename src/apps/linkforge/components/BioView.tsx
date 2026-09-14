@@ -63,6 +63,10 @@ export const BioView: React.FC<BioViewProps> = ({
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
+  // Tip Jar / Coffee state
+  const [selectedTipAmount, setSelectedTipAmount] = useState<number>(5);
+  const [tipSuccess, setTipSuccess] = useState(false);
+
   const handleLinkClick = (block: Block, e?: React.MouseEvent) => {
     linkForgeService.trackBlockClick(profile.username, block.id);
     if (onBlockClick) {
@@ -704,6 +708,114 @@ export const BioView: React.FC<BioViewProps> = ({
                         <div className="text-[9px] uppercase text-slate-400 font-bold">Secs</div>
                       </div>
                     </div>
+                  </div>
+                );
+
+              case 'PORTFOLIO_GRID':
+                return (
+                  <div key={block.id} className={`p-4 rounded-2xl border text-left ${theme.card} space-y-3`}>
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm">{block.title || 'Featured Work'}</h4>
+                        {block.subtitle && <p className="text-[11px] text-slate-400">{block.subtitle}</p>}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <a
+                        href={block.url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => handleLinkClick(block, e)}
+                        className="group relative rounded-xl overflow-hidden aspect-video bg-slate-900 border border-white/10 block hover:border-purple-500/50 transition"
+                      >
+                        <img
+                          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400"
+                          alt="Project 1"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent flex items-end p-2">
+                          <span className="text-[11px] font-bold text-white flex items-center gap-1">
+                            UI/UX Design <ExternalLink className="w-3 h-3 text-purple-400" />
+                          </span>
+                        </div>
+                      </a>
+                      <a
+                        href={block.url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => handleLinkClick(block, e)}
+                        className="group relative rounded-xl overflow-hidden aspect-video bg-slate-900 border border-white/10 block hover:border-purple-500/50 transition"
+                      >
+                        <img
+                          src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400"
+                          alt="Project 2"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent flex items-end p-2">
+                          <span className="text-[11px] font-bold text-white flex items-center gap-1">
+                            FullStack App <ExternalLink className="w-3 h-3 text-purple-400" />
+                          </span>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                );
+
+              case 'TIP_JAR':
+                return (
+                  <div key={block.id} className={`p-4 sm:p-5 rounded-2xl border text-left ${theme.card} space-y-3`}>
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-yellow-500/20 text-yellow-400">
+                        <ShoppingBag className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm">{block.title || 'Buy Me a Coffee ☕'}</h4>
+                        {block.subtitle && <p className="text-[11px] text-slate-400">{block.subtitle}</p>}
+                      </div>
+                    </div>
+
+                    {tipSuccess ? (
+                      <div className="p-3 rounded-xl bg-yellow-950/50 border border-yellow-500/40 text-center text-yellow-300 text-xs font-bold space-y-1">
+                        <p>☕ Thank you so much for the coffee!</p>
+                        <p className="text-[10px] text-yellow-400/80">Your support keeps this creator going.</p>
+                        <button
+                          onClick={() => setTipSuccess(false)}
+                          className="text-[10px] underline text-yellow-300 mt-1 cursor-pointer"
+                        >
+                          Send another tip
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-4 gap-2">
+                          {[3, 5, 10, 25].map((amt) => (
+                            <button
+                              key={amt}
+                              onClick={() => setSelectedTipAmount(amt)}
+                              className={`py-2 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                                selectedTipAmount === amt
+                                  ? 'bg-yellow-500 text-slate-955 border-yellow-400 shadow-md shadow-yellow-500/20'
+                                  : 'bg-black/30 text-white border-white/10 hover:border-yellow-500/50'
+                              }`}
+                            >
+                              ${amt}
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setTipSuccess(true);
+                            linkForgeService.trackBlockClick(profile.username, block.id);
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 font-black text-xs hover:opacity-95 transition shadow-lg shadow-yellow-500/20 cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <span>☕ Support ${selectedTipAmount}</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
 

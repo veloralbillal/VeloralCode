@@ -70,8 +70,12 @@ export const LinkForgeApp: React.FC<LinkForgeAppProps> = ({
   const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
-  // Auto-create 5-digit guest account on entry if none exists
+  // Auto-create 5-digit guest account on entry if none exists and subscribe to real-time sync
   useEffect(() => {
+    const unsubscribe = linkForgeService.subscribe(() => {
+      setProfiles(linkForgeService.getProfiles());
+    });
+
     const guestKey = 'linkforge_guest_active';
     const existingGuest = localStorage.getItem(guestKey);
     if (!existingGuest && !initialBioUsername) {
@@ -112,6 +116,10 @@ export const LinkForgeApp: React.FC<LinkForgeAppProps> = ({
       setProfiles(linkForgeService.getProfiles());
       setActiveUsername(guestUsername);
     }
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handlePublishClick = () => {

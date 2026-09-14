@@ -12,7 +12,9 @@ export type BlockType =
   | 'EMBED_GITHUB'
   | 'NEWSLETTER'
   | 'PRODUCT_CARD'
-  | 'COUNTDOWN';
+  | 'COUNTDOWN'
+  | 'PORTFOLIO_GRID'
+  | 'TIP_JAR';
 
 export interface SocialLinks {
   github?: string;
