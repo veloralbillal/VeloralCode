@@ -139,10 +139,10 @@ export const ProductListView: React.FC = () => {
 
             <button
               onClick={() => handleDeleteProduct(p.id)}
-              className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition opacity-0 group-hover:opacity-100 cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
               title="Delete Product"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4 text-rose-500" />
             </button>
           </div>
         ))}
