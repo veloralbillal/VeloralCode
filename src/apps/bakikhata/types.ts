@@ -37,6 +37,7 @@ export interface BakiTransaction {
   formattedDate?: string;
   isTuesdaySettlement?: boolean; // Tuesday weekly settlement
   createdBy?: string;
+  selectedProducts?: { name: string; price: number; quantity: number }[];
 }
 
 export interface BakiStats {

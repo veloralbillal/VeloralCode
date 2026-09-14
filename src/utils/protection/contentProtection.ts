@@ -4,6 +4,11 @@
  */
 
 export function initContentProtection(): () => void {
+  // If running in an iframe (e.g., AI Studio preview/canvas), bypass content protection
+  if (typeof window !== 'undefined' && window.self !== window.top) {
+    return () => {};
+  }
+
   // 1. Prevent context menu on protected UI (allows form inputs & code viewers)
   const handleContextMenu = (e: MouseEvent) => {
     const target = e.target as HTMLElement | null;

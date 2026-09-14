@@ -30,7 +30,12 @@ export const EventPopupManager: React.FC<EventPopupManagerProps> = ({ onNavigate
       });
 
       if (activePopup) {
-        const isDismissed = sessionStorage.getItem(`dismissed_popup_${activePopup.id}`);
+        let isDismissed = false;
+        try {
+          isDismissed = typeof window !== 'undefined' && sessionStorage.getItem(`dismissed_popup_${activePopup.id}`) === 'true';
+        } catch {
+          // sessionStorage blocked in privacy mode or restricted iframe
+        }
         if (!isDismissed) {
           setPopupEvent(activePopup);
           setIsOpen(true);

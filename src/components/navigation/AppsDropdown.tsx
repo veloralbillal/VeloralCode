@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, BookOpen, Calendar, Terminal, Sparkles, ArrowRight, Link2 } from 'lucide-react';
+import { ChevronDown, BookOpen, Calendar, Terminal, Sparkles, ArrowRight, Link2, Globe } from 'lucide-react';
 
 interface AppsDropdownProps {
   currentRoute: string;
@@ -24,6 +24,15 @@ export const AppsDropdown: React.FC<AppsDropdownProps> = ({ currentRoute, onNavi
 
   const appItems = [
     {
+      title: 'LinkForge Bio & Portfolio',
+      subtitle: 'Multi-tenant Link-in-Bio SaaS, custom domains & rich widgets',
+      route: '#/app/linkforge',
+      icon: Globe,
+      iconColor: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800',
+      tag: 'New SaaS',
+      tagColor: 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300',
+    },
+    {
       title: 'Baki Khata Ledger',
       subtitle: 'Digital store credit ledger, accounts & daily transactions',
       route: '#/app/bakikhata',
@@ -46,9 +55,9 @@ export const AppsDropdown: React.FC<AppsDropdownProps> = ({ currentRoute, onNavi
       subtitle: 'Special developer workshops, discounts & flash events',
       route: '#/events',
       icon: Calendar,
-      iconColor: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800',
+      iconColor: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800',
       tag: 'Active',
-      tagColor: 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300',
+      tagColor: 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300',
     },
   ];
 

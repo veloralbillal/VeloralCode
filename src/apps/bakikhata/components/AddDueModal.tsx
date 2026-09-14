@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Coffee, ShoppingBag, Smartphone, FileText, Check, Plus, Clock } from 'lucide-react';
+import { X, Coffee, ShoppingBag, Smartphone, FileText, Check, Plus, Clock, Tag } from 'lucide-react';
 import { Customer, BakiCategory, BkashType } from '../types';
+import { ShopProduct } from './ProductListView';
 
 interface AddDueModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ interface AddDueModalProps {
       amount: number;
       timestamp: number;
       note?: string;
+      selectedProducts?: { name: string; price: number; quantity: number }[];
     }
   ) => Promise<void>;
 }
@@ -49,6 +51,20 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
   );
   const [saving, setSaving] = useState(false);
 
+  // Product Catalog Selection State
+  const [storeProducts, setStoreProducts] = useState<ShopProduct[]>([]);
+  const [selectedProductMap, setSelectedProductMap] = useState<Record<string, number>>({}); // prodId -> quantity
+  const [showProductCatalog, setShowProductCatalog] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('bakikhata_store_products');
+      if (saved) {
+        setStoreProducts(JSON.parse(saved));
+      }
+    } catch {}
+  }, [isOpen]);
+
   useEffect(() => {
     if (preSelectedCustomer) {
       setSelectedCustId(preSelectedCustomer.id);
@@ -71,6 +87,34 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
 
   const currentCustomer = customers.find((c) => c.id === selectedCustId);
 
+  const handleProductQuantityChange = (prodId: string, delta: number) => {
+    setSelectedProductMap((prev) => {
+      const currentQty = prev[prodId] || 0;
+      const newQty = Math.max(0, currentQty + delta);
+      const updated = { ...prev };
+      if (newQty === 0) {
+        delete updated[prodId];
+      } else {
+        updated[prodId] = newQty;
+      }
+
+      // Automatically compute total amount and items summary
+      let total = 0;
+      const summaryParts: string[] = [];
+      Object.entries(updated).forEach(([id, qty]) => {
+        const p = storeProducts.find((x) => x.id === id);
+        if (p && qty > 0) {
+          total += p.price * qty;
+          summaryParts.push(`${qty}x ${p.name}`);
+        }
+      });
+
+      setAmount(total > 0 ? String(total) : '');
+      setItemsSummary(summaryParts.join(', '));
+      return updated;
+    });
+  };
+
   const handleQuickAddTag = (tag: string, cost: number) => {
     setItemsSummary((prev) => (prev ? `${prev}, ${tag}` : tag));
     if (cost > 0) {
@@ -86,6 +130,15 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
 
     const timestamp = useCurrentTime ? Date.now() : new Date(customDateTime).getTime();
 
+    // Compile selected products array
+    const selectedProductsList: { name: string; price: number; quantity: number }[] = [];
+    Object.entries(selectedProductMap).forEach(([id, qty]) => {
+      const p = storeProducts.find((x) => x.id === id);
+      if (p && qty > 0) {
+        selectedProductsList.push({ name: p.name, price: p.price, quantity: qty });
+      }
+    });
+
     setSaving(true);
     try {
       await onSaveDue(currentCustomer, {
@@ -96,6 +149,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
         amount: numAmount,
         timestamp,
         note: note.trim(),
+        selectedProducts: selectedProductsList,
       });
       onClose();
     } finally {
@@ -105,18 +159,18 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[75] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[95vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              Record Credit to Ledger
+            <h3 className="text-sm font-black text-slate-900 dark:text-white">
+              বাকি যোগ করুন (Record Credit Ledger)
             </h3>
-            <p className="text-[11px] text-slate-500">Grocery, Tea & Betel, or Bkash MFS</p>
+            <p className="text-[11px] text-slate-500">Select customer, pick products or add custom amount</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -136,7 +190,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 const c = customers.find((x) => x.id === e.target.value);
                 if (c?.phone) setMfsNumber(c.phone);
               }}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 font-medium"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
             >
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -155,7 +209,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
               <button
                 type="button"
                 onClick={() => setCategory('cha_pan')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition cursor-pointer ${
                   category === 'cha_pan'
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-bold'
                     : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -168,7 +222,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
               <button
                 type="button"
                 onClick={() => setCategory('mudi')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition cursor-pointer ${
                   category === 'mudi'
                     ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-500 text-amber-700 dark:text-amber-300 font-bold'
                     : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -181,20 +235,20 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
               <button
                 type="button"
                 onClick={() => setCategory('bkash')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition cursor-pointer ${
                   category === 'bkash'
                     ? 'bg-pink-50 dark:bg-pink-950/60 border-pink-500 text-pink-700 dark:text-pink-300 font-bold'
                     : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <Smartphone className="w-4 h-4 mb-1" />
-                <span className="text-[11px]">Bkash / Recharge</span>
+                <span className="text-[11px]">Bkash</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setCategory('other')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition cursor-pointer ${
                   category === 'other'
                     ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 text-indigo-700 dark:text-indigo-300 font-bold'
                     : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -206,112 +260,72 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
             </div>
           </div>
 
-          {/* Special bKash section */}
-          {category === 'bkash' && (
-            <div className="p-3.5 rounded-2xl bg-pink-500/10 border border-pink-500/30 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-pink-900 dark:text-pink-200 text-xs">
-                  Bkash MFS Type:
-                </span>
-              </div>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-                {[
-                  { id: 'recharge', label: 'Recharge' },
-                  { id: 'cash_out', label: 'Cash Out' },
-                  { id: 'cash_in', label: 'Cash In' },
-                  { id: 'send_money', label: 'Send Money' },
-                  { id: 'payment', label: 'Payment' },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => {
-                      setBkashType(t.id as BkashType);
-                      setItemsSummary(`Bkash ${t.label}`);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition ${
-                      bkashType === t.id
-                        ? 'bg-pink-600 text-white border-pink-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-pink-200 dark:border-pink-900/40'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Bkash / Mobile Number
-                </label>
-                <input
-                  type="tel"
-                  value={mfsNumber}
-                  onChange={(e) => setMfsNumber(e.target.value)}
-                  placeholder="01XXXXXXXXX"
-                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Quick tags according to category */}
-          {category === 'cha_pan' && (
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 mb-1.5 block">
-                Tea & Betel Shortcuts (Click to Add):
+          {/* Product Catalog Selection Toggle */}
+          <div className="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                <Tag className="w-4 h-4 text-indigo-600" /> Select Products from Store Catalog
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  { label: 'Milk Tea', cost: 10 },
-                  { label: 'Black Tea', cost: 6 },
-                  { label: 'Lemon Tea', cost: 7 },
-                  { label: 'Sweet Paan', cost: 10 },
-                  { label: 'Zarda Paan', cost: 10 },
-                  { label: 'Snacks/Smokes', cost: 15 },
-                  { label: 'Biscuits', cost: 10 },
-                ].map((tag) => (
-                  <button
-                    key={tag.label}
-                    type="button"
-                    onClick={() => handleQuickAddTag(`${tag.label} (৳${tag.cost})`, tag.cost)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 font-semibold text-[11px]"
-                  >
-                    + {tag.label} (৳{tag.cost})
-                  </button>
-                ))}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowProductCatalog(!showProductCatalog)}
+                className="px-3 py-1 rounded-xl bg-indigo-600 text-white text-[11px] font-bold shadow-xs hover:bg-indigo-500 transition cursor-pointer"
+              >
+                {showProductCatalog ? 'Hide Catalog' : 'Browse Products'}
+              </button>
             </div>
-          )}
 
-          {category === 'mudi' && (
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 mb-1.5 block">
-                Common Grocery Shortcuts:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  'Rice',
-                  'Soybean Oil',
-                  'Sugar 1kg',
-                  'Lentils 1kg',
-                  'Eggs 4pcs',
-                  'Salt 1 pack',
-                  'Flour 2kg',
-                  'Soap',
-                ].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => handleQuickAddTag(item, 0)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/60 text-slate-700 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-300 border border-slate-200 dark:border-slate-700 font-semibold text-[11px]"
-                  >
-                    + {item}
-                  </button>
-                ))}
+            {showProductCatalog && (
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {storeProducts.map((p) => {
+                  const qty = selectedProductMap[p.id] || 0;
+                  return (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+                    >
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">{p.name}</div>
+                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                          ৳{p.price} / {p.unit}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {qty > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleProductQuantityChange(p.id, -1)}
+                              className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold flex items-center justify-center cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="font-black text-sm">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleProductQuantityChange(p.id, 1)}
+                              className="w-6 h-6 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleProductQuantityChange(p.id, 1)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-100 transition cursor-pointer"
+                          >
+                            + Add
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Amount & Items details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -339,7 +353,7 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
                 type="text"
                 value={itemsSummary}
                 onChange={(e) => setItemsSummary(e.target.value)}
-                placeholder="e.g. 2 cups tea, 1 sweet paan"
+                placeholder="e.g. 2x Soybean Oil, 1x Sugar"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -395,14 +409,14 @@ export const AddDueModal: React.FC<AddDueModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
+              className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !Number(amount)}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
             >
               {saving ? 'Saving...' : 'Add Credit Record'}
             </button>

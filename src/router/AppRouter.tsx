@@ -10,17 +10,111 @@ import { SwUpdateNotification } from '../components/pwa/SwUpdateNotification';
 import { EventPopupManager } from '../components/events/EventPopupManager';
 import { GlobalAnnouncementBar } from '../components/common/GlobalAnnouncementBar';
 
-// Lazy-load sub-routes to avoid downloading hundreds of files on initial home page load
-const AdminRoutes = lazy(() => import('./AdminRoutes'));
-const SellerRoutes = lazy(() => import('./SellerRoutes'));
-const CreatorRoutes = lazy(() => import('./CreatorRoutes'));
-const AuthPage = lazy(() => import('../components/auth/AuthPage').then((m) => ({ default: m.AuthPage })));
-const CodeDetails = lazy(() => import('../components/user/CodeDetails').then((m) => ({ default: m.CodeDetails })));
-const UserProfileView = lazy(() => import('../components/user/UserProfile').then((m) => ({ default: m.UserProfileView })));
-const BakirKhataApp = lazy(() => import('../apps/bakikhata').then((m) => ({ default: m.BakirKhataApp })));
-const UrlShortenerApp = lazy(() => import('../apps/urlshortener').then((m) => ({ default: m.UrlShortenerApp })));
-const LinkRedirectHandler = lazy(() => import('../apps/urlshortener').then((m) => ({ default: m.LinkRedirectHandler })));
-const EventsPage = lazy(() => import('../components/events/EventsPage').then((m) => ({ default: m.EventsPage })));
+// Safe dynamic lazy loading with retry resilience to prevent module fetch drops
+function safeLazy<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>,
+  retries = 3,
+  delay = 500
+): React.LazyExoticComponent<T> {
+  return lazy(async () => {
+    let lastError: any;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await factory();
+      } catch (err: any) {
+        lastError = err;
+        const msg = String(err?.message || err);
+        const isDynamicImportErr =
+          msg.includes('Failed to fetch dynamically imported module') ||
+          msg.includes('dynamically imported') ||
+          msg.includes('Loading chunk') ||
+          err?.name === 'TypeError';
+
+        if (attempt < retries && isDynamicImportErr) {
+          console.warn(`Dynamic import retry (${attempt + 1}/${retries})...`);
+          await new Promise((r) => setTimeout(r, delay * Math.pow(1.5, attempt)));
+        } else if (!isDynamicImportErr) {
+          throw err;
+        }
+      }
+    }
+    throw lastError;
+  });
+}
+
+interface RouteErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface RouteErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class RouteErrorBoundary extends React.Component<RouteErrorBoundaryProps, RouteErrorBoundaryState> {
+  constructor(props: RouteErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): RouteErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error) {
+    console.warn('Route module load error caught by RouteErrorBoundary:', error);
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 flex items-center justify-center mx-auto text-xl font-bold">
+            !
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Unable to load module</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+              The application module was updated or connection delayed. Please tap retry to load.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={this.handleRetry}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-indigo-600/20 cursor-pointer"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer"
+            >
+              Refresh App
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Lazy-load sub-routes with automatic retry resilience
+const AdminRoutes = safeLazy(() => import('./AdminRoutes'));
+const SellerRoutes = safeLazy(() => import('./SellerRoutes'));
+const CreatorRoutes = safeLazy(() => import('./CreatorRoutes'));
+const AuthPage = safeLazy(() => import('../components/auth/AuthPage').then((m) => ({ default: m.AuthPage })));
+const CodeDetails = safeLazy(() => import('../components/user/CodeDetails').then((m) => ({ default: m.CodeDetails })));
+const UserProfileView = safeLazy(() => import('../components/user/UserProfile').then((m) => ({ default: m.UserProfileView })));
+const BakirKhataApp = safeLazy(() => import('../apps/bakikhata/BakirKhataApp').then((m) => ({ default: m.BakirKhataApp })));
+const UrlShortenerApp = safeLazy(() => import('../apps/urlshortener/UrlShortenerApp').then((m) => ({ default: m.UrlShortenerApp })));
+const LinkRedirectHandler = safeLazy(() => import('../apps/urlshortener/components/LinkRedirectHandler').then((m) => ({ default: m.LinkRedirectHandler })));
+const LinkForgeApp = safeLazy(() => import('../apps/linkforge/LinkForgeApp').then((m) => ({ default: m.LinkForgeApp })));
+const EventsPage = safeLazy(() => import('../components/events/EventsPage').then((m) => ({ default: m.EventsPage })));
 
 const RouteLoadingFallback = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-3 text-center">
@@ -58,18 +152,28 @@ export const AppRouter: React.FC = () => {
         return '#/app/shortener';
       }
 
-      // 2c. Direct Short URL redirect paths: /r/:slug or /s/:slug
+      // 2c. Direct LinkForge Bio & Portfolio paths: /app/linkforge or /linkforge
+      if (path === '/app/linkforge' || path.startsWith('/app/linkforge') || path === '/linkforge' || path.startsWith('/linkforge')) {
+        return '#/app/linkforge';
+      }
+
+      // 2d. Direct public bio paths: /bio/:username or /@:username
+      if (path.startsWith('/bio/') || path.startsWith('/@')) {
+        return `#${path}`;
+      }
+
+      // 2e. Direct Short URL redirect paths: /r/:slug or /s/:slug
       if (path.startsWith('/r/') || path.startsWith('/s/')) {
         const slug = path.replace(/^\/(r|s)\//, '').split('?')[0];
         if (slug) return `#/r/${slug}`;
       }
 
-      // 2d. Clean direct domain slug (e.g. domain/random-code)
+      // 2f. Clean direct domain slug (e.g. domain/random-code)
       if (path && path.length > 1 && path.startsWith('/') && !path.includes('.')) {
         const potentialSlug = path.substring(1).split('/')[0].split('?')[0];
         const reserved = [
           'admin', 'app', 'profile', 'creator', 'events', 'explore', 'codes',
-          'seller', 'login', 'register', 'r', 's', 'api', 'bakikhata', 'shortener'
+          'seller', 'login', 'register', 'r', 's', 'api', 'bakikhata', 'shortener', 'linkforge', 'bio'
         ];
         if (potentialSlug && !reserved.includes(potentialSlug.toLowerCase())) {
           return `#/r/${potentialSlug}`;
@@ -179,6 +283,28 @@ export const AppRouter: React.FC = () => {
       );
     }
 
+    // LinkForge Bio & Portfolio SaaS Sub-App & Public Profiles
+    if (
+      hash === '#/app/linkforge' ||
+      hash.startsWith('#/app/linkforge') ||
+      hash === '#/linkforge' ||
+      hash.startsWith('#/linkforge') ||
+      hash.startsWith('#/bio/') ||
+      hash.startsWith('#/@')
+    ) {
+      let initialBioUsername: string | undefined = undefined;
+      if (hash.startsWith('#/bio/')) {
+        initialBioUsername = hash.replace('#/bio/', '').split('?')[0];
+      } else if (hash.startsWith('#/@')) {
+        initialBioUsername = hash.replace('#/@', '').split('?')[0];
+      }
+      return (
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <LinkForgeApp onNavigate={navigate} initialBioUsername={initialBioUsername} />
+        </Suspense>
+      );
+    }
+
     // Short URL Redirect Handler: #/r/:slug or #/s/:slug
     if (hash.startsWith('#/r/') || hash.startsWith('#/s/')) {
       const slug = hash.replace(/^#\/(r|s)\//, '').split('?')[0];
@@ -194,7 +320,7 @@ export const AppRouter: React.FC = () => {
       const candidateSlug = hash.replace(/^#\//, '').split('?')[0].split('/')[0];
       const reserved = [
         'admin', 'app', 'profile', 'creator', 'events', 'explore', 'codes',
-        'seller', 'login', 'register', 'code', 'view', 'api', 'bakikhata', 'shortener'
+        'seller', 'login', 'register', 'code', 'view', 'api', 'bakikhata', 'shortener', 'linkforge', 'bio'
       ];
       if (candidateSlug && !reserved.includes(candidateSlug.toLowerCase())) {
         return (
@@ -330,7 +456,22 @@ export const AppRouter: React.FC = () => {
   const isUrlShortenerRoute = currentRoute.startsWith('#/app/shortener') || currentRoute.startsWith('#/app/urlshortener');
   const isLinkRedirectRoute = currentRoute.startsWith('#/r/') || currentRoute.startsWith('#/s/');
 
-  const hideGlobalLayout = isAdminRoute || isSellerRoute || isCreatorRoute || isToolRunnerRoute || isUserProfileRoute || isBakirKhataRoute || isUrlShortenerRoute || isLinkRedirectRoute;
+  const isLinkForgeRoute =
+    currentRoute.startsWith('#/app/linkforge') ||
+    currentRoute.startsWith('#/linkforge') ||
+    currentRoute.startsWith('#/bio/') ||
+    currentRoute.startsWith('#/@');
+
+  const hideGlobalLayout =
+    isAdminRoute ||
+    isSellerRoute ||
+    isCreatorRoute ||
+    isToolRunnerRoute ||
+    isUserProfileRoute ||
+    isBakirKhataRoute ||
+    isUrlShortenerRoute ||
+    isLinkRedirectRoute ||
+    isLinkForgeRoute;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-150">
@@ -344,7 +485,13 @@ export const AppRouter: React.FC = () => {
         />
       )}
 
-      <div className="flex-1">{renderContent()}</div>
+      <div className="flex-1">
+        <RouteErrorBoundary>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            {renderContent()}
+          </Suspense>
+        </RouteErrorBoundary>
+      </div>
 
       {!hideGlobalLayout && (
         <Footer

@@ -11,6 +11,7 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -86,7 +87,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({
             'success'
           );
 
-          // Direct immediate navigation to the correct portal without any intermediate delay or screen jump
           if (result.isAdmin) {
             onNavigate('#/admin');
           } else if (result.isSeller || result.userRole === 'seller') {
@@ -137,20 +137,25 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Card Container */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background Glowing Orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/15 dark:bg-indigo-600/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-cyan-500/15 dark:bg-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-300">
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/80 rounded-[28px] p-6 sm:p-8 shadow-2xl shadow-indigo-500/10 dark:shadow-none space-y-6">
           
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mb-1">
+            <div className="inline-flex p-3.5 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white shadow-lg shadow-indigo-500/30 mb-1">
               {mode === 'login' && <LogIn className="w-6 h-6" />}
               {mode === 'register' && <UserPlus className="w-6 h-6" />}
               {mode === 'forgot' && <KeyRound className="w-6 h-6" />}
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               {mode === 'login' && 'Sign In to CodeToolkit'}
               {mode === 'register' && 'Create your account'}
               {mode === 'forgot' && 'Reset your password'}
@@ -165,14 +170,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({
 
           {/* Alert Messages */}
           {errorMsg && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-medium text-rose-700 dark:text-rose-300 flex items-start gap-2.5 animate-in fade-in duration-150">
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-medium text-rose-700 dark:text-rose-300 flex items-start gap-2.5 animate-in fade-in">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span className="leading-snug">{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs font-medium text-emerald-700 dark:text-emerald-300 flex items-start gap-2.5 animate-in fade-in duration-150">
+            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs font-medium text-emerald-700 dark:text-emerald-300 flex items-start gap-2.5 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <span className="leading-snug">{successMsg}</span>
             </div>
@@ -226,7 +231,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setMode('forgot')}
-                      className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                      className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                     >
                       Forgot password?
                     </button>
@@ -245,7 +250,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -257,12 +262,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              className="w-full py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98]"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
+                  <Zap className="w-4 h-4" />
                   <span>
                     {mode === 'login' && 'Sign In'}
                     {mode === 'register' && 'Create Account'}
@@ -281,7 +287,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 Don't have an account?{' '}
                 <button
                   onClick={() => setMode('register')}
-                  className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
                   Register here
                 </button>
@@ -293,7 +299,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 Already registered?{' '}
                 <button
                   onClick={() => setMode('login')}
-                  className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
                   Sign in here
                 </button>
@@ -305,7 +311,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 Remembered your credentials?{' '}
                 <button
                   onClick={() => setMode('login')}
-                  className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                 >
                   Back to Sign in
                 </button>

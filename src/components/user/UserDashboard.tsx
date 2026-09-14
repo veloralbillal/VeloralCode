@@ -15,6 +15,9 @@ import {
   Bookmark,
   Shield,
   Coins,
+  Globe,
+  ArrowRight,
+  Zap,
 } from 'lucide-react';
 import { CodeItem, SupportedLanguage } from '../../types';
 import { subscribeToPublishedCodes } from '../../services/codeService';
@@ -132,6 +135,57 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
       {/* Live Slider Banners Carousel */}
       <SliderBanner onNavigate={onNavigate} />
 
+      {/* Quick App Shortcuts Dock */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
+          <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <Zap className="w-4 h-4" />
+          </div>
+          <span>Quick Apps & Shortcuts (অ্যাপ শর্টকাট):</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={() => onNavigate('#/app/linkforge')}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 sm:py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all shrink-0 cursor-pointer active:scale-95"
+            title="Open LinkForge Link-in-Bio SaaS"
+          >
+            <Globe className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">LinkForge Bio</span>
+            <span className="hidden sm:inline-block px-1.5 py-0.2 rounded-full bg-white/20 text-[9px] font-black uppercase">
+              SaaS
+            </span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('#/app/bakikhata')}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 sm:py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all shrink-0 cursor-pointer active:scale-95"
+            title="Open Baki Khata Ledger"
+          >
+            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">বাকি খাতা</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('#/app/shortener')}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 sm:py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all shrink-0 cursor-pointer active:scale-95"
+            title="Open URL Shortener & Ads"
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">URL Shortener</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('#/events')}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2.5 sm:py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all shrink-0 cursor-pointer active:scale-95"
+            title="Explore Developer Events"
+          >
+            <Terminal className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Events</span>
+          </button>
+        </div>
+      </div>
+
       {/* Logged-in User Quick Dashboard Hub */}
       {currentUser && (
         <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border border-indigo-500/30 shadow-xl text-white">
@@ -247,14 +301,34 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
+            <button
+              onClick={() => onNavigate('#/app/linkforge')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-500/30 active:scale-95 cursor-pointer"
+            >
+              <Globe className="w-4 h-4" />
+              <span>Launch LinkForge Bio</span>
+              <span className="px-1.5 py-0.2 rounded-md bg-white/20 text-white text-[9px] uppercase font-black">
+                New SaaS
+              </span>
+            </button>
+
+            <button
+              onClick={() => onNavigate('#/app/bakikhata')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30 active:scale-95 cursor-pointer"
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>বাকি খাতা</span>
+            </button>
+
             <div className="flex items-center gap-2 text-xs text-indigo-200 bg-indigo-900/50 px-3.5 py-2 rounded-xl border border-indigo-700/40">
               <FolderCode className="w-4 h-4 text-cyan-400" />
               <span>{codes.length} Published Snippets</span>
             </div>
+
             {isAdmin && (
               <button
                 onClick={() => onNavigate('#/admin/add')}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/30"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-white text-xs font-bold transition-all border border-slate-600/60"
               >
                 <PlusCircle className="w-4 h-4" />
                 Add New Code
@@ -268,52 +342,122 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onOpenCode, onNavi
       </div>
 
       {/* Featured Apps Quick Ribbon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div
-          onClick={() => onNavigate('#/app/bakikhata')}
-          className="group relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-emerald-500/30 flex items-center justify-between"
-        >
-          <div className="space-y-1 relative z-10">
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-emerald-200">
-              Featured Web App
-            </span>
-            <h3 className="text-lg font-black tracking-tight">বাকি খাতা ও হিসাব</h3>
-            <p className="text-xs text-emerald-100/90">দোকানের বাকি, ইনকাম ও ক্যাশ ম্যানেজার</p>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-500" />
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Veloralcode Apps & Shortcuts (অ্যাপ শর্টকাট)
+            </h2>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
-            <TrendingUp className="w-6 h-6 text-emerald-200" />
-          </div>
+          <span className="text-xs text-slate-400 font-medium hidden sm:inline-block">
+            Click any shortcut to launch instantly
+          </span>
         </div>
 
-        <div
-          onClick={() => onNavigate('#/app/shortener')}
-          className="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-indigo-500/30 flex items-center justify-between"
-        >
-          <div className="space-y-1 relative z-10">
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-indigo-200">
-              Monetization Tool
-            </span>
-            <h3 className="text-lg font-black tracking-tight">URL Shortener & Links</h3>
-            <p className="text-xs text-indigo-100/90">Shorten URLs and track engagement</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
-            <Sparkles className="w-6 h-6 text-indigo-200" />
-          </div>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* LinkForge SaaS Card */}
+          <div
+            onClick={() => onNavigate('#/app/linkforge')}
+            className="group relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-900 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all border border-indigo-500/40 flex flex-col justify-between min-h-[140px]"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/25 text-indigo-200 border border-indigo-400/20">
+                  New SaaS Platform
+                </span>
+                <h3 className="text-lg font-black tracking-tight">LinkForge Bio</h3>
+                <p className="text-xs text-indigo-100/90">Portfolio & custom domain builder</p>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+                <Globe className="w-5 h-5 text-white" />
+              </div>
+            </div>
 
-        <div
-          onClick={() => onNavigate('#/events')}
-          className="group relative overflow-hidden bg-gradient-to-br from-amber-600 to-orange-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all border border-amber-500/30 flex items-center justify-between sm:col-span-2 lg:col-span-1"
-        >
-          <div className="space-y-1 relative z-10">
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-amber-200">
-              Community & Events
-            </span>
-            <h3 className="text-lg font-black tracking-tight">Workshops & Events</h3>
-            <p className="text-xs text-amber-100/90">Join live developer sessions & webinars</p>
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs font-bold">
+              <span className="text-indigo-200 text-[11px]">bio.linkforge.app</span>
+              <span className="flex items-center gap-1 text-white group-hover:translate-x-1 transition-transform">
+                Open App <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
-            <Terminal className="w-6 h-6 text-amber-200" />
+
+          {/* Baki Khata Card */}
+          <div
+            onClick={() => onNavigate('#/app/bakikhata')}
+            className="group relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all border border-emerald-500/30 flex flex-col justify-between min-h-[140px]"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-emerald-200">
+                  Featured Web App
+                </span>
+                <h3 className="text-lg font-black tracking-tight">বাকি খাতা ও হিসাব</h3>
+                <p className="text-xs text-emerald-100/90">দোকানের বাকি, ইনকাম ও ক্যাশ ম্যানেজার</p>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs font-bold">
+              <span className="text-emerald-200 text-[11px]">Daily Store Ledger</span>
+              <span className="flex items-center gap-1 text-white group-hover:translate-x-1 transition-transform">
+                Open App <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+
+          {/* URL Shortener Card */}
+          <div
+            onClick={() => onNavigate('#/app/shortener')}
+            className="group relative overflow-hidden bg-gradient-to-br from-violet-600 to-purple-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all border border-violet-500/30 flex flex-col justify-between min-h-[140px]"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-violet-200">
+                  Monetization Tool
+                </span>
+                <h3 className="text-lg font-black tracking-tight">URL Shortener & Ads</h3>
+                <p className="text-xs text-violet-100/90">Shorten URLs and track engagement</p>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs font-bold">
+              <span className="text-violet-200 text-[11px]">Links & Interstitials</span>
+              <span className="flex items-center gap-1 text-white group-hover:translate-x-1 transition-transform">
+                Open App <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+
+          {/* Events Card */}
+          <div
+            onClick={() => onNavigate('#/events')}
+            className="group relative overflow-hidden bg-gradient-to-br from-amber-600 to-orange-800 text-white p-5 rounded-3xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all border border-amber-500/30 flex flex-col justify-between min-h-[140px]"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-black/20 text-amber-200">
+                  Community & Events
+                </span>
+                <h3 className="text-lg font-black tracking-tight">Workshops & Events</h3>
+                <p className="text-xs text-amber-100/90">Join live developer sessions & webinars</p>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-md shrink-0 group-hover:rotate-12 transition-transform">
+                <Terminal className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs font-bold">
+              <span className="text-amber-200 text-[11px]">Live Masterclasses</span>
+              <span className="flex items-center gap-1 text-white group-hover:translate-x-1 transition-transform">
+                Open App <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
           </div>
         </div>
       </div>

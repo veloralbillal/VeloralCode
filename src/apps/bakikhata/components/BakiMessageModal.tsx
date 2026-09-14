@@ -31,7 +31,7 @@ interface BakiMessageModalProps {
 export const BakiMessageModal: React.FC<BakiMessageModalProps> = ({
   isOpen,
   customer,
-  transactions,
+  transactions = [],
   currentUser,
   initialType = 'whatsapp',
   onClose,

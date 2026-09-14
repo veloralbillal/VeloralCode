@@ -4,6 +4,11 @@
  */
 
 export function initScreenProtection(): () => void {
+  // If running in an iframe (e.g., AI Studio preview/canvas), bypass aggressive zoom lock
+  if (typeof window !== 'undefined' && window.self !== window.top) {
+    return () => {};
+  }
+
   // 1. Enforce strict viewport constraints
   let meta = document.querySelector('meta[name="viewport"]');
   if (!meta) {

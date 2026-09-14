@@ -18,6 +18,7 @@ import {
   Sun,
   Code2,
   Link2,
+  Globe,
 } from 'lucide-react';
 import { useSiteConfig } from '../../context/SiteConfigContext';
 
@@ -197,6 +198,23 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
             <span className="px-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
               Apps & Utilities
             </span>
+            <button
+              onClick={() => navTo('#/app/linkforge')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition border ${
+                currentRoute.startsWith('#/app/linkforge')
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
+                  : 'bg-indigo-950/40 border-indigo-800/60 text-indigo-300 hover:bg-indigo-900/50'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Globe className="w-4 h-4 text-indigo-400 shrink-0" />
+                <span>LinkForge Bio & SaaS</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-indigo-500 text-white">
+                New
+              </span>
+            </button>
+
             <button
               onClick={() => navTo('#/app/bakikhata')}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition border ${

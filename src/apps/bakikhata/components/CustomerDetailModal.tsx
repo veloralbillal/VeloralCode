@@ -16,6 +16,8 @@ import {
   PhoneCall,
   MessageSquare,
   History,
+  Tag,
+  Check,
 } from 'lucide-react';
 import { Customer, BakiTransaction, CallingLog } from '../types';
 import { formatTaka, formatDateTime } from '../utils/bakiUtils';
@@ -51,6 +53,9 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   const [custCallingLogs, setCustCallingLogs] = useState<CallingLog[]>([]);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [messageModalType, setMessageModalType] = useState<'whatsapp' | 'sms'>('whatsapp');
+
+  // Selected Transaction for Itemized Receipt Popup
+  const [selectedTxForPopup, setSelectedTxForPopup] = useState<BakiTransaction | null>(null);
 
   useEffect(() => {
     if (isOpen && customer) {
@@ -162,105 +167,95 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 backdrop-blur-xs">
       <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-black flex items-center justify-center shadow-md shadow-emerald-600/20 text-base">
-                {customer.name[0]}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                    {customer.name}
-                  </h3>
-                  {customer.settlesOnTuesday && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
-                      Tuesday Settlement
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500">
-                  {customer.phone || 'No phone number'} {customer.address ? `• ${customer.address}` : ''}
-                </p>
+        <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black text-lg shadow-md shadow-emerald-500/30">
+              {customer.name.charAt(0)}
+            </div>
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
+                {customer.name}
+              </h3>
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
+                <span>{customer.phone || 'No Phone'}</span>
+                {customer.address && <span>• {customer.address}</span>}
               </div>
             </div>
-
-            <button
-              onClick={onClose}
-              title="Close modal (বন্ধ করুন / ক্রস)"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition font-bold text-xs shadow-sm border border-slate-200 dark:border-slate-700 cursor-pointer"
-            >
-              <X className="w-4 h-4 text-rose-500" />
-              <span>বন্ধ করুন</span>
-            </button>
           </div>
 
-          {/* Action Toolbar */}
-          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {customer.phone && (
-                <button
-                  onClick={handleDirectCall}
-                  title="Direct Call"
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition shadow-sm cursor-pointer"
-                >
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  <span>কল করুন</span>
-                </button>
-              )}
-              {customer.phone && (
-                <button
-                  onClick={handleDailyMealInquiry}
-                  title="WhatsApp"
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 transition border border-emerald-200/60 dark:border-emerald-800 cursor-pointer"
-                >
-                  <span>🍽️</span>
-                  <span>WhatsApp</span>
-                </button>
-              )}
-              {customer.phone && (
-                <button
-                  onClick={handleDirectSms}
-                  title="SMS"
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 transition border border-sky-200/60 dark:border-sky-800 cursor-pointer"
-                >
-                  <span>📱</span>
-                  <span>SMS</span>
-                </button>
-              )}
-            </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-2xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-            <div className="flex items-center gap-1.5">
+        {/* Action Toolbar */}
+        <div className="px-6 py-3 flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {customer.phone && (
               <button
-                onClick={() => onEditCustomer(customer)}
-                title="Edit Customer"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 transition border border-amber-200/60 dark:border-amber-800 cursor-pointer"
+                onClick={handleDirectCall}
+                title="Direct Call"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition shadow-xs cursor-pointer"
               >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Edit</span>
+                <PhoneCall className="w-3.5 h-3.5" />
+                <span>কল করুন</span>
               </button>
+            )}
+            {customer.phone && (
+              <button
+                onClick={handleDailyMealInquiry}
+                title="WhatsApp"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 transition border border-emerald-200/60 dark:border-emerald-800 cursor-pointer"
+              >
+                <span>🍽️</span>
+                <span>WhatsApp</span>
+              </button>
+            )}
+            {customer.phone && (
+              <button
+                onClick={handleDirectSms}
+                title="SMS"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 transition border border-sky-200/60 dark:border-sky-800 cursor-pointer"
+              >
+                <span>📱</span>
+                <span>SMS</span>
+              </button>
+            )}
+          </div>
 
-              <button
-                onClick={() => onDeleteCustomer(customer)}
-                title="Delete Customer (কাস্টমার মুছুন)"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>কাস্টমার মুছুন</span>
-              </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => onEditCustomer(customer)}
+              title="Edit Customer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 transition border border-amber-200/60 dark:border-amber-800 cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Edit</span>
+            </button>
 
-              <button
-                onClick={handlePrint}
-                title="Print Statement"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition border border-slate-200 dark:border-slate-700 cursor-pointer"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print</span>
-              </button>
-            </div>
+            <button
+              onClick={() => onDeleteCustomer(customer)}
+              title="Delete Customer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>মুছুন</span>
+            </button>
+
+            <button
+              onClick={handlePrint}
+              title="Print Statement"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition border border-slate-200 dark:border-slate-700 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print</span>
+            </button>
           </div>
         </div>
 
@@ -284,14 +279,14 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onOpenAddDue(liveCustomer)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 transition border border-rose-200/60 dark:border-rose-800 cursor-pointer shadow-xs"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Add Due</span>
             </button>
             <button
               onClick={() => onOpenPayment(liveCustomer)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition border border-emerald-200/60 dark:border-emerald-800 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 transition border border-emerald-200/60 dark:border-emerald-800 cursor-pointer shadow-xs"
             >
               <CheckCircle className="w-3.5 h-3.5" />
               <span>Collect Payment</span>
@@ -299,7 +294,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Switcher: Transactions vs Calling Logs */}
+        {/* Tab Switcher */}
         <div className="flex border-b border-slate-100 dark:border-slate-800 px-6 pt-3 bg-white dark:bg-slate-900 gap-4 shrink-0">
           <button
             type="button"
@@ -332,12 +327,16 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           {activeTab === 'transactions' ? (
             custTransactions.length > 0 ? (
               <div className="space-y-2.5">
+                <p className="text-[11px] text-slate-400 font-bold mb-1">
+                  💡 যে কোনো ডিউ বা লেনদেনের উপর ক্লিক করে কি কি মাল কেনা হয়েছিল তা পপআপে দেখুন:
+                </p>
                 {custTransactions.map((tx) => {
                   const isDue = tx.type === 'due';
                   return (
                     <div
                       key={tx.id}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-start justify-between gap-3 shadow-2xs"
+                      onClick={() => setSelectedTxForPopup(tx)}
+                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-start justify-between gap-3 shadow-2xs hover:border-emerald-500/60 transition cursor-pointer group"
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -352,12 +351,12 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-slate-900 dark:text-white">
+                            <span className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-emerald-600 transition">
                               {tx.itemsSummary}
                             </span>
-                            {tx.isTuesdaySettlement && (
-                              <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-extrabold">
-                                Tuesday Settlement
+                            {tx.selectedProducts && tx.selectedProducts.length > 0 && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold">
+                                {tx.selectedProducts.length} items
                               </span>
                             )}
                           </div>
@@ -448,27 +447,112 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 text-slate-400 text-xs space-y-2">
-                <PhoneCall className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
-                <p>এই কাস্টমারকে এখনও কোনো কল বা মেসেজ দেওয়া হয়নি।</p>
-                <p className="text-[11px] text-slate-400">
-                  উপরে "কল করুন", "WhatsApp" বা "SMS" এ চাপলে স্বয়ংক্রিয়ভাবে ডাটাবেজে রেকর্ড হয়ে যাবে।
-                </p>
+              <div className="text-center py-10 text-slate-400 text-xs">
+                কোনো কল বা নোটিফিকেশন লগ পাওয়া যায়নি।
               </div>
             )
           )}
         </div>
-      </div>
 
-      <BakiMessageModal
-        isOpen={messageModalOpen}
-        customer={liveCustomer}
-        transactions={custTransactions}
-        currentUser={currentUser}
-        initialType={messageModalType}
-        onClose={() => setMessageModalOpen(false)}
-        onLogSaved={(newLog) => setCustCallingLogs((prev) => [newLog, ...prev])}
-      />
+        {/* Itemized Transaction Details Popup / Modal */}
+        {selectedTxForPopup && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div>
+                  <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                    🛒 লেনদেনের বিস্তারিত রসিদ (Items Purchased)
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    {formatDateTime(selectedTxForPopup.timestamp)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedTxForPopup(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                  <span className="font-bold text-slate-600 dark:text-slate-300">কাস্টমার নাম:</span>
+                  <span className="font-black text-slate-900 dark:text-white">{selectedTxForPopup.customerName}</span>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                  <span className="font-bold text-slate-600 dark:text-slate-300 block mb-1">সংক্ষিপ্ত বিবরণ (Summary):</span>
+                  <div className="font-medium text-slate-900 dark:text-white bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                    {selectedTxForPopup.itemsSummary}
+                  </div>
+                </div>
+
+                {/* If selectedProducts exist, render itemized list */}
+                {selectedTxForPopup.selectedProducts && selectedTxForPopup.selectedProducts.length > 0 ? (
+                  <div className="space-y-1.5">
+                    <span className="font-bold text-slate-700 dark:text-slate-300 block">কিকি মাল নেওয়া হয়েছিল (Itemized List):</span>
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {selectedTxForPopup.selectedProducts.map((prod, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-md bg-emerald-500/10 text-emerald-600 font-bold flex items-center justify-center text-[10px]">
+                              {prod.quantity}x
+                            </span>
+                            <span className="font-bold text-slate-900 dark:text-white">{prod.name}</span>
+                          </div>
+                          <span className="font-black font-mono text-emerald-600 dark:text-emerald-400">
+                            {formatTaka(prod.price * prod.quantity)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium text-center">
+                    এই লেনদেনে সরাসরি নোট বা পরিমাণ যুক্ত করা হয়েছিল।
+                  </div>
+                )}
+
+                {selectedTxForPopup.note && (
+                  <div className="text-[11px] text-slate-500 italic">
+                    বিশেষ নোট: {selectedTxForPopup.note}
+                  </div>
+                )}
+
+                <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 font-black text-sm">
+                  <span>মোট পরিমাণ:</span>
+                  <span className={selectedTxForPopup.type === 'due' ? 'text-rose-600' : 'text-emerald-600'}>
+                    {formatTaka(selectedTxForPopup.amount)} ({selectedTxForPopup.type === 'due' ? 'Due' : 'Payment'})
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedTxForPopup(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs cursor-pointer"
+                >
+                  বন্ধ করুন
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* WhatsApp/SMS message modal */}
+        <BakiMessageModal
+          isOpen={messageModalOpen}
+          customer={customer}
+          transactions={custTransactions}
+          initialType={messageModalType}
+          onClose={() => setMessageModalOpen(false)}
+        />
+      </div>
     </div>
   );
 };

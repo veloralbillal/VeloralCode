@@ -54,6 +54,7 @@ import { ShopExpense, ShopSale } from './types';
 import { subscribeShopExpenses, addShopExpenseToDb, deleteShopExpenseFromDb, getLocalExpenses } from './services/expenseStorageService';
 import { subscribeShopSales, addShopSaleToDb, deleteShopSaleFromDb } from './services/saleStorageService';
 import { IncomeExpenseSectionView } from './components/IncomeExpenseSectionView';
+import { ProductListView } from './components/ProductListView';
 
 interface BakirKhataAppProps {
   onBackToApp?: () => void;
@@ -64,7 +65,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'khata' | 'bkash' | 'recharge' | 'income_expense'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'khata' | 'bkash' | 'recharge' | 'income_expense' | 'products'>('home');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<BakiTransaction[]>([]);
@@ -388,6 +389,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
       amount: number;
       timestamp: number;
       note?: string;
+      selectedProducts?: { name: string; price: number; quantity: number }[];
     }
   ) => {
     try {
@@ -403,6 +405,7 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
         amount: data.amount,
         timestamp: data.timestamp,
         note: data.note,
+        selectedProducts: data.selectedProducts,
       });
 
       // If category is bkash, also reflect in Bkash Fund
@@ -706,6 +709,8 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
               }}
             />
           </>
+        ) : activeTab === 'products' ? (
+          <ProductListView />
         ) : activeTab === 'bkash' ? (
           <BkashSectionView
             fund={bkashFund}
@@ -862,3 +867,6 @@ export const BakirKhataApp: React.FC<BakirKhataAppProps> = ({ onBackToApp }) => 
     </div>
   );
 };
+
+export default BakirKhataApp;
+

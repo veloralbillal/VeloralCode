@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Shield, Coins, Sparkles, User, Calendar } from 'lucide-react';
+import { LayoutDashboard, Shield, Coins, Sparkles, User, Calendar, Globe } from 'lucide-react';
 import { AppsDropdown } from './AppsDropdown';
 
 interface DesktopNavProps {
@@ -38,6 +38,22 @@ export const DesktopNav: React.FC<DesktopNavProps> = ({
 
       {/* Enhanced Apps Dropdown */}
       <AppsDropdown currentRoute={currentRoute} onNavigate={onNavigate} />
+
+      {/* LinkForge Bio Quick Shortcut */}
+      <button
+        onClick={() => onNavigate('#/app/linkforge')}
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+          currentRoute.startsWith('#/app/linkforge')
+            ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/50 font-semibold shadow-2xs'
+            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+        }`}
+      >
+        <Globe className="w-4 h-4 text-indigo-500" />
+        <span>LinkForge</span>
+        <span className="px-1.5 py-0.5 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase">
+          New
+        </span>
+      </button>
 
       {/* Events */}
       <button

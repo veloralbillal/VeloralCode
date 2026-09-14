@@ -5,10 +5,14 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+// Only register service worker in top-level window outside of iframes
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.self === window.top) {
   try {
     registerSW({
       immediate: true,
+      onRegisterError(error) {
+        console.debug('Service Worker registration error (safe to ignore):', error);
+      },
     });
   } catch (e) {
     console.debug('Service Worker registration skipped or failed:', e);

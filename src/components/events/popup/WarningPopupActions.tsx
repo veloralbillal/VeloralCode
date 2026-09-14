@@ -19,7 +19,11 @@ export const WarningPopupActions: React.FC<WarningPopupActionsProps> = ({
 
   const handleDismiss = () => {
     if (dontShowSession && !previewMode) {
-      sessionStorage.setItem(`dismissed_popup_${event.id}`, 'true');
+      try {
+        sessionStorage.setItem(`dismissed_popup_${event.id}`, 'true');
+      } catch {
+        // Storage access might be denied in sandboxed iframe
+      }
     }
     onClose();
   };

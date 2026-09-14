@@ -277,7 +277,11 @@ export const CodeDetails: React.FC<CodeDetailsProps> = ({ codeId, onBack, onNavi
           onClose={() => setRemixModalOpen(false)}
           onConfirmRemix={(codeToRemix) => {
             setRemixModalOpen(false);
-            sessionStorage.setItem('remix_base_tool', JSON.stringify(codeToRemix));
+            try {
+              sessionStorage.setItem('remix_base_tool', JSON.stringify(codeToRemix));
+            } catch {
+              // Ignore sessionStorage error in sandboxed environment
+            }
             onNavigate('#/creator/upload');
           }}
         />

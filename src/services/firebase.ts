@@ -13,7 +13,7 @@ export const firebaseConfig = {
   storageBucket: rawConfig.storageBucket,
   messagingSenderId: rawConfig.messagingSenderId,
   appId: rawConfig.appId,
-  measurementId: rawConfig.measurementId || "G-XFDC6ZJC8B"
+  measurementId: rawConfig.measurementId || ""
 };
 
 // Initialize Firebase safely
@@ -24,13 +24,13 @@ export const firestoreDb = rawConfig.firestoreDatabaseId
   ? getFirestore(app, rawConfig.firestoreDatabaseId)
   : getFirestore(app);
 
-// Initialize analytics if supported in browser environment
+// Initialize analytics only if an explicit valid measurementId exists in config
 export let analytics: ReturnType<typeof getAnalytics> | null = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && rawConfig.measurementId && rawConfig.measurementId.trim().length > 0) {
   try {
     isSupported()
       .then((supported) => {
-        if (supported) {
+        if (supported && rawConfig.measurementId && rawConfig.measurementId.trim().length > 0) {
           try {
             analytics = getAnalytics(app);
           } catch {

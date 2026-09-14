@@ -6,6 +6,18 @@ const BANNERS_REF = 'banners';
 
 export const INITIAL_BANNERS: BannerItem[] = [
   {
+    id: 'starter-banner-linkforge',
+    title: 'LinkForge - Multi-Tenant Bio & Portfolio SaaS',
+    subtitle: 'Create customizable bio pages, connect custom domains, embed YouTube/Spotify widgets, and track real-time analytics.',
+    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1400&q=80',
+    linkUrl: '#/app/linkforge',
+    buttonText: 'Open LinkForge SaaS',
+    badge: 'NEW SAAS APP',
+    isActive: true,
+    order: 0,
+    createdAt: Date.now(),
+  },
+  {
     id: 'starter-banner-1',
     title: 'Explore Live Interactive Web Tools',
     subtitle: 'High-performance components, utilities, and live scripts curated for developers.',
