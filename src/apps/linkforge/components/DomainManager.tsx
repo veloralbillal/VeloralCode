@@ -238,11 +238,11 @@ export const DomainManager: React.FC<DomainManagerProps> = ({ profile, onUpdate 
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
                     <tr>
                       <td className="p-2.5 font-bold font-mono text-indigo-500">CNAME</td>
-                      <td className="p-2.5 font-mono">bio</td>
-                      <td className="p-2.5 font-mono">cname.vercel-dns.com</td>
+                      <td className="p-2.5 font-mono">{currentCustomDomain.domain.includes('.') ? currentCustomDomain.domain.split('.')[0] : 'bio'}</td>
+                      <td className="p-2.5 font-mono">cname.linkforge.app</td>
                       <td className="p-2.5">
                         <button
-                          onClick={() => handleCopy('cname.vercel-dns.com', 'cname')}
+                          onClick={() => handleCopy('cname.linkforge.app', 'cname')}
                           className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                         >
                           {copiedCname ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -251,7 +251,7 @@ export const DomainManager: React.FC<DomainManagerProps> = ({ profile, onUpdate 
                     </tr>
                     <tr>
                       <td className="p-2.5 font-bold font-mono text-indigo-500">A Record</td>
-                      <td className="p-2.5 font-mono">@ (Root fallback)</td>
+                      <td className="p-2.5 font-mono">@ (Apex)</td>
                       <td className="p-2.5 font-mono">76.76.21.21</td>
                       <td className="p-2.5">
                         <button

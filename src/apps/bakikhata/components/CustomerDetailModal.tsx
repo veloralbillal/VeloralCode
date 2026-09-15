@@ -481,6 +481,28 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <span className="font-black text-slate-900 dark:text-white">{selectedTxForPopup.customerName}</span>
                 </div>
 
+                {/* Prior Due Before This Transaction */}
+                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
+                  <span className="font-bold text-amber-800 dark:text-amber-300">লেনদেনের পূর্বে বকেয়া (Prior Due):</span>
+                  <span className="font-black font-mono text-amber-700 dark:text-amber-400">
+                    {formatTaka(
+                      (() => {
+                        // Calculate cumulative due strictly BEFORE this transaction timestamp
+                        const priorTxs = custTransactions.filter(
+                          (t) => t.timestamp < selectedTxForPopup.timestamp || (t.timestamp === selectedTxForPopup.timestamp && t.id !== selectedTxForPopup.id)
+                        );
+                        let priorSum = 0;
+                        priorTxs.forEach((t) => {
+                          const amt = Number(t.amount) || 0;
+                          if (t.type === 'due') priorSum += amt;
+                          else if (t.type === 'payment') priorSum -= amt;
+                        });
+                        return Math.max(0, priorSum);
+                      })()
+                    )}
+                  </span>
+                </div>
+
                 <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="font-bold text-slate-600 dark:text-slate-300 block mb-1">সংক্ষিপ্ত বিবরণ (Summary):</span>
                   <div className="font-medium text-slate-900 dark:text-white bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
